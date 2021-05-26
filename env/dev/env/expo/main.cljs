@@ -1,6 +1,6 @@
 (ns ^:figwheel-no-load env.expo.main
   (:require [reagent.core :as r]
-            [your-project.core :as core]
+            [your-project.system :as core]
             [figwheel.client :as figwheel :include-macros true]
             [env.dev]))
 
@@ -15,4 +15,4 @@
  :heads-up-display false
  :jsload-callback #(swap! cnt inc))
 
-(core/init)
+(core/go)

@@ -1,9 +1,14 @@
 (ns your-project.core
-    (:require [reagent.core :as r :refer [atom]]
+  (:require
+   [reagent.core :as r :refer [atom]]
               [re-frame.core :refer [subscribe dispatch dispatch-sync]]
               [oops.core :refer [ocall]]
-              [your-project.handlers]
-              [your-project.subs]))
+              [your-project.events]
+              [your-project.subs]
+              [your-project.views :as views]
+              [your-project.config :as config]
+              #_[your-project.handlers]
+              #_[your-project.subs]))
 
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
@@ -24,9 +29,9 @@
     (.alert Alert title)))
 
 (defn app-root []
-  (let [greeting (subscribe [:get-greeting])]
-    (fn []
-      [view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
+  (fn []
+    [views/main-panel]
+    #_[view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
        [image {:source (js/require "./assets/images/cljs.png")
                :style {:width 200
                        :height 200}}]
@@ -34,8 +39,9 @@
        [ic {:name "ios-arrow-down" :size 60 :color "purple"}]
        [touchable-highlight {:style {:background-color "#999" :padding 10 :border-radius 5}
                              :on-press #(alert "HELLO!")}
-        [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]])))
+        [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]]))
 
 (defn init []
   (dispatch-sync [:initialize-db])
   (ocall expo "registerRootComponent" (r/reactify-component app-root)))
+

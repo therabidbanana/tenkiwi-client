@@ -7,7 +7,15 @@
                  [org.clojure/clojurescript "1.10.520"]
                  [binaryage/oops "0.7.0"]
                  [reagent "0.10.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
-                 [re-frame "1.1.2"]]
+
+                 [re-frame "1.1.2"]
+
+                 [com.stuartsierra/component "0.3.2"]
+                 [org.danielsz/system "0.4.6"]
+
+                 [markdown-to-hiccup "0.6.2"]
+                 [com.taoensso/sente "1.16.0"]
+                 ]
   :plugins [[lein-cljsbuild "1.1.4"]
             [lein-figwheel "0.5.19"]]
   :clean-targets ["target/" "main.js"]
