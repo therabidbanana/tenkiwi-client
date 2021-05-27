@@ -26,12 +26,12 @@
       [text "Name"]
       [text-input {:name      "game-user-name"
                    :default-value     (-> join deref :user-name)
-                   :on-change #(dispatch [:join/set-params {:user-name (val %)}])}]]
+                   :on-change-text #(dispatch [:join/set-params {:user-name %}])}]]
      [view
       [text "Lobby Code"]
       [text-input {:name      "game-lobby-code"
                    :default-value     (-> join deref :room-code)
-                   :on-change #(dispatch [:join/set-params {:room-code (val %)}])}]]
+                   :on-change-text #(dispatch [:join/set-params {:room-code %}])}]]
      [touchable-highlight {:on-press #(do
                                         (js/console.log "Clicked!")
                                         (dispatch [:<-join/join-room!])
@@ -49,7 +49,7 @@
      [view
       (for [player (:players game-data)]
         ^{:key (:id player)}
-        [view [text ](:user-name player)
+        [view [text (:user-name player)]
          [text {:on-press #(dispatch [:<-room/boot-player! (:id player)])} "x"]])]
      [view
       (if (= (:room-code game-data) "haslem")
