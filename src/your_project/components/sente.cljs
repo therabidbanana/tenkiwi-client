@@ -1,32 +1,35 @@
 (ns your-project.components.sente
   (:require [com.stuartsierra.component :as component]
+            [cljs.core.async :refer [go <!]]
             [taoensso.sente :as sente]))
 
 (defrecord ChannelSocketClient [path csrf-token options]
   component/Lifecycle
   (start [component]
-    (let [handler (get-in component [:sente-handler :handler])
-          {:keys [chsk ch-recv send-fn state]} (sente/make-channel-socket-client! path csrf-token options)
-          component (assoc component
-                           :chsk chsk
-                           :ch-chsk ch-recv ; ChannelSocket's receive channel
-                           :chsk-send! send-fn ; ChannelSocket's send API fn
-                           :chsk-state state)]
-      (if handler
-        (assoc component :router (sente/start-chsk-router! ch-recv handler))
-        component)))
+    (let [connected-socket (atom nil)
+          ch
+          (go
+            (let [handler (get-in component [:sente-handler :handler])
+                  client-id (<! (get-in component [:client-id]))
+                  {:keys [chsk ch-recv send-fn state]} (sente/make-channel-socket-client! path csrf-token (assoc options :client-id client-id))
+                  socket {:chsk chsk
+                          :ch-chsk ch-recv ; ChannelSocket's receive channel
+                          :chsk-send! send-fn ; ChannelSocket's send API fn
+                          :chsk-state state}]
+              (if handler
+                (do
+                  (reset! connected-socket (assoc socket :router (sente/start-chsk-router! ch-recv handler)))
+                  (println socket)
+                  )
+                socket)))]
+      (assoc component :connected-socket connected-socket)))
   (stop [component]
     ;; Bugfix on this line - submit upstream?
-    (when-let [chsk (:chsk component)]
+    (when-let [chsk (:chsk @(:connected-socket component))]
       (sente/chsk-disconnect! chsk))
-    (when-let [stop-f (:router component)]
+    (when-let [stop-f (:router @(:connected-socket component))]
       (stop-f))
-    (assoc component
-           :router nil
-           :chsk nil
-           :ch-chsk nil
-           :chsk-send! nil
-           :chsk-state nil)))
+    (assoc component :connected-socket nil)))
 
 (defn new-channel-socket-client
   ([csrf-token]

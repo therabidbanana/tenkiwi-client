@@ -17,7 +17,7 @@
  [(re-frame/inject-cofx :system :client-id)]
  (fn [{:as x :keys [db client-id]} [_ params]]
    {:db (update-in db [:user] assoc
-                   :id client-id
+                   ;; :id client-id
                    :connected? true)}))
 
 (re-frame/reg-event-db

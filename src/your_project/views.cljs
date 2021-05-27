@@ -11,6 +11,9 @@
 
 (def platform (.-Platform ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
+(def text-input (r/adapt-react-class (.-TextInput ReactNative)))
+(def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
+(def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
@@ -18,26 +21,22 @@
 
 (defn -join-panel [join dispatch]
   (let [val #(-> % .-target .-value)]
-    [:div {:class "form"}
-     [:form
-      [:div.fieldset
-       [:label
-        "Name"
-        [:br]
-        [:input {:name      "game-user-name"
-                 :value     (-> join deref :user-name)
-                 :on-change #(dispatch [:join/set-params {:user-name (val %)}])}]]]
-      [:div.fieldset
-       [:label
-        "Lobby Code"
-        [:br]
-        [:input {:name      "game-lobby-code"
-                 :value     (-> join deref :room-code)
-                 :on-change #(dispatch [:join/set-params {:room-code (val %)}])}]]]
-      [:button {:on-click #(do
-                             (dispatch [:<-join/join-room!])
-                             (.preventDefault %))}
-       "Join"]]]))
+    [view {:class "form"}
+     [view
+      [text "Name"]
+      [text-input {:name      "game-user-name"
+                   :default-value     (-> join deref :user-name)
+                   :on-change #(dispatch [:join/set-params {:user-name (val %)}])}]]
+     [view
+      [text "Lobby Code"]
+      [text-input {:name      "game-lobby-code"
+                   :default-value     (-> join deref :room-code)
+                   :on-change #(dispatch [:join/set-params {:room-code (val %)}])}]]
+     [touchable-highlight {:on-press #(do
+                                        (js/console.log "Clicked!")
+                                        (dispatch [:<-join/join-room!])
+                                        (.preventDefault %))}
+      [view [text "Join"]]]]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])
@@ -46,30 +45,30 @@
 
 (defn -lobby-panel [game-data dispatch]
   (let [game-data @game-data]
-    [:div.lobby
-     [:ul.players
+    [view
+     [view
       (for [player (:players game-data)]
         ^{:key (:id player)}
-        [:li (:user-name player)
-         [:a.boot {:on-click #(dispatch [:<-room/boot-player! (:id player)])} "x"]])]
-     [:div.actions
+        [view [text ](:user-name player)
+         [text {:on-press #(dispatch [:<-room/boot-player! (:id player)])} "x"]])]
+     [view
       (if (= (:room-code game-data) "haslem")
-        [:button {:on-click #(do
+        [touchable-highlight {:on-press #(do
                                (dispatch [:<-game/start! :ftq])
                                (.preventDefault %))}
-         "Start: FTQ (Original)"])
-      [:button {:on-click #(do
+         [text "Start: FTQ (Original)"]])
+      [touchable-highlight {:on-press #(do
                              (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}])
                              (.preventDefault %))}
-       "Start: For The Captain"]
-      [:button {:on-click #(do
+       [text "Start: For The Captain"]]
+      [touchable-highlight {:on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}])
                              (.preventDefault %))}
-       "Start: The Debrief"]
-      [:button {:on-click #(do
+       [text "Start: The Debrief"]]
+      [touchable-highlight {:on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}])
                              (.preventDefault %))}
-       "Start: The Culinary Contest"]
+       [text "Start: The Culinary Contest"]]
       ]]))
 
 (defn lobby-panel []
@@ -258,24 +257,21 @@
       )))
 
 (defn layout [body]
-  [:div.page {}
-   [:header
+  [safe-view {}
+   [view
     {}
     #_[:h1 "Tenkiwi"]]
-   [:article {} body]
-   [:footer {}
-    [text "This work is based on "
-     [:a {:href "http://www.forthequeengame.com/"}
-      "For the Queen"]
+   [view {} body]
+   [view {}
+    [text
+     "This work is based on For the Queen"
      ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-     [:a {:href "http://creativecommons.org/licenses/by/3.0/"}
       "Creative Commons Attribution 3.0 Unported license"]
-     ]
     ]])
 
 (defn -connecting-panel []
   (let []
-    [:div "Connecting to server..."]))
+    [text "Connecting to server..."]))
 
 (defn main-panel []
   (let [user (re-frame/subscribe [:user])
@@ -283,7 +279,7 @@
         game (get-in @user [:current-room :game :game-type])]
     (layout
      (cond
-       game [game-panel]
+       ;; game [game-panel]
        (get @user :current-room) [lobby-panel]
        (get @user :connected?) [join-panel]
        :else [-connecting-panel]))))

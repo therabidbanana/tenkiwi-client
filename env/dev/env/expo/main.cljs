@@ -1,13 +1,14 @@
 (ns ^:figwheel-no-load env.expo.main
   (:require [reagent.core :as r]
             [your-project.system :as core]
+            [your-project.core :refer [app-root]]
             [figwheel.client :as figwheel :include-macros true]
             [env.dev]))
 
 (enable-console-print!)
 
 (def cnt (r/atom 0))
-(defn reloader [] @cnt [core/app-root])
+(defn reloader [] @cnt [app-root])
 (def root-el (r/as-element [reloader]))
 
 (figwheel/watch-and-reload

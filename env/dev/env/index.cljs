@@ -5,6 +5,6 @@
 (set! js/window.goog js/undefined)
 
 (-> (js/require "../../../js/figwheel-bridge")
-    (.withModules #js {"react-native" (js/require "react-native"), "expo" (js/require "expo"), "@expo/vector-icons" (js/require "@expo/vector-icons"), "./assets/images/cljs.png" (js/require "../../../assets/images/cljs.png"), "react" (js/require "react"), "create-react-class" (js/require "create-react-class"), "./assets/icons/app.png" (js/require "../../../assets/icons/app.png"), "./assets/icons/loading.png" (js/require "../../../assets/icons/loading.png")}
+    (.withModules #js {"./assets/icons/loading.png" (js/require "../../../assets/icons/loading.png"), "expo" (js/require "expo"), "./assets/images/cljs.png" (js/require "../../../assets/images/cljs.png"), "./assets/icons/app.png" (js/require "../../../assets/icons/app.png"), "@react-native-async-storage/async-storage" (js/require "@react-native-async-storage/async-storage"), "react-native" (js/require "react-native"), "react" (js/require "react"), "create-react-class" (js/require "create-react-class"), "@expo/vector-icons" (js/require "@expo/vector-icons")}
 )
     (.start "main" "expo" "10.0.0.94"))

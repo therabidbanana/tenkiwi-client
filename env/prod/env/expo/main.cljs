@@ -1,4 +1,4 @@
 (ns env.expo.main
-  (:require [your-project.core :as core]))
+  (:require [your-project.system :as core]))
 
-(core/init)
+(core/go)
