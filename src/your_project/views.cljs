@@ -11,7 +11,6 @@
 
 (def platform (.-Platform ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
-(def text-input (r/adapt-react-class (.-TextInput ReactNative)))
 (def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
 (def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
@@ -19,24 +18,32 @@
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def Alert (.-Alert ReactNative))
 
+(def rn-paper (js/require "react-native-paper"))
+(def text-input (r/adapt-react-class (.-TextInput rn-paper)))
+(def button (r/adapt-react-class (.-Button rn-paper)))
+
 (defn -join-panel [join dispatch]
   (let [val #(-> % .-target .-value)]
     [view {:class "form"}
      [view
-      [text "Name"]
       [text-input {:name      "game-user-name"
+                   :label "Name"
+                   :mode "outlined"
                    :default-value     (-> join deref :user-name)
                    :on-change-text #(dispatch [:join/set-params {:user-name %}])}]]
      [view
-      [text "Lobby Code"]
       [text-input {:name      "game-lobby-code"
+                   :label "Lobby Code"
+                   :mode "outlined"
                    :default-value     (-> join deref :room-code)
                    :on-change-text #(dispatch [:join/set-params {:room-code %}])}]]
      [touchable-highlight {:on-press #(do
                                         (js/console.log "Clicked!")
                                         (dispatch [:<-join/join-room!])
                                         (.preventDefault %))}
-      [view [text "Join"]]]]))
+      [button
+       {:mode "contained"}
+       [text "Join"]]]]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])

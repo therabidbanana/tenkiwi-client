@@ -13,6 +13,10 @@
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
 (def AtExpo (js/require "@expo/vector-icons"))
+(def rn-paper (js/require "react-native-paper"))
+(def PaperProvider (r/adapt-react-class (.-Provider rn-paper)))
+(def DefaultTheme (js->clj (.-DefaultTheme rn-paper)))
+
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
 
@@ -28,9 +32,16 @@
     (js/alert title)
     (.alert Alert title)))
 
+(def theme
+  (-> DefaultTheme
+      (assoc-in [:colors :primary] "#1e88e5")
+      (assoc-in [:colors :secondary] "#ba68c8")
+      (clj->js)))
+
 (defn app-root []
   (fn []
-    [views/main-panel]
+    [PaperProvider {:theme theme}
+     [views/main-panel]]
     #_[view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
        [image {:source (js/require "./assets/images/cljs.png")
                :style {:width 200

@@ -11,6 +11,12 @@ Relevant changes to get cross-platform compile were in package.json and babel.co
 
 See example of web specific change core.cljs
 
+Libraries:
+
+(MIT) https://github.com/callstack/react-native-paper
+(MIT) https://github.com/osdnk/react-native-reanimated-bottom-sheet
+ (+ Deps)
+
 
 
 
