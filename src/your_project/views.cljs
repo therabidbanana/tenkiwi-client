@@ -37,13 +37,13 @@
                    :mode "outlined"
                    :default-value     (-> join deref :room-code)
                    :on-change-text #(dispatch [:join/set-params {:room-code %}])}]]
-     [touchable-highlight {:on-press #(do
-                                        (js/console.log "Clicked!")
-                                        (dispatch [:<-join/join-room!])
-                                        (.preventDefault %))}
-      [button
-       {:mode "contained"}
-       [text "Join"]]]]))
+     [button
+      {:mode     "contained"
+       :on-press #(do
+                    (js/console.log "Clicked!")
+                    (dispatch [:<-join/join-room!])
+                    (.preventDefault %))}
+      [text "Join"]]]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])

@@ -14,8 +14,15 @@ See example of web specific change core.cljs
 Libraries:
 
 (MIT) https://github.com/callstack/react-native-paper
+
 (MIT) https://github.com/osdnk/react-native-reanimated-bottom-sheet
- (+ Deps)
+ (+ MIT Deps) 
+ https://github.com/software-mansion/react-native-reanimated
+ https://github.com/software-mansion/react-native-gesture-handler
+
+(MIT) https://github.com/satya164/react-native-tab-view
+ (+ MIT Dep)
+ https://github.com/callstack/react-native-pager-view
 
 
 
