@@ -87,7 +87,6 @@
  :<-join/join-room!
  (fn [{:keys [db]} [_ val]]
    (let [join (:join db)]
-     (println join)
      {:fx [[:websocket [:room/join-room! join]]]})))
 
 (re-frame/reg-event-fx

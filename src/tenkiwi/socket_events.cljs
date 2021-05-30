@@ -34,7 +34,6 @@
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]
-  (->output! "ping: %s" ?data)
   (if-not (= [:chsk/ws-ping] ?data)
     (re-frame/dispatch ?data))
   #_(->output! "Push event from server: %s" ?data))
