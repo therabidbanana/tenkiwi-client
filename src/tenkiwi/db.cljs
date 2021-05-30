@@ -1,4 +1,4 @@
-(ns your-project.db)
+(ns tenkiwi.db)
 
 (def default-db
   {:name "re-frame"

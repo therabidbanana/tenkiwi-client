@@ -1,14 +1,14 @@
-(ns your-project.core
+(ns tenkiwi.core
   (:require
    [reagent.core :as r :refer [atom]]
               [re-frame.core :refer [subscribe dispatch dispatch-sync]]
               [oops.core :refer [ocall]]
-              [your-project.events]
-              [your-project.subs]
-              [your-project.views :as views]
-              [your-project.config :as config]
-              #_[your-project.handlers]
-              #_[your-project.subs]))
+              [tenkiwi.events]
+              [tenkiwi.subs]
+              [tenkiwi.views :as views]
+              [tenkiwi.config :as config]
+              #_[tenkiwi.handlers]
+              #_[tenkiwi.subs]))
 
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
@@ -34,9 +34,8 @@
 
 (def theme
   (-> DefaultTheme
-      (assoc-in [:colors :primary] "#1e88e5")
-      (assoc-in [:colors :secondary] "#ba68c8")
-      (clj->js)))
+      (assoc-in ["colors" "primary"] "#1e88e5")
+      (assoc-in ["colors" "secondary"] "#ba68c8")))
 
 (defn app-root []
   (fn []

@@ -1,11 +1,11 @@
-(ns your-project.system
+(ns tenkiwi.system
   (:require [com.stuartsierra.component :as component]
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.core.async :refer [go <!]]
             [re-frame.core :as re-frame]
-            [your-project.socket-events :refer [event-msg-handler]]
-            [your-project.components.sente :refer [new-channel-socket-client]]
-            [your-project.components.ui :refer [new-ui-component]]))
+            [tenkiwi.socket-events :refer [event-msg-handler]]
+            [tenkiwi.components.sente :refer [new-channel-socket-client]]
+            [tenkiwi.components.ui :refer [new-ui-component]]))
 
 (declare system)
 

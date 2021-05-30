@@ -1,6 +1,6 @@
-(ns your-project.events
+(ns tenkiwi.events
   (:require [re-frame.core :as re-frame]
-            [your-project.db :as db]))
+            [tenkiwi.db :as db]))
 
 (re-frame/reg-event-db
  :initialize-db

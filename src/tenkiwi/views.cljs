@@ -1,4 +1,4 @@
-(ns your-project.views
+(ns tenkiwi.views
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r :refer [atom]]
             [markdown-to-hiccup.core :as m]))
@@ -19,60 +19,82 @@
 (def Alert (.-Alert ReactNative))
 
 (def rn-paper (js/require "react-native-paper"))
+
 (def text-input (r/adapt-react-class (.-TextInput rn-paper)))
+(def para (r/adapt-react-class (.-Paragraph rn-paper)))
+(def h1 (r/adapt-react-class (.-Title rn-paper)))
 (def button (r/adapt-react-class (.-Button rn-paper)))
+(def list-stuff (.-List rn-paper))
+(def list-section (r/adapt-react-class (.-Section list-stuff)))
+(def list-item (r/adapt-react-class (.-Item list-stuff)))
+(def list-header (r/adapt-react-class (.-Subheader list-stuff)))
+(def card (r/adapt-react-class (.-Card rn-paper)))
+(def card-content (r/adapt-react-class (.. rn-paper -Card -Content)))
+(def card-actions (r/adapt-react-class (.. rn-paper -Card -Actions)))
+
+(def box-style {:margin 12})
 
 (defn -join-panel [join dispatch]
   (let [val #(-> % .-target .-value)]
-    [view {:class "form"}
+    [view {:style box-style}
      [view
       [text-input {:name      "game-user-name"
                    :label "Name"
                    :mode "outlined"
                    :default-value     (-> join deref :user-name)
-                   :on-change-text #(dispatch [:join/set-params {:user-name %}])}]]
-     [view
+                   :on-change-text #(dispatch [:join/set-params {:user-name %}])}]
       [text-input {:name      "game-lobby-code"
                    :label "Lobby Code"
                    :mode "outlined"
                    :default-value     (-> join deref :room-code)
                    :on-change-text #(dispatch [:join/set-params {:room-code %}])}]]
-     [button
-      {:mode     "contained"
-       :on-press #(do
-                    (js/console.log "Clicked!")
-                    (dispatch [:<-join/join-room!])
-                    (.preventDefault %))}
-      [text "Join"]]]))
+     [view {:style {:margin-top 8}}
+      [button
+       {:mode     "contained"
+        :on-press #(do
+                     (js/console.log "Clicked!")
+                     (dispatch [:<-join/join-room!])
+                     (.preventDefault %))}
+       "Join"]]]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])
         new-allowed true]
     [-join-panel user-atom re-frame/dispatch]))
 
+(defn -player-boot [{:keys [id dispatch] :as props}]
+  [button {:on-press #(dispatch [:<-room/boot-player! id])} "x"])
+
+(def PlayerBoot (r/reactify-component -player-boot))
+
 (defn -lobby-panel [game-data dispatch]
   (let [game-data @game-data]
     [view
-     [view
+     [list-section
       (for [player (:players game-data)]
         ^{:key (:id player)}
-        [view [text (:user-name player)]
-         [text {:on-press #(dispatch [:<-room/boot-player! (:id player)])} "x"]])]
+        [list-item {:title (:user-name player)
+                    :right (fn [props]
+                             (r/create-element PlayerBoot (clj->js (assoc player :dispatch dispatch))))}])]
      [view
       (if (= (:room-code game-data) "haslem")
-        [touchable-highlight {:on-press #(do
+        [button {:mode "outlined"
+                 :on-press #(do
                                (dispatch [:<-game/start! :ftq])
                                (.preventDefault %))}
          [text "Start: FTQ (Original)"]])
-      [touchable-highlight {:on-press #(do
+      [button {:mode "outlined"
+               :on-press #(do
                              (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}])
                              (.preventDefault %))}
        [text "Start: For The Captain"]]
-      [touchable-highlight {:on-press #(do
+      [button {:mode "outlined"
+               :on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}])
                              (.preventDefault %))}
        [text "Start: The Debrief"]]
-      [touchable-highlight {:on-press #(do
+      [button {:mode "outlined"
+               :on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}])
                              (.preventDefault %))}
        [text "Start: The Culinary Contest"]]
@@ -269,8 +291,8 @@
     {}
     #_[:h1 "Tenkiwi"]]
    [view {} body]
-   [view {}
-    [text
+   [view {:style {:margin 8 :text-align "center"}}
+    [:> (.-Caption rn-paper)
      "This work is based on For the Queen"
      ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
       "Creative Commons Attribution 3.0 Unported license"]

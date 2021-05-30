@@ -1,6 +1,6 @@
-(ns your-project.components.ui
+(ns tenkiwi.components.ui
   (:require [com.stuartsierra.component :as component]
-            [your-project.core :refer [init]]))
+            [tenkiwi.core :refer [init]]))
 
 (defrecord UIComponent []
   component/Lifecycle

@@ -1,7 +1,7 @@
 (ns ^:figwheel-no-load env.expo.main
   (:require [reagent.core :as r]
-            [your-project.system :as core]
-            [your-project.core :refer [app-root]]
+            [tenkiwi.system :as core]
+            [tenkiwi.core :refer [app-root]]
             [figwheel.client :as figwheel :include-macros true]
             [env.dev]))
 

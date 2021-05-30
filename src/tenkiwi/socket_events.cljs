@@ -1,4 +1,4 @@
-(ns your-project.socket-events
+(ns tenkiwi.socket-events
   (:require [com.stuartsierra.component :as component]
             [re-frame.core :as re-frame]
             [goog.string :as gstr]))

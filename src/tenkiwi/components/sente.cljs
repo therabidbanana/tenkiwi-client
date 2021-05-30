@@ -1,4 +1,4 @@
-(ns your-project.components.sente
+(ns tenkiwi.components.sente
   (:require [com.stuartsierra.component :as component]
             [cljs.core.async :refer [go <!]]
             [taoensso.sente :as sente]))
