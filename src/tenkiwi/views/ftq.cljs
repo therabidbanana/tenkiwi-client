@@ -41,23 +41,93 @@
 (def markdown-lib (js/require "react-native-markdown-display"))
 (def markdown (r/adapt-react-class (.. markdown-lib -default)))
 
-(defn -action-button [dispatch act]
-  [button {:style {:margin-top 4}
-           :mode "contained"
-           :on-press #(dispatch [:<-game/action! (keyword (.-action act))])}
-   (.-text act)])
+(defn maybe-confirm! [confirm? on-true]
+  (let [web? (= "web" (.-OS platform))]
+    (cond
+      (and confirm? web?)
+      (if (js/confirm "Are you sure?")
+        (on-true))
+      confirm?
+      (.alert Alert "Confirm"
+              "Are you sure?"
+              (clj->js
+               [{:text "OK"
+                 :onPress on-true}
+                {:text "Cancel"
+                 :style "cancel"}]))
+      :else
+      (on-true))))
 
+(defn -action-button [dispatch act]
+  (let [action (keyword (or
+                         (.-action act)
+                         (get act "action")))
+        text (or
+              (.-text act)
+              (get act "text"))]
+    [button {:style {:margin-top 4}
+             :mode "contained"
+             :on-press #(dispatch [:<-game/action! action])}
+     text]))
+
+#_(defn -secondary-action-button [dispatch act]
+  (let [action (keyword (or
+                         (.-action act)
+                         (get act "action")
+                         (get act :action)))
+        text (or
+              (.-text act)
+              (get act "text")
+              (get act :text))
+        conf (or
+              (.-confirm act)
+              (get act "confirm")
+              (get act :confirm))]
+    [button {:style {:margin-top 4}
+             :mode "outlined"
+             :on-press #(dispatch [:<-game/action! action])}
+     text]))
+
+;; Action tray is a bit weird because bottom sheet is weird with a render
+;; content function
 (defn -action-tray [{:as props
-                     :keys [dispatch actions]}]
-  (let []
+                     :keys [dispatch actions]
+                     }]
+  (let [dispatch (or dispatch (get props "dispatch"))
+        actions (or actions (get props "actions"))]
+    (println props)
     [surface {:elevation 8
-              :style {:background-color "#bbb"
-                      :padding 4
+              :style {:background-color "rgba(0,0,0,0.2)"
+                      :padding 10
                       :padding-top 18
+                      :padding-bottom 18
                       :height "100%"}}
-     (map (partial -action-button dispatch) actions)]))
+     (map #(vector -action-button dispatch %) actions)]))
 
 (def ActionTray (r/reactify-component -action-tray))
+
+(defn bottom-sheet-fixed [props]
+  (let [web? (= "web" (.-OS platform))]
+    (if web?
+      [view
+       [view {:style {:min-height "20vh"
+                      :visibility "hidden"}}
+        [-action-tray (js->clj (clj->js props))]]
+       [portal
+        [view {:style {:position "fixed"
+                       :bottom 0
+                       :background-color "rgba(0,0,0,0.2)"
+                       :height "20vh"
+                       :min-height "20vh"
+                       :width "100%"}}
+         [-action-tray (js->clj (clj->js props))]]]]
+      [portal
+       [bottom-sheet {:snap-points ["40%" "20%" 18]
+                      :initial-snap 1
+                      :enabled-content-tap-interaction false
+                      :render-content #(r/create-element ActionTray (clj->js props))
+                      }]])
+    ))
 
 (defn card-with-button [display]
   (let [x-carded? (get display :x-card-active?)
@@ -85,24 +155,17 @@
          :as            data
          {:as   room
           :keys [game]} :current-room} @user-data
-        ;; TODO - fix active?
         active?                        (= user-id (:id (:active-player game)))
         queen                          (:queen game)
         {:keys [actions card]
          :as display}                        (if active?
                                                (:active-display game)
-                                               (:active-display game))
+                                               (:inactive-display game))
         x-carded?                      (:x-card-active? display)
         action-btn (partial -action-button dispatch)]
-    [view
+    [view {:style {:min-height 1000}}
      [card-with-button (assoc display :dispatch dispatch)]
-     [portal
-      [bottom-sheet
-       {:snap-points ["40%" "20%" 18]
-        :enabled-content-tap-interaction false
-        :render-content #(r/create-element ActionTray (clj->js {:dispatch dispatch :actions actions}))
-        }
-       ]]
+     [bottom-sheet-fixed {:dispatch dispatch :actions actions}]
      [view
       #_[:img {:src (str (:text queen))}]
       (map (fn [{conf :confirm
@@ -110,7 +173,8 @@
              (with-meta
                (vector button
                        {:mode "outlined"
-                        :on-press #(if (or (not conf) (js/confirm "Are you sure?"))
-                                                              (dispatch [:<-game/action! action]))} text)
+                        :on-press (fn []
+                                    (maybe-confirm! conf
+                                                    #(dispatch [:<-game/action! action])))} text)
                {:key action}))
            (get-in display [:extra-actions]))]]))

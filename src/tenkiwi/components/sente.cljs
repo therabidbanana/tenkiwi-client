@@ -12,15 +12,13 @@
             (let [handler (get-in component [:sente-handler :handler])
                   client-id (<! (get-in component [:client-id]))
                   {:keys [chsk ch-recv send-fn state]} (sente/make-channel-socket-client! path csrf-token (assoc options :client-id client-id))
-                  socket {:chsk chsk
+                  socket {:client-id client-id
+                          :chsk chsk
                           :ch-chsk ch-recv ; ChannelSocket's receive channel
                           :chsk-send! send-fn ; ChannelSocket's send API fn
                           :chsk-state state}]
               (if handler
-                (do
-                  (reset! connected-socket (assoc socket :router (sente/start-chsk-router! ch-recv handler)))
-                  (println socket)
-                  )
+                (reset! connected-socket (assoc socket :router (sente/start-chsk-router! ch-recv handler)))
                 socket)))]
       (assoc component :connected-socket connected-socket)))
   (stop [component]

@@ -33,11 +33,12 @@
 (def card-content (r/adapt-react-class (.. rn-paper -Card -Content)))
 (def card-actions (r/adapt-react-class (.. rn-paper -Card -Actions)))
 
-(def box-style {:margin 12})
+(def box-style {:margin 12
+                :padding 12})
 
 (defn -join-panel [join dispatch]
   (let [val #(-> % .-target .-value)]
-    [view {:style box-style}
+    [card {:style box-style}
      [view
       [text-input {:name      "game-user-name"
                    :label "Name"
@@ -252,11 +253,10 @@
       )))
 
 (defn layout [body]
-  [safe-view {}
-   [view
-    {}
-    #_[:h1 "Tenkiwi"]]
-   [view {} body]
+  [safe-view {:style {:overflow-x "hidden"
+                      :min-height "100%"
+                      :background-color "#003366"}}
+   [view  body]
    [view {:style {:margin 8 :text-align "center"}}
     [:> (.-Caption rn-paper)
      "This work is based on For the Queen"

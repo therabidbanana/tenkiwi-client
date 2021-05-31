@@ -14,10 +14,10 @@
 
 (re-frame/reg-event-fx
  :user/connected!
- [(re-frame/inject-cofx :system :client-id)]
- (fn [{:as x :keys [db client-id]} [_ params]]
+ [(re-frame/inject-cofx :system :sente)]
+ (fn [{:as x :keys [db sente]} [_ params]]
    {:db (update-in db [:user] assoc
-                   ;; :id client-id
+                   :id (-> sente :connected-socket deref :client-id)
                    :connected? true)}))
 
 (re-frame/reg-event-db

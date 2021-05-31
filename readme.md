@@ -27,6 +27,9 @@ Libraries:
 (MIT) https://github.com/iamacup/react-native-markdown-display
 
 
+To figure out - 
+
+1. Custom bottom-sheet for web that's fixed to bottom (make sure enough padding in under element?)
 
 ## your-project
 
