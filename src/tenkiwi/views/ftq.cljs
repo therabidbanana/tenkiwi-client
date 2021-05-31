@@ -38,22 +38,54 @@
 (def sheet-lib (js/require "reanimated-bottom-sheet"))
 (def bottom-sheet (r/adapt-react-class (.. sheet-lib -default)))
 
+(def markdown-lib (js/require "react-native-markdown-display"))
+(def markdown (r/adapt-react-class (.. markdown-lib -default)))
+
 (defn -action-button [dispatch act]
-  [button {:on-press #(dispatch [:<-game/action! (.-action act)])} (.-text act)])
+  [button {:style {:margin-top 4}
+           :mode "contained"
+           :on-press #(dispatch [:<-game/action! (keyword (.-action act))])}
+   (.-text act)])
 
 (defn -action-tray [{:as props
                      :keys [dispatch actions]}]
   (let []
-    [surface {:elevation 8}
+    [surface {:elevation 8
+              :style {:background-color "#bbb"
+                      :padding 4
+                      :padding-top 18
+                      :height "100%"}}
      (map (partial -action-button dispatch) actions)]))
 
 (def ActionTray (r/reactify-component -action-tray))
+
+(defn card-with-button [display]
+  (let [x-carded? (get display :x-card-active?)
+        card-data (get display :card)
+        dispatch (get display :dispatch)]
+    [-card {:elevation 4
+              :style {:margin 4
+                      :margin-bottom 16
+                      :padding 18
+                      :font-size 16}}
+     [card-actions {:text-align "right"
+                    :class (if x-carded? "active" "inactive")}
+      [button {:on-press #(dispatch [:<-game/action! :x-card])} "X"]]
+     [card-content {:class (str (name (get-in card-data [:state]))
+                        " "
+                        (if x-carded?
+                          "x-carded"))}
+      [markdown {:style {:body {:font-size 24
+                                :font-family "Georgia"}}}
+       (get-in card-data [:text])]]
+     ]))
 
 (defn -ftq-game-panel [user-data dispatch]
   (let [{user-id        :id
          :as            data
          {:as   room
           :keys [game]} :current-room} @user-data
+        ;; TODO - fix active?
         active?                        (= user-id (:id (:active-player game)))
         queen                          (:queen game)
         {:keys [actions card]
@@ -63,27 +95,11 @@
         x-carded?                      (:x-card-active? display)
         action-btn (partial -action-button dispatch)]
     [view
-     [view {}
-      [surface {:elevation 4}
-       [view {:class (if x-carded? "active" "inactive")}
-        [button {:on-press #(dispatch [:<-game/action! :x-card])} "X"]]
-       [card {:class (str (name (get-in display [:card :state]))
-                               " "
-                               (if x-carded?
-                                 "x-carded"))}
-        [card-content 
-         [para
-          (-> (get-in display [:card :text])
-              #_(m/md->hiccup)
-              #_(m/component))]]]
-       ]
-      ]
+     [card-with-button (assoc display :dispatch dispatch)]
      [portal
       [bottom-sheet
-       {:snap-points ["20%" 0]
-        :render-header #(r/create-element (.-Title rn-paper)
-                                          (clj->js {:dispatch dispatch :actions actions})
-                                          "Testing")
+       {:snap-points ["40%" "20%" 18]
+        :enabled-content-tap-interaction false
         :render-content #(r/create-element ActionTray (clj->js {:dispatch dispatch :actions actions}))
         }
        ]]

@@ -24,6 +24,7 @@ Libraries:
  (+ MIT Dep)
  https://github.com/callstack/react-native-pager-view
 
+(MIT) https://github.com/iamacup/react-native-markdown-display
 
 
 
