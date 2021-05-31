@@ -64,13 +64,8 @@
       :else
       (on-true))))
 
-(defn -action-button [dispatch act]
-  (let [action (keyword (or
-                         (.-action act)
-                         (get act "action")))
-        text (or
-              (.-text act)
-              (get act "text"))]
+(defn -action-button [dispatch {:keys [action text]}]
+  (let []
     [button {:style {:margin-top 4}
              :mode "contained"
              :on-press #(dispatch [:<-game/action! action])}
@@ -101,7 +96,6 @@
                      }]
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))]
-    (println props)
     [surface {:elevation 8
               :style {:background-color "rgba(0,0,0,0.2)"
                       :padding 10
@@ -110,15 +104,13 @@
                       :height "100%"}}
      (map #(vector -action-button dispatch %) actions)]))
 
-(def ActionTray (r/reactify-component -action-tray))
-
 (defn bottom-sheet-fixed [props]
   (let [web? (= "web" (.-OS platform))]
     (if web?
       [view
        [view {:style {:min-height "20vh"
                       :visibility "hidden"}}
-        [-action-tray (js->clj (clj->js props))]]
+        [-action-tray props]]
        [portal
         [view {:style {:position "fixed"
                        :bottom 0
@@ -126,12 +118,12 @@
                        :height "20vh"
                        :min-height "20vh"
                        :width "100%"}}
-         [-action-tray (js->clj (clj->js props))]]]]
+         [-action-tray props]]]]
       [portal
        [bottom-sheet {:snap-points ["40%" "20%" 18]
                       :initial-snap 1
                       :enabled-content-tap-interaction false
-                      :render-content #(r/create-element ActionTray (clj->js props))
+                      :render-content (fn [p] (r/as-element [-action-tray props]))
                       }]])
     ))
 
@@ -177,7 +169,7 @@
   )
 
 (defn -ftq-game-panel [user-data dispatch]
-  (let [tab-state (r/atom 1)
+  (let [tab-state (r/atom 0)
         dimensions (.get dimensions "window")]
     (fn [user-data dispatch]
       (let [{user-id        :id
@@ -194,23 +186,29 @@
             action-btn (partial -action-button dispatch)
             display (assoc display :dispatch dispatch)
 
-            on-tab-change (fn [x] (reset! tab-state x))]
-       [tab-view
-        {:initial-layout {:width (.-width dimensions)}
-         :on-index-change on-tab-change
-         :navigation-state {:index @tab-state
-                            :routes [{:key "main"
-                                      :title "Game"}
-                                     {:key "other"
-                                      :title "Actions"}]}
-         :render-scene (fn [props]
-                         (let [key (.. props -route -key)]
-                           (case key
-                                 "main"
-                                 (r/as-element [-main-panel display])
-                                 "other"
-                                 (r/as-element [-other-panel display])
-                                 (r/as-element [text "WHAAAA"])
-                                 )))}
+            on-tab-change (fn [x] (reset! tab-state x))
+            current-index @tab-state
+            sizing {:height (.-height dimensions)
+                    :width (.-width dimensions)}]
+        [view {:style sizing}
+         [tab-view
+          {:initial-layout sizing
+           :on-index-change on-tab-change
+           ;;:scene-container-style {:background-color "red"}
+           :navigation-state {:index current-index
+                              :routes [{:key "main"
+                                        :title " "}
+                                       {:key "other"
+                                        :title " "}]}
+           :render-scene (fn [props]
+                           (let [key (.. props -route -key)]
+                             (case key
+                               "main"
+                               (r/as-element [-main-panel display])
+                               "other"
+                               (r/as-element [-other-panel display])
+                               (r/as-element [text "WHAAAA"])
+                               )
+                             ))}
 
-        ]))))
+          ]]))))
