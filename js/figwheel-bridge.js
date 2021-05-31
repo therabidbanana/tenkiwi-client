@@ -9,7 +9,7 @@ var debugEnabled = false;
 var config = {
     basePath: "target/",
     googBasePath: 'goog/',
-    serverPort: 19001
+    serverPort: 19000
 };
 
 var React = require('react');
