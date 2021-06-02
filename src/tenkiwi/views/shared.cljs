@@ -30,7 +30,7 @@
 (def list-section (r/adapt-react-class (.-Section list-stuff)))
 (def list-item (r/adapt-react-class (.-Item list-stuff)))
 (def list-header (r/adapt-react-class (.-Subheader list-stuff)))
-(def -card (r/adapt-react-class (.-Card rn-paper)))
+(def card (r/adapt-react-class (.-Card rn-paper)))
 (def surface (r/adapt-react-class (.-Surface rn-paper)))
 (def fab (r/adapt-react-class (.-FAB rn-paper)))
 (def portal (r/adapt-react-class (.-Portal rn-paper)))
@@ -121,7 +121,7 @@
   (let [x-carded? (get display :x-card-active?)
         card-data (get display :card)
         dispatch (get display :dispatch)]
-    [-card {:elevation 4
+    [card {:elevation 4
               :style {:margin 4
                       :margin-bottom 16
                       :padding 18

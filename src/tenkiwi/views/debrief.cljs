@@ -1,28 +1,108 @@
 (ns tenkiwi.views.debrief
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r :refer [atom]]
-            [tenkiwi.views.shared :as ui :refer [scroll-view view para text button]]))
+            [tenkiwi.views.shared :as ui]))
 
 
-(defn -player-scoreboard-entry [display player-scores current-user-id player]
+(defn -player-scoreboard-entry [display player-scores player]
   (let [{:keys [id user-name dead? agent-name agent-codename agent-role]} player
         dispatch (:dispatch display)
+        current-user-id (:current-user-id display)
         total-score (apply + (vals (player-scores id)))]
-    [view
-     [para {:title agent-name}
-      [text (str "[ " total-score " ] " (if agent-name (str agent-codename ", " agent-role " ")) " (" user-name ")")]]
-     [view
+    [ui/card {:style {:margin 8}}
+     [ui/card-content
+      [ui/para {:title agent-name}
+       (str "[ " total-score " ] " (if agent-name (str agent-codename ", " agent-role " ")) " (" user-name ")")]]
+     [ui/card-actions
       ;; TODO - maybe this logic should come from gamemaster
       (if-not (= id current-user-id)
-        [button
+        [ui/button
          {:on-press #(dispatch [:<-game/action! :downvote-player {:player-id id}])}
-         [text " - "]])
-      [text
+         " - "])
+      [ui/text
        (str (get-in player-scores [id current-user-id]))]
       (if-not (= id current-user-id)
-        [button
+        [ui/button
          {:on-press #(dispatch [:<-game/action! :upvote-player {:player-id id}])}
-         [text " + "]])
+         " + "])
+      ]]))
+
+(defn -other-panel [{:keys []}
+                    {:keys [dispatch extra-actions] :as display}]
+  [ui/view
+   (map (fn [{conf  :confirm
+              :keys [action class text]}]
+          (with-meta (vector ui/button
+                             {:class class
+                              :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
+                             text)
+            {:key action}))
+        extra-actions)])
+
+(defn -scoreboard-panel [{:keys [dossiers all-players
+                                 stage player-scores
+                                 company mission]
+                          :as game}
+                         display]
+  (let [all-players    (map #(merge % (get dossiers (:id %) {}))
+                            all-players)
+
+        voting-active? (if-not (#{:intro} stage)
+                         true
+                         false)
+        box-style {:margin-top 8 :padding 10}
+        dimensions (.get ui/dimensions "window")]
+
+    [ui/scroll-view
+     [ui/view 
+      (if voting-active?
+        (map (fn [player]
+               (with-meta
+                 [-player-scoreboard-entry display player-scores player]
+                 {:key (:id player)}))
+             all-players))]
+     [ui/surface {:style box-style}
+        [ui/h1 "Round Themes"]
+        [ui/view
+         (map
+          (fn [val] (with-meta [ui/para val] {:key val}))
+          (:values company))]]
+     (if voting-active?
+       [ui/surface {:style box-style}
+        [ui/h1 "More Details"]
+        [ui/markdown (str (:text mission))]])
+     [ui/view {:height (* 0.2 (.-height dimensions))}
+      [ui/text ""]]
+     ]))
+
+(defn -main-panel [{:keys [stage stage-name stage-focus]}
+                   {:as display
+                    :keys [extra-details]}]
+  (let [voting-active? (if-not (#{:intro} stage)
+                         true
+                         false)
+        box-style {:margin-top 8 :padding 10}
+        dimensions (.get ui/dimensions "window")]
+    [ui/scroll-view
+     [ui/view
+      [ui/view
+       [ui/para (str stage-name)]
+       [ui/para (str stage-focus)]]
+      [ui/card-with-button display]
+      [ui/bottom-sheet-fixed display]
+      (if (and voting-active? extra-details)
+        [ui/view
+         (map (fn [{:keys [title items]}]
+                (with-meta
+                  [ui/surface {:style box-style}
+                   [ui/h1 title]
+                   [ui/view
+                    (map #(with-meta [ui/para %] {:key %}) items)]]
+                  {:key title}))
+              extra-details
+              )])
+      [ui/view {:height (* 0.2 (.-height dimensions))}
+       [ui/text ""]]
       ]]))
 
 (defn -debrief-game-panel [user-data dispatch]
@@ -35,21 +115,12 @@
              :keys [game]} :current-room} @user-data
            active?                        (= user-id (:id (:active-player game)))
            {:keys [stage
-                   stage-name
-                   stage-focus
-                   all-players
                    player-ranks
                    player-scores
                    company
                    players-by-id
                    mission
                    dossiers]}             game
-
-           all-players    (map #(merge % (get dossiers (:id %) {}))
-                               all-players)
-           voting-active? (if-not (#{:intro} stage)
-                            true
-                            false)
 
            {:keys [extra-details]
             :as   display} (if active?
@@ -76,57 +147,38 @@
                              (not disabled?)))
 
            display (assoc display
+                          :current-user-id user-id
                           :dispatch dispatch
                           :action-valid? valid-button?)
            on-tab-change (fn [x] (reset! tab-state x))
            current-index @tab-state
            sizing {:min-height (.-height dimensions)
-                   :width (.-width dimensions)
-                   :overflow-y "scroll"}
+                   :width (.-width dimensions)}
            ]
-       [scroll-view
-        [view
-         [view
-          [view
-           [para (str stage-name)]
-           [para (str stage-focus)]]
-          [ui/card-with-button display]
-          [ui/bottom-sheet-fixed display]]
+       [ui/view {:style sizing}
+        [ui/tab-view
+         {:initial-layout sizing
+          :scroll-enabled true
+          :on-index-change on-tab-change
+          ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
+          :navigation-state {:index current-index
+                             :routes [{:key "main"
+                                       :title " "}
+                                      {:key "scoreboard"
+                                       :title " "}
+                                      {:key "other"
+                                       :title " "}]}
+          :render-scene (fn [props]
+                          (let [key (.. props -route -key)]
+                            (case key
+                              "main"
+                              (r/as-element [-main-panel game display])
+                              "scoreboard"
+                              (r/as-element [-scoreboard-panel game display])
+                              "other"
+                              (r/as-element [-other-panel game display])
+                              (r/as-element [ui/text "WHAAAA"])
+                              )
+                            ))}
          ]
-        [view
-         [view
-          (if voting-active?
-            (map (fn [player]
-                   (with-meta
-                     [-player-scoreboard-entry display player-scores user-id player]
-                     {:key (:id player)}))
-                 all-players))]
-         #_[:div.company
-          [:h2 "Round Themes"]
-          [:ul
-           (map
-            (fn [val] (with-meta [:li val] {:key val}))
-            (:values company))]]
-         #_(if voting-active?
-           [:div.mission-details
-            [:h2 "More Details"]
-            [:p (str (:text mission))]])
-         #_(if (and voting-active? extra-details)
-           [:div.extra-details
-            (map (fn [{:keys [title items]}]
-                   (with-meta
-                     [:div.detail
-                      [:h2 title]
-                      [:ul
-                       (map #(with-meta [:li %] {:key %}) items)]]
-                     {:key title}))
-                 extra-details
-                 )])
-         (map (fn [{conf  :confirm
-                    :keys [action class text]}]
-                (with-meta (vector button
-                                   {:class class
-                                    :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
-                                   text)
-                  {:key action}))
-              (get-in display [:extra-actions]))]]))))
+        ]))))

@@ -44,8 +44,7 @@
             on-tab-change (fn [x] (reset! tab-state x))
             current-index @tab-state
             sizing {:min-height (.-height dimensions)
-                    :width (.-width dimensions)
-                    :overflow-y "scroll"}
+                    :width (.-width dimensions)}
             ]
         [ui/view {:style sizing}
          [ui/tab-view
