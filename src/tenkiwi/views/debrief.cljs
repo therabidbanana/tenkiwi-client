@@ -3,7 +3,6 @@
             [reagent.core :as r :refer [atom]]
             [tenkiwi.views.shared :as ui]))
 
-
 (defn -player-scoreboard-entry [display player-scores player]
   (let [{:keys [id user-name dead? agent-name agent-codename agent-role]} player
         dispatch (:dispatch display)
@@ -154,6 +153,13 @@
            current-index @tab-state
            sizing {:min-height (.-height dimensions)
                    :width (.-width dimensions)}
+
+           score-state (select-keys game
+                                         [:dossiers :all-players
+                                          :stage :player-scores
+                                          :company :mission])
+           main-state (select-keys game [:stage-name
+                                         :stage :stage-focus])
            ]
        [ui/view {:style sizing}
         [ui/tab-view
@@ -172,11 +178,11 @@
                           (let [key (.. props -route -key)]
                             (case key
                               "main"
-                              (r/as-element [-main-panel game display])
+                              (r/as-element [-main-panel main-state display])
                               "scoreboard"
-                              (r/as-element [-scoreboard-panel game display])
+                              (r/as-element [-scoreboard-panel score-state display])
                               "other"
-                              (r/as-element [-other-panel game display])
+                              (r/as-element [-other-panel {} display])
                               (r/as-element [ui/text "WHAAAA"])
                               )
                             ))}

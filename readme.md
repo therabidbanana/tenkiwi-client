@@ -32,6 +32,7 @@ To figure out -
 1. Custom bottom-sheet for web that's fixed to bottom (make sure enough padding in under element?)
 2. How to host web version at tenkiwi
 3. How to extract standard shared elements like the action tray
+4. Main bottleneck - reading large amounts of edn (time to stream only necessary stuff down?)
 
 ## your-project
 
