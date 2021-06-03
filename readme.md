@@ -39,10 +39,11 @@ To figure out -
 ### Usage
 
 #### Install Expo [XDE and mobile client](https://docs.expo.io/versions/v15.0.0/introduction/installation.html)
-    If you don't want to use XDE (not IDE, it stands for Expo Development Tools), you can use [exp CLI](https://docs.expo.io/versions/v15.0.0/guides/exp-cli.html).
 
-``` shell
-    yarn global add exp
+Go install the expo-cli: https://blog.expo.io/expo-cli-2-0-released-a7a9c250e99c
+
+```shell
+npm install -g expo-cli
 ```
 
 #### Install [Lein](http://leiningen.org/#install) or [Boot](https://github.com/boot-clj/boot)
@@ -56,7 +57,7 @@ To figure out -
 #### Signup using exp CLI
 
 ``` shell
-    exp signup
+    expo register
 ```
 
 #### Start the figwheel server and cljs repl
@@ -73,18 +74,20 @@ To figure out -
     ;; then input (cljs-repl) in the connected clojure repl to connect to boot cljs repl
 ```
 
-#### Start Exponent server (Using `exp`)
+#### Start Exponent server (Using `expo`)
 
 ##### Also connect to Android device
 
 ``` shell
-    exp start -a --lan
+    expo start
+    (hit a)
 ```
 
 ##### Also connect to iOS Simulator
 
 ``` shell
-    exp start -i --lan
+    exp start
+    (hit i)
 ```
 
 ### Add new assets or external modules

@@ -82,7 +82,7 @@
                      }]
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))
-        action-valid? (or action-valid (constantly true))]
+        action-valid? (or action-valid? (constantly true))]
     [surface {:elevation 8
               :style {:background-color "rgba(0,0,0,0.2)"
                       :padding 10

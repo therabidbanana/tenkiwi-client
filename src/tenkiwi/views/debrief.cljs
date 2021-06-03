@@ -174,6 +174,9 @@
                                        :title " "}
                                       {:key "other"
                                        :title " "}]}
+          ;; Does this mess up performance because of as-element? Maybe we should reactify-component instead?
+          ;; Main problem is likely that render scene has to change each time to update display / main-state vars?
+          ;; If we could make them part of props that'd be better.
           :render-scene (fn [props]
                           (let [key (.. props -route -key)]
                             (case key
