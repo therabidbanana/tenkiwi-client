@@ -3,6 +3,7 @@
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.core.async :refer [go <!]]
             [re-frame.core :as re-frame]
+            [taoensso.sente.packers.transit :refer [get-transit-packer]]
             [tenkiwi.socket-events :refer [event-msg-handler]]
             [tenkiwi.components.sente :refer [new-channel-socket-client]]
             [tenkiwi.components.ui :refer [new-ui-component]]))
@@ -47,7 +48,7 @@
      :sente-handler {:handler event-msg-handler}
      :sente (component/using
              (new-channel-socket-client "/chsk" ?csrf-token {:type      :ws
-                                                             :packer    :edn
+                                                             :packer    (get-transit-packer)
                                                              :host "sshinto.me"
                                                              :port 10555
                                                              :client-id client-id})

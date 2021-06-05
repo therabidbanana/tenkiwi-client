@@ -1,6 +1,7 @@
 (ns tenkiwi.components.sente
   (:require [com.stuartsierra.component :as component]
             [cljs.core.async :refer [go <!]]
+            [taoensso.sente.packers.transit :refer [get-transit-packer]]
             [taoensso.sente :as sente]))
 
 (defrecord ChannelSocketClient [path csrf-token options]

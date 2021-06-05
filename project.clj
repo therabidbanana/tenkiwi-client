@@ -15,6 +15,7 @@
 
                  [markdown-to-hiccup "0.6.2"]
                  [com.taoensso/sente "1.16.0"]
+                 [com.cognitect/transit-cljs "0.8.269"]
                  ]
   :plugins [[lein-cljsbuild "1.1.4"]
             [lein-figwheel "0.5.19"]]
