@@ -118,12 +118,16 @@
 (re-frame/reg-sub
  :debrief-main
  (fn [db]
-   (extract-display (:user db) [:stage :stage-name :stage-focus])))
+   (extract-display (:user db)
+                    [:stage :stage-name :stage-focus
+                     :player-ranks])))
 
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
     (let [{:keys [stage stage-name
-                  stage-focus]
+                  stage-focus
+                  current-user-id
+                  player-ranks]
            {:as display
             :keys [extra-details]} :display
            :as game-state} @game-state-atom
@@ -131,14 +135,28 @@
                            true
                            false)
           box-style {:margin-top 8 :padding 10}
-          dimensions (.get ui/dimensions "screen")]
+          dimensions (.get ui/dimensions "screen")
+
+          valid-button? (fn [{:keys                 [action params disabled?]
+                              {:keys [id rank act]} :params
+                              :as                   button}]
+                          (cond
+                            (#{:rank-player} action)
+                            (and
+                             (not= current-user-id id)
+                             (nil? (get-in player-ranks [current-user-id act rank]))
+                             (not= id (get-in player-ranks [current-user-id act :best])))
+                            :else
+                            (not disabled?)))
+          ]
         [ui/scroll-view
          [ui/view
           [ui/view
            [ui/para (str stage-name)]
            [ui/para (str stage-focus)]]
           [ui/card-with-button (assoc display :dispatch dispatch)]
-          [ui/bottom-sheet-fixed (assoc display :dispatch dispatch)]
+          [ui/bottom-sheet-fixed (assoc display :dispatch dispatch
+                                        :action-valid? valid-button?)]
           (if (and voting-active? extra-details)
             [ui/view
              (map (fn [{:keys [title items]}]
@@ -172,17 +190,6 @@
            ;;                 (and (#{:rank-player} action)
            ;;                      (= user-id id)))
            ;; ;; Figure out where to place this
-           ;; valid-button? (fn [{:keys                 [action params disabled?]
-           ;;                     {:keys [id rank act]} :params
-           ;;                     :as                   button}]
-           ;;                 (cond
-           ;;                   (#{:rank-player} action)
-           ;;                   (and
-           ;;                    (not= user-id id)
-           ;;                    (nil? (get-in player-ranks [user-id act rank]))
-           ;;                    (not= id (get-in player-ranks [user-id act :best])))
-           ;;                   :else
-           ;;                   (not disabled?)))
            ;; "window" dimensions wrong to start sometimes - height 36?
            ;;  note: useWindowDimensions hook did _not_ prevent this problem
            ;;  most likely reagent deferring a render and causing window to be small?

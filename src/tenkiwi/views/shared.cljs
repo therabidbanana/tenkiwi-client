@@ -68,13 +68,13 @@
       :else
       (on-true))))
 
-(defn -action-button [dispatch action-valid? {:as action
+(defn -action-button [dispatch action-valid? {:as full-action
                                               :keys [params confirm action text]
                                               :or {params {}}}]
   (let []
     [button {:style {:margin-top 4}
              :mode "contained"
-             :disabled (not (action-valid? action))
+             :disabled (not (action-valid? full-action))
              :on-press (fn []
                          (maybe-confirm! confirm
                                          #(dispatch [:<-game/action! action params])))}
@@ -87,7 +87,8 @@
                      }]
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))
-        action-valid? (or action-valid? (constantly true))]
+        action-valid? (or action-valid?
+                          (constantly true))]
     [surface {:elevation 8
               :style {:background-color "rgba(0,0,0,0.2)"
                       :padding 10
