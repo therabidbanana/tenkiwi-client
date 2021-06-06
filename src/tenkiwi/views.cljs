@@ -1,9 +1,8 @@
 (ns tenkiwi.views
   (:require [re-frame.core :as re-frame]
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
-            [tenkiwi.views.debrief :refer [-debrief-game-panel]]
-            [reagent.core :as r :refer [atom]]
-            [markdown-to-hiccup.core :as m]))
+            [tenkiwi.views.debrief :refer [debrief-game-panel]]
+            [reagent.core :as r :refer [atom]]))
 
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
@@ -110,14 +109,13 @@
 
 
 (defn game-panel []
-  (let [user-data (re-frame/subscribe [:user])
-        room (re-frame/subscribe [:room])
-        game-type (get-in @user-data [:current-room :game :game-type])]
-    (case game-type
-      :ftq
-      [-ftq-game-panel user-data re-frame/dispatch]
+  (let [game-type (re-frame/subscribe [:user->game-type])]
+    (println "rerender game-panel")
+    (case @game-type
+      ;; :ftq
+      [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
       :debrief
-      [-debrief-game-panel user-data re-frame/dispatch]
+      [debrief-game-panel]
       )))
 
 (defn layout [body]
@@ -141,10 +139,11 @@
 (defn main-panel []
   (let [user (re-frame/subscribe [:user])
         room (re-frame/subscribe [:room])
-        game (get-in @user [:current-room :game :game-type])]
+        game (re-frame/subscribe [:user->game-type])]
+    (println "rerender main-panel")
     (layout
      (cond
-       game [game-panel]
+       @game [game-panel]
        (get @user :current-room) [lobby-panel]
        (get @user :connected?) [join-panel]
        :else [-connecting-panel]))))

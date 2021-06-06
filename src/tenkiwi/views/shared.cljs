@@ -9,6 +9,7 @@
 (def ic (r/adapt-react-class ionicons))
 
 (def platform (.-Platform ReactNative))
+(def use-window-dimensions (.-useWindowDimensions ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
 (def scroll-view (r/adapt-react-class (.-ScrollView ReactNative)))
@@ -18,6 +19,9 @@
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def Alert (.-Alert ReactNative))
+
+(def React (js/require "react"))
+(def use-state (.-useState React))
 
 (def rn-paper (js/require "react-native-paper"))
 
@@ -45,6 +49,7 @@
 
 (def tab-lib (js/require "react-native-tab-view"))
 (def tab-view (r/adapt-react-class (.. tab-lib -TabView)))
+(def SceneMap (.. tab-lib -SceneMap))
 
 (defn maybe-confirm! [confirm? on-true]
   (let [web? (= "web" (.-OS platform))]
@@ -78,7 +83,7 @@
 ;; Action tray is a bit weird because bottom sheet is weird with a render
 ;; content function
 (defn -action-tray [{:as props
-                     :keys [dispatch actions action-valid?]
+                     :keys [dispatch sizing actions action-valid?]
                      }]
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))
@@ -94,7 +99,8 @@
               {:key %}) actions)]]))
 
 (defn bottom-sheet-fixed [props]
-  (let [web? (= "web" (.-OS platform))]
+  (let [web? (= "web" (.-OS platform))
+        dimensions (.get dimensions "screen")]
     (if web?
       [view
        [view {:style {:min-height "20vh"
@@ -109,7 +115,7 @@
                        :width "100%"}}
          [-action-tray props]]]]
       [portal
-       [bottom-sheet {:snap-points ["25%" 64]
+       [bottom-sheet {:snap-points [(* 0.25 (.-height dimensions)) 64]
                       :initial-snap 1
                       :enabled-bottom-initial-animation true
                       :enabled-content-tap-interaction false

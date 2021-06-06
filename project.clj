@@ -13,12 +13,11 @@
                  [com.stuartsierra/component "0.3.2"]
                  [org.danielsz/system "0.4.6"]
 
-                 [markdown-to-hiccup "0.6.2"]
                  [com.taoensso/sente "1.16.0"]
                  [com.cognitect/transit-cljs "0.8.269"]
                  ]
   :plugins [[lein-cljsbuild "1.1.4"]
-            [lein-figwheel "0.5.19"]]
+            [lein-figwheel "0.5.20"]]
   :clean-targets ["target/" "main.js"]
   :aliases {"figwheel"        ["run" "-m" "user" "--figwheel"]
             ; TODO: Remove custom extern inference as it's unreliable
@@ -27,7 +26,7 @@
             "rebuild-modules" ["run" "-m" "user" "--rebuild-modules"]
             "prod-build"      ^{:doc "Recompile code with prod profile."}
             ["with-profile" "prod" "cljsbuild" "once" "main"]}
-  :profiles {:dev  {:dependencies [[figwheel-sidecar "0.5.18"]
+  :profiles {:dev  {:dependencies [[figwheel-sidecar "0.5.20"]
                                    [cider/piggieback "0.4.1"]]
                     :source-paths ["src" "env/dev"]
                     :cljsbuild    {:builds [{:id           "main"
@@ -37,6 +36,7 @@
                                                             :main          "env.expo.main"
                                                             :output-dir    "target/expo"
                                                             :optimizations :none
+                                                            ;; NOTE: Probably creating weirdness? 
                                                             :target        :nodejs}}]}
                     :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
              :prod {:cljsbuild {:builds [{:id           "main"
