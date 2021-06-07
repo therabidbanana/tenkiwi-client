@@ -90,11 +90,15 @@
         action-valid? (or action-valid?
                           (constantly true))]
     [surface {:elevation 8
-              :style {:background-color "rgba(0,0,0,0.2)"
+              :style {:background-color "rgba(200,200,200,1)"
                       :padding 10
-                      :padding-top 18
+                      :padding-top 2
                       :padding-bottom 18
                       :height "100%"}}
+     ;; TODO: Ugly - use image or something
+     [text {:style {:text-align "center" :font-size 12
+                    :padding-top 8
+                    :padding-bottom 8}} ": : :"]
      [scroll-view
       (map #(with-meta [-action-button dispatch action-valid? %]
               {:key %}) actions)]]))
@@ -127,18 +131,27 @@
 (defn card-with-button [display]
   (let [x-carded? (get display :x-card-active?)
         card-data (get display :card)
+        available-actions (get display :available-actions #{})
+
         dispatch (get display :dispatch)]
     [card {:elevation 4
-              :style {:margin 4
-                      :margin-bottom 16
-                      :padding 18
-                      :font-size 16}}
-     [card-actions {:class (if x-carded? "active" "inactive")}
-      [button {:on-press #(dispatch [:<-game/action! :x-card])} "X"]]
+           :style (merge
+                   {:margin 4
+                    :margin-bottom 16
+                    :padding 12
+                    :padding-bottom 0
+                    :font-size 16
+                    :border-width 4
+                    :border-style "solid"
+                    :border-color "white"
+                    }
+                   (if x-carded?
+                     {:border-color "red"}))}
+     
      [card-content {:class (str (name (get-in card-data [:state] "blank"))
-                        " "
-                        (if x-carded?
-                          "x-carded"))}
+                                " "
+                                (if x-carded?
+                                  "x-carded"))}
       [markdown {:style {:body {:font-size 24
                                 :font-family "Georgia"}}}
        (get-in card-data [:text])]
@@ -151,6 +164,13 @@
                  ;; [:input {:name name :value value}]
                  ]
                 {:key name}))
-            (get-in display [:card :inputs]))]
-      ]
+            (get-in display [:card :inputs]))]]
+     (if (available-actions :x-card)
+       [button {:style {:margin-bottom -12}
+                :disabled x-carded?
+                :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])
+     [card-actions
+      ;; Maybe move pass here?
+      #_(if (available-actions :pass)
+        [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
      ]))

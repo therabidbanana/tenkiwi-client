@@ -49,27 +49,47 @@
 
 (defn -player-scoreboard-entry [display current-user-id player-scores player]
   (let [{:keys [id user-name dead? agent-name agent-codename agent-role]} player
+        current-user? (= id current-user-id)
         dispatch (:dispatch display)
         total-score (apply + (vals (player-scores id)))]
-    [ui/card {:style {:margin 8}}
-     [ui/card-content
-      [ui/para {:title agent-name}
-       (str "[ " total-score " ] " (if agent-name (str agent-codename ", " agent-role " ")) " (" user-name ")")]]
-     [ui/card-actions {}
-      ;; TODO - maybe this logic should come from gamemaster
-      (if-not (= id current-user-id)
-        [ui/button
-         {:style {:flex 1}
-          :on-press #(dispatch [:<-game/action! :downvote-player {:player-id id}])}
-         " - "])
-      [ui/text {:style {:flex 1}}
-       (str (get-in player-scores [id current-user-id]))]
-      (if-not (= id current-user-id)
-        [ui/button
-         {:style {:flex 1}
-          :on-press #(dispatch [:<-game/action! :upvote-player {:player-id id}])}
-         " + "])
-      ]]))
+    [ui/surface {:style {:margin 8
+                         :flex-direction "row"
+                         :align-items "center"}}
+     [ui/view {:style {:flex 1
+                       :padding 4
+                       :align-items "center"}}
+      [ui/h1 {} total-score]]
+     [ui/view {:style {:flex 7
+                       :padding 4}}
+      [ui/view {:style {:border-bottom-style "dashed"
+                        :border-bottom-color "#bebebe"
+                        :border-bottom-width 1
+                        :padding 4}}
+       [ui/para {:title agent-name}
+        (str (if agent-name (str agent-codename ", " agent-role " ")) " (" user-name ")")]]
+      [ui/view {:flex-direction "row"
+                :align-items "center"}
+       ;; TODO - maybe this logic should come from gamemaster
+       (if-not current-user?
+         [ui/button
+          {:style {:flex 1}
+           :on-press #(dispatch [:<-game/action! :downvote-player {:player-id id}])}
+          " - "])
+       [ui/text {:style {:text-align "center"
+                         :margin-top 9
+                         :margin-bottom 9
+                         :font-style "italic"
+                         :opacity (if current-user? 0.4 0.7)
+                         :flex 1}}
+        (if current-user?
+          "This is You"
+          (str (get-in player-scores [id current-user-id])))]
+       (if-not current-user?
+         [ui/button
+          {:style {:flex 1}
+           :on-press #(dispatch [:<-game/action! :upvote-player {:player-id id}])}
+          " + "])
+       ]]]))
 
 (defn build-scoreboard-panel [game-state-atom dispatch]
   (fn -scoreboard-panel []
@@ -152,8 +172,10 @@
         [ui/scroll-view
          [ui/view
           [ui/view
-           [ui/para (str stage-name)]
-           [ui/para (str stage-focus)]]
+           [ui/para {:style {:color "white"
+                             :padding-top 4
+                             :padding-left 8}}
+            (str stage-name "\n" stage-focus)]]
           [ui/card-with-button (assoc display :dispatch dispatch)]
           [ui/bottom-sheet-fixed (assoc display :dispatch dispatch
                                         :action-valid? valid-button?)]
