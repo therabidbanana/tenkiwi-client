@@ -181,14 +181,28 @@
                                         :action-valid? valid-button?)]
           (if (and voting-active? extra-details)
             [ui/view
-             (map (fn [{:keys [title items]}]
+             (map (fn [[{title1 :title items1 :items}
+                        {title2 :title items2 :items}]]
                     (with-meta
-                      [ui/surface {:style box-style}
-                       [ui/h1 title]
-                       [ui/view
-                        (map #(with-meta [ui/para %] {:key %}) items)]]
-                      {:key title}))
-                  extra-details
+                      [ui/view {:flex-direction "row"}
+                       (if title1
+                         [ui/surface {:style (assoc box-style
+                                                    :background-color "rgba(150,150,190,0.7)"
+                                                    :margin 4
+                                                    :flex 1)}
+                          [ui/h1 title1]
+                          [ui/view
+                           (map #(with-meta [ui/para %] {:key %}) items1)]])
+                       (if title2
+                         [ui/surface {:style (assoc box-style
+                                                    :background-color "rgba(150,150,190,0.7)"
+                                                    :margin 4
+                                                    :flex 1)}
+                          [ui/h1 title2]
+                          [ui/view
+                           (map #(with-meta [ui/para %] {:key %}) items2)]])]
+                      {:key (str title1 title2)}))
+                  (partition-all 2 extra-details)
                   )])
           [ui/view {:height (* 0.2 (.-height dimensions))}
            [ui/text ""]]
