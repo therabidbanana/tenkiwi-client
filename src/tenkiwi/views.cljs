@@ -110,9 +110,8 @@
 
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])]
-    (println "rerender game-panel")
     (case @game-type
-      ;; :ftq
+      :ftq
       [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
       :debrief
       [debrief-game-panel]

@@ -20,8 +20,8 @@
 
 (defn -main-panel [display]
   [ui/scroll-view
-   [ui/card-with-button display]
-   [ui/bottom-sheet-fixed display]]
+   [ui/actions-list display]
+   [ui/bottom-sheet-card display]]
   )
 
 (defn -ftq-game-panel [user-data dispatch]

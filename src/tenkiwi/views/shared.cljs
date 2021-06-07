@@ -88,7 +88,7 @@
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))
         action-valid? (or action-valid?
-                          (constantly true))]
+                          (fn [{:keys [disabled?]}] (not disabled?)))]
     [surface {:elevation 8
               :style {:background-color "rgba(200,200,200,1)"
                       :padding 10
@@ -106,9 +106,11 @@
 (defn actions-list [{:as props
                      :keys [dispatch sizing actions action-valid?]
                      }]
-  [view
-   (map #(with-meta [-action-button dispatch action-valid? %]
-           {:key %}) actions)])
+  (let [action-valid? (or action-valid?
+                          (fn [{:keys [disabled?]}] (not disabled?)))]
+    [view
+     (map #(with-meta [-action-button dispatch action-valid? %]
+             {:key %}) actions)]))
 
 (defn bottom-sheet-fixed [props]
   (let [web? (= "web" (.-OS platform))
@@ -154,27 +156,28 @@
                     }
                    (if x-carded?
                      {:border-color "red"}))}
-     [card-content {:class (str (name (get-in card-data [:state] "blank"))
-                                " "
-                                (if x-carded?
-                                  "x-carded"))}
-      [markdown {:style {:body {:font-size 24
-                                :font-family "Georgia"}}}
-       (get-in card-data [:text])]
-      [view
-       (map (fn [{:keys [name value label generator]}]
-              (with-meta
-                [view
-                 [h2 label]
-                 [para value]
-                 ;; [:input {:name name :value value}]
-                 ]
-                {:key name}))
-            (get-in display [:card :inputs]))]]
-     (if (available-actions :x-card)
-       [button {:style {:margin-bottom -12}
-                :disabled x-carded?
-                :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])
+     [scroll-view
+      [card-content {:class (str (name (get-in card-data [:state] "blank"))
+                                 " "
+                                 (if x-carded?
+                                   "x-carded"))}
+       [markdown {:style {:body {:font-size 24
+                                 :font-family "Georgia"}}}
+        (get-in card-data [:text])]
+       [view
+        (map (fn [{:keys [name value label generator]}]
+               (with-meta
+                 [view
+                  [h2 label]
+                  [para value]
+                  ;; [:input {:name name :value value}]
+                  ]
+                 {:key name}))
+             (get-in display [:card :inputs]))]]
+      (if (available-actions :x-card)
+        [button {:style {:margin-bottom -12}
+                 :disabled x-carded?
+                 :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
      [card-actions
       ;; Maybe move pass here?
       #_(if (available-actions :pass)
@@ -198,12 +201,12 @@
                        :width "100%"}}
          [card-with-button props]]]]
       [portal
-       [bottom-sheet {:snap-points [(* 0.95 (.-height dimensions)) (* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
-                      :initial-snap 1
+       [bottom-sheet {:snap-points [(* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
+                      :initial-snap 0
                       :enabled-bottom-initial-animation true
                       :enabled-content-tap-interaction false
                       :render-content (fn [p] (r/as-element [view {:style {:height "100%"
-                                                                           :padding-top 10
+                                                                           :padding-top 20
                                                                            :background-color "rgba(0,0,0,0.8)"}}
                                                              [card-with-button props]]))
                       }]])
