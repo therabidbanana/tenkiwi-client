@@ -25,15 +25,17 @@
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
     (let [{:keys [extra-actions]} (:display @game-state-atom)]
-      [ui/view
-      (map (fn [{conf  :confirm
-                 :keys [action class text]}]
-             (with-meta (vector ui/button
-                                {:class class
-                                 :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
-                                text)
-               {:key action}))
-           extra-actions)])))
+      [ui/view {:style {:padding 10}}
+       [ui/card {:style {:padding 4}}
+        (map (fn [{conf  :confirm
+                   :keys [action class text]}]
+               (with-meta (vector ui/button
+                                  {:class class
+                                   :mode "outlined"
+                                   :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
+                                  text)
+                 {:key action}))
+             extra-actions)]])))
 
 (defn other-panel []
   (let [game-state (re-frame/subscribe [:debrief-other])]
@@ -176,11 +178,15 @@
                              :padding-top 4
                              :padding-left 8}}
             (str stage-name "\n" stage-focus)]]
-          [ui/card-with-button (assoc display :dispatch dispatch)]
-          [ui/bottom-sheet-fixed (assoc display :dispatch dispatch
-                                        :action-valid? valid-button?)]
+          #_[ui/card-with-button (assoc display :dispatch dispatch)]
+          [ui/actions-list (assoc display
+                                  :dispatch dispatch
+                                  :action-valid? valid-button?)]
+          [ui/bottom-sheet-card
+           (assoc display :dispatch dispatch)]
           (if (and voting-active? extra-details)
-            [ui/view
+            [ui/view {:style {:padding 2
+                              :padding-top 8}}
              (map (fn [[{title1 :title items1 :items}
                         {title2 :title items2 :items}]]
                     (with-meta

@@ -103,6 +103,13 @@
       (map #(with-meta [-action-button dispatch action-valid? %]
               {:key %}) actions)]]))
 
+(defn actions-list [{:as props
+                     :keys [dispatch sizing actions action-valid?]
+                     }]
+  [view
+   (map #(with-meta [-action-button dispatch action-valid? %]
+           {:key %}) actions)])
+
 (defn bottom-sheet-fixed [props]
   (let [web? (= "web" (.-OS platform))
         dimensions (.get dimensions "screen")]
@@ -147,7 +154,6 @@
                     }
                    (if x-carded?
                      {:border-color "red"}))}
-     
      [card-content {:class (str (name (get-in card-data [:state] "blank"))
                                 " "
                                 (if x-carded?
@@ -174,3 +180,32 @@
       #_(if (available-actions :pass)
         [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
      ]))
+
+(defn bottom-sheet-card [props]
+  (let [web? (= "web" (.-OS platform))
+        dimensions (.get dimensions "screen")]
+    (if web?
+      [view
+       [view {:style {:min-height "50vh"
+                      :visibility "hidden"}}
+        [card-with-button props]]
+       [portal
+        [view {:style {:position "fixed"
+                       :bottom 0
+                       :background-color "rgba(0,0,0,0.2)"
+                       :height "20vh"
+                       :min-height "20vh"
+                       :width "100%"}}
+         [card-with-button props]]]]
+      [portal
+       [bottom-sheet {:snap-points [(* 0.95 (.-height dimensions)) (* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
+                      :initial-snap 1
+                      :enabled-bottom-initial-animation true
+                      :enabled-content-tap-interaction false
+                      :render-content (fn [p] (r/as-element [view {:style {:height "100%"
+                                                                           :padding-top 10
+                                                                           :background-color "rgba(0,0,0,0.8)"}}
+                                                             [card-with-button props]]))
+                      }]])
+    ))
+
