@@ -15,6 +15,8 @@
 (def AtExpo (js/require "@expo/vector-icons"))
 (def rn-paper (js/require "react-native-paper"))
 (def PaperProvider (r/adapt-react-class (.-Provider rn-paper)))
+(def action-sheet (js/require "@expo/react-native-action-sheet"))
+(def ActionSheetProvider (r/adapt-react-class (.-ActionSheetProvider action-sheet)))
 (def DefaultTheme (js->clj (.-DefaultTheme rn-paper)))
 
 (def ionicons (.-Ionicons AtExpo))
@@ -40,7 +42,7 @@
 (defn app-root []
   (fn []
     [PaperProvider {:theme theme}
-     [views/main-panel]]
+     [ActionSheetProvider [views/main-panel]]]
     #_[view {:style {:flex-direction "column" :margin 40 :align-items "center"}}
        [image {:source (js/require "./assets/images/cljs.png")
                :style {:width 200

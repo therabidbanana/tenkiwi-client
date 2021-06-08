@@ -25,6 +25,12 @@
 
 (def rn-paper (js/require "react-native-paper"))
 
+(def action-sheet-lib (js/require "@expo/react-native-action-sheet"))
+(def action-sheet-wrapper (.-connectActionSheet action-sheet-lib))
+
+(defn with-action-sheet [component]
+  (r/adapt-react-class (action-sheet-wrapper component)))
+
 (def text-input (r/adapt-react-class (.-TextInput rn-paper)))
 (def para (r/adapt-react-class (.-Paragraph rn-paper)))
 (def h1 (r/adapt-react-class (.-Title rn-paper)))
@@ -108,7 +114,7 @@
                      }]
   (let [action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
-    [view
+    [view {:style {:padding 8}}
      (map #(with-meta [-action-button dispatch action-valid? %]
              {:key %}) actions)]))
 
@@ -185,30 +191,46 @@
      ]))
 
 (defn bottom-sheet-card [props]
-  (let [web? (= "web" (.-OS platform))
-        dimensions (.get dimensions "screen")]
-    (if web?
-      [view
-       [view {:style {:min-height "50vh"
-                      :visibility "hidden"}}
-        [card-with-button props]]
-       [portal
-        [view {:style {:position "fixed"
-                       :bottom 0
-                       :background-color "rgba(0,0,0,0.2)"
-                       :height "20vh"
-                       :min-height "20vh"
-                       :width "100%"}}
-         [card-with-button props]]]]
-      [portal
-       [bottom-sheet {:snap-points [(* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
-                      :initial-snap 0
-                      :enabled-bottom-initial-animation true
-                      :enabled-content-tap-interaction false
-                      :render-content (fn [p] (r/as-element [view {:style {:height "100%"
-                                                                           :padding-top 20
-                                                                           :background-color "rgba(0,0,0,0.8)"}}
-                                                             [card-with-button props]]))
-                      }]])
+  (let []
+    (fn [props]
+      (let [web? (= "web" (.-OS platform))
+           dimensions (.get dimensions "screen")
+           action-sheet-props (clj->js
+                               {:options ["Pass" "Discard" "Cancel"]
+                                :destructive-button-index 0
+                                :cancel-button-index 2})
+           action-sheet-action (fn [index]
+                                 (println index))
+           trigger-action-sheet (fn [e]
+                                  (println "props" props)
+                                  ((:showActionSheetWithOptions props)
+                                   action-sheet-props
+                                   action-sheet-action))
+           ]
+        (if web?
+         [view
+          [view {:style {:min-height "50vh"
+                         :visibility "hidden"}}
+           [card-with-button props]]
+          [portal
+           [view {:style {:position "fixed"
+                          :bottom 0
+                          :background-color "rgba(0,0,0,0.2)"
+                          :height "20vh"
+                          :min-height "20vh"
+                          :width "100%"}}
+            [card-with-button props]]]]
+         [portal
+          [bottom-sheet {:snap-points [(* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
+                         :initial-snap 0
+                         :enabled-bottom-initial-animation true
+                         :enabled-content-tap-interaction false
+                         :render-content (fn [p]
+                                           (r/as-element [view {:style {:height "100%"
+                                                                        :padding-top 20
+                                                                        :background-color "rgba(0,0,0,0.8)"}}
+                                                          [card-with-button props]]))
+                         }]])))
     ))
 
+;; (def bottom-sheet-card (with-action-sheet (r/reactify-component -bottom-sheet-card)))

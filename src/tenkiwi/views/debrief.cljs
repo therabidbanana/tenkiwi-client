@@ -20,13 +20,32 @@
  :debrief-other
  (fn [db]
    (extract-display (:user db)
-                    [])))
+                    [:stage :company :mission])))
 
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
-    (let [{:keys [extra-actions]} (:display @game-state-atom)]
-      [ui/view {:style {:padding 10}}
-       [ui/card {:style {:padding 4}}
+    (let [{:keys [extra-actions]} (:display @game-state-atom)
+          {:keys [company stage mission]} @game-state-atom
+          dimensions (.get ui/dimensions "screen")
+          voting-active? (if-not (#{:intro} stage)
+                           true
+                           false)]
+
+      [ui/scroll-view
+       [ui/card {:style {:margin 8}}
+        [ui/card-content 
+         [ui/h1 "Round Themes"]
+         [ui/view
+          (map
+           (fn [val] (with-meta [ui/para val] {:key val}))
+           (:values company))]]]
+       (if voting-active?
+         [ui/card {:style {:margin 8}}
+          [ui/card-content
+           [ui/h1 "More Details"]
+           [ui/markdown (str (:text mission))]]])
+       [ui/card {:style {:padding 4
+                         :margin 8}}
         (map (fn [{conf  :confirm
                    :keys [action class text]}]
                (with-meta (vector ui/button
@@ -35,7 +54,11 @@
                                    :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
                                   text)
                  {:key action}))
-             extra-actions)]])))
+             extra-actions)]
+
+       [ui/view {:height (* 0.7 (.-height dimensions))}
+        [ui/text ""]]]
+      )))
 
 (defn other-panel []
   (let [game-state (re-frame/subscribe [:debrief-other])]
@@ -46,8 +69,7 @@
  (fn [db]
    (extract-display (:user db)
                     [:dossiers :all-players
-                     :stage :player-scores
-                     :company :mission])))
+                     :stage :player-scores])))
 
 (defn -player-scoreboard-entry [display current-user-id player-scores player]
   (let [{:keys [id user-name dead? agent-name agent-codename agent-role]} player
@@ -98,7 +120,7 @@
     (let [{:keys [dossiers all-players
                   stage player-scores
                   current-user-id
-                  company mission display]
+                  display]
            :as game} @game-state-atom
           all-players    (map #(merge % (get dossiers (:id %) {}))
                               all-players)
@@ -118,17 +140,7 @@
                       current-user-id player-scores player]
                    {:key (:id player)}))
                all-players))]
-       [ui/surface {:style box-style}
-        [ui/h1 "Round Themes"]
-        [ui/view
-         (map
-          (fn [val] (with-meta [ui/para val] {:key val}))
-          (:values company))]]
-       (if voting-active?
-         [ui/surface {:style box-style}
-          [ui/h1 "More Details"]
-          [ui/markdown (str (:text mission))]])
-       [ui/view {:height (* 0.2 (.-height dimensions))}
+       [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]
        ])))
 
@@ -147,7 +159,7 @@
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
     (let [{:keys [stage stage-name
-                  stage-focus
+                  stage-focus company
                   current-user-id
                   player-ranks]
            {:as display
@@ -174,8 +186,8 @@
         [ui/scroll-view
          [ui/view
           [ui/view
-           [ui/para {:style {:color "white"
-                             :padding-top 4
+           [ui/para {:theme {:colors {:text "white"}}
+                     :style {:padding-top 4
                              :padding-left 8}}
             (str stage-name "\n" stage-focus)]]
           #_[ui/card-with-button (assoc display :dispatch dispatch)]
@@ -210,7 +222,7 @@
                       {:key (str title1 title2)}))
                   (partition-all 2 extra-details)
                   )])
-          [ui/view {:height (* 0.2 (.-height dimensions))}
+          [ui/view {:height (* 0.7 (.-height dimensions))}
            [ui/text ""]]
           ]])))
 
