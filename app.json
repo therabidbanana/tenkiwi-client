@@ -7,7 +7,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
-    "privacy": "public",
+    "privacy": "unlisted",
     "icon": "./assets/icons/app.png",
     "splash": {
       "image": "./assets/icons/loading.png",
