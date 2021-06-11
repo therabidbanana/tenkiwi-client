@@ -113,3 +113,22 @@ lein prod-build
 ``` shell
 boot prod
 ```
+
+
+
+Successfully created Provisioning Profile
+
+  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
+    Provisioning profile (ID: QVC3H6C2KU)
+    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
+
+
+Project Credential Configuration:
+  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
+    Provisioning profile (ID: QVC3H6C2KU)
+    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
+
+  Distribution Certificate - Certificate ID: 22GJK6K536
+    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
+  Push Notifications Key - Key ID: KP5JWWK4JK
+    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)

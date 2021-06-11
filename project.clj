@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [org.clojure/clojurescript "1.10.520"]
+                 [org.clojure/clojurescript "1.10.866"]
                  [binaryage/oops "0.7.0"]
                  [reagent "0.10.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
 
@@ -35,9 +35,9 @@
                                              :compiler     {:output-to     "target/expo/index.js"
                                                             :main          "env.expo.main"
                                                             :output-dir    "target/expo"
+                                                            ;; :nodejs-rt     false
                                                             :optimizations :none
-                                                            ;; NOTE: Probably creating weirdness? 
-                                                            :target        :nodejs}}]}
+                                                            :target        :bundle}}]}
                     :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
              :prod {:cljsbuild {:builds [{:id           "main"
                                           :source-paths ["src" "env/prod"]
@@ -48,7 +48,12 @@
                                                          :externs            ["js/externs.js"]
                                                          :infer-externs      true
                                                          :parallel-build     true
-                                                         :optimize-constants true
+                                                         :pseudo-names       true
+                                                         :pretty-print true
+                                                         ;; :optimize-constants true
+                                                         ;; :optimizations      :simple
                                                          :optimizations      :advanced
+                                                         :nodejs-rt false
+
                                                          :closure-defines    {"goog.DEBUG" false}
-                                                         :target             :nodejs}}]}}})
+                                                         :target             :bundle}}]}}})

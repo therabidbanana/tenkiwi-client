@@ -1,6 +1,7 @@
 (ns tenkiwi.views.ftq
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r :refer [atom]]
+            [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
 (defn -other-panel [{:as display
@@ -58,7 +59,7 @@
                                        {:key "other"
                                         :title " "}]}
            :render-scene (fn [props]
-                           (let [key (.. props -route -key)]
+                           (let [key (oget props "route.key")]
                              (case key
                                "main"
                                (r/as-element [-main-panel display])

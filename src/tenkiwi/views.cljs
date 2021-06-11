@@ -38,7 +38,7 @@
                 :padding 12})
 
 (defn -join-panel [join dispatch]
-  (let [val #(-> % .-target .-value)]
+  (let []
     [card {:style box-style}
      [view
       [text-input {:name      "game-user-name"
@@ -55,9 +55,8 @@
       [button
        {:mode     "contained"
         :on-press #(do
-                     (js/console.log "Clicked!")
                      (dispatch [:<-join/join-room!])
-                     (.preventDefault %))}
+                     )}
        "Join"]]]))
 
 (defn join-panel []
@@ -83,23 +82,22 @@
       (if (= (:room-code game-data) "haslem")
         [button {:mode "outlined"
                  :on-press #(do
-                               (dispatch [:<-game/start! :ftq])
-                               (.preventDefault %))}
+                               (dispatch [:<-game/start! :ftq]))}
          [text "Start: FTQ (Original)"]])
       [button {:mode "outlined"
                :on-press #(do
                              (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}])
-                             (.preventDefault %))}
+                             )}
        [text "Start: For The Captain"]]
       [button {:mode "outlined"
                :on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}])
-                             (.preventDefault %))}
+                             )}
        [text "Start: The Debrief"]]
       [button {:mode "outlined"
                :on-press #(do
                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}])
-                             (.preventDefault %))}
+                             )}
        [text "Start: The Culinary Contest"]]
       ]]))
 

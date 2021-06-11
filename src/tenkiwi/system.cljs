@@ -11,9 +11,7 @@
 (declare system)
 
 (def store-lib (js/require "@react-native-async-storage/async-storage"))
-(js/console.log store-lib)
 (def AsyncStorage (.-default store-lib))
-(js/console.log AsyncStorage)
 
 (defn get-storage-item [key default]
   (go

@@ -15,7 +15,13 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.davidhaslem.tenkiwi",
+      "buildNumber": "1.0.0",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.davidhaslem.tenkiwi",
+      "versionCode": 1
     }
   }
 }
