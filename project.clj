@@ -5,6 +5,9 @@
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/clojurescript "1.10.866"]
+
+                 [com.bhauman/figwheel-main "0.2.13"]
+
                  [binaryage/oops "0.7.0"]
                  [reagent "0.10.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
 
@@ -17,9 +20,9 @@
                  [com.cognitect/transit-cljs "0.8.269"]
                  ]
   :plugins [[lein-cljsbuild "1.1.4"]
-            [lein-figwheel "0.5.20"]]
+            #_[lein-figwheel "0.5.20"]]
   :clean-targets ["target/" "main.js"]
-  :aliases {"figwheel"        ["run" "-m" "user" "--figwheel"]
+  :aliases {"figwheel"        ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "--repl"]
             ; TODO: Remove custom extern inference as it's unreliable
             ;"externs"         ["do" "clean"
             ;                   ["run" "-m" "externs"]]
@@ -35,7 +38,7 @@
                                              :compiler     {:output-to     "target/expo/index.js"
                                                             :main          "env.expo.main"
                                                             :output-dir    "target/expo"
-                                                            ;; :nodejs-rt     false
+                                                            :nodejs-rt     false
                                                             :optimizations :none
                                                             :target        :bundle}}]}
                     :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
@@ -53,7 +56,7 @@
                                                          ;; :optimize-constants true
                                                          ;; :optimizations      :simple
                                                          :optimizations      :advanced
-                                                         :nodejs-rt false
+                                                         ;; :nodejs-rt false
 
                                                          :closure-defines    {"goog.DEBUG" false}
                                                          :target             :bundle}}]}}})

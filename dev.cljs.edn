@@ -1,0 +1,8 @@
+^{:open-url false
+  :cljs-devtools false}
+{:output-to     "target/expo/index.js"
+ :main          "tenkiwi.dev"
+ :output-dir    "target/expo"
+ ;; :nodejs-rt     false
+ :optimizations :none
+ :target        :bundle}

@@ -1,11 +1,11 @@
 (ns tenkiwi.components.ui
-  (:require [com.stuartsierra.component :as component]
-            [tenkiwi.core :refer [init]]))
+  (:require [com.stuartsierra.component :as component]))
 
 (defrecord UIComponent []
   component/Lifecycle
-  (start [component]
-    (init)
+  (start [{:keys [ui-boot]
+           :as component}]
+    (ui-boot)
     component)
   (stop [component]
     component))

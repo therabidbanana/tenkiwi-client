@@ -99,6 +99,18 @@ npm install -g expo-cli
 ```
 2. Reload simulator or device
 
+
+
+### Figwheel main conversion
+
+Getting prod builds working required updating clojurescript, requiring an update to figwheel-main
+
+Figwheel-main example came from https://github.com/bhauman/react-native-figwheel-bridge, which replaced most of the figwheel-bridge.js and all of env/dev/* in the process. We may want to adapt some of that work.
+
+TODO: 
+
+Currently we have to switch main.js to js/index.js to do a prod build in package.json. How can we require figwheel bridge only in dev mode?
+
 ### Make sure you disable live reload from the Developer Menu, also turn off Hot Module Reload.
 Since Figwheel already does those.
 

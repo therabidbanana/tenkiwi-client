@@ -1,4 +1,5 @@
 (ns env.expo.main
-  (:require [tenkiwi.system :as core]))
+  (:require [tenkiwi.system :as core]
+            [tenkiwi.core :refer [init]]))
 
-(core/go)
+(core/go init)

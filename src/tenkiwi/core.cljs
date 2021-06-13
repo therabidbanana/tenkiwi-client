@@ -7,6 +7,10 @@
               [tenkiwi.subs]
               [tenkiwi.views :as views]
               [tenkiwi.config :as config]
+              [react-native :as ReactNative]
+              ["@expo/vector-icons" :as AtExpo]
+              ["@expo/react-native-action-sheet" :as action-sheet]
+              [react-native-paper :as rn-paper]
               #_[tenkiwi.handlers]
               #_[tenkiwi.subs]))
 
@@ -47,8 +51,8 @@
        [image {:source (js/require "./assets/images/cljs.png")
                :style {:width 200
                        :height 200}}]
-       [text {:style {:font-size 30 :font-weight "100" :margin-bottom 20 :text-align "center"}} @greeting]
-       [ic {:name "ios-arrow-down" :size 60 :color "purple"}]
+       [text {:style {:font-size 30 :font-weight "100" :margin-bottom 20 :text-align "center"}} "yo"]
+       ;; [ic {:name "ios-arrow-down" :size 60 :color "purple"}]
        [touchable-highlight {:style {:background-color "#999" :padding 10 :border-radius 5}
                              :on-press #(alert "HELLO!")}
         [text {:style {:color "white" :text-align "center" :font-weight "bold"}} "press me"]]]))

@@ -1,6 +1,17 @@
 (ns tenkiwi.views.shared
   (:require [re-frame.core :as re-frame]
-            [reagent.core :as r :refer [atom]]))
+            [reagent.core :as r :refer [atom]]
+
+            [expo :as expo]
+            [react :as React]
+            [react-native :as ReactNative]
+            ["@expo/vector-icons" :as AtExpo]
+            [react-native-paper :as rn-paper]
+            ["@expo/react-native-action-sheet" :as action-sheet-lib]
+            [reanimated-bottom-sheet :as sheet-lib]
+            [react-native-markdown-display :as markdown-lib]
+            [react-native-tab-view :as tab-lib]
+            ))
 
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))

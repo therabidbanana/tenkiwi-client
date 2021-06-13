@@ -1,4 +1,4 @@
-(ns env.expo.main
+(ns tenkiwi.dev
   (:require [reagent.core :as r]
             [tenkiwi.system :as core]
             [tenkiwi.core :refer [app-root]]
@@ -8,4 +8,5 @@
 (defn figwheel-rn-root []
   (r/as-element [app-root]))
 
-(core/go)
+(core/go nil)
+

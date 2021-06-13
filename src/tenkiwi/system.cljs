@@ -6,7 +6,8 @@
             [taoensso.sente.packers.transit :refer [get-transit-packer]]
             [tenkiwi.socket-events :refer [event-msg-handler]]
             [tenkiwi.components.sente :refer [new-channel-socket-client]]
-            [tenkiwi.components.ui :refer [new-ui-component]]))
+            [tenkiwi.components.ui :refer [new-ui-component]]
+            ["@react-native-async-storage/async-storage" :as store-lib]))
 
 (declare system)
 
@@ -40,8 +41,9 @@
       client-id)))
 
 ;; TODO: CHSK should probably live in here (prevent CSRF failures on figwheel?)
-(defn new-system []
-  (let [client-id (get-storage-item "device-id" (str (random-uuid)))]
+(defn new-system [on-boot]
+  (let [client-id (get-storage-item "device-id" (str (random-uuid)))
+        on-boot (or on-boot (constantly true))]
     (component/system-map
      :sente-handler {:handler event-msg-handler}
      :sente (component/using
@@ -53,10 +55,12 @@
                                                              :client-id client-id})
              [:sente-handler :client-id])
      :client-id client-id
-     :app-root (new-ui-component))))
+     :ui-boot  on-boot
+     :app-root (component/using (new-ui-component)
+                                [:ui-boot]))))
 
-(defn init []
-  (set! system (new-system)))
+(defn init [on-boot]
+  (set! system (new-system on-boot)))
 
 (defn start []
   (set! system (component/start system)))
@@ -64,9 +68,8 @@
 (defn stop []
   (set! system (component/stop system)))
 
-(defn ^:export go []
-  (init)
-  (println system)
+(defn ^:export go [on-boot]
+  (init on-boot)
   (start))
 
 (defn reset []
