@@ -30,6 +30,14 @@
      (update-in db [:join] merge params))))
 
 (re-frame/reg-event-db
+ :forms/set-params
+ (fn [db [_ params]]
+   (let [{:keys [action]} params
+         remaining-params (dissoc params :action)]
+     (println remaining-params)
+     (update-in db [:forms action] merge remaining-params))))
+
+(re-frame/reg-event-db
  :->user/room-joined!
  (fn [db [_ params]]
    (update-in db [:user] assoc :current-room params)))

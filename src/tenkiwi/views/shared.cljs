@@ -1,6 +1,7 @@
 (ns tenkiwi.views.shared
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r :refer [atom]]
+            [oops.core :refer [oget]]
 
             [expo :as expo]
             [react :as React]
@@ -55,6 +56,7 @@
 (def surface (r/adapt-react-class (.-Surface rn-paper)))
 (def fab (r/adapt-react-class (.-FAB rn-paper)))
 (def portal (r/adapt-react-class (.-Portal rn-paper)))
+(def chip (r/adapt-react-class (.-Chip rn-paper)))
 (def card-content (r/adapt-react-class (.. rn-paper -Card -Content)))
 (def card-actions (r/adapt-react-class (.. rn-paper -Card -Actions)))
 
@@ -155,51 +157,66 @@
     ))
 
 (defn card-with-button [display]
-  (let [x-carded? (get display :x-card-active?)
-        card-data (get display :card)
-        available-actions (get display :available-actions #{})
+  (let [parent-layout (r/atom {"height" 40 "width" 40})
+        child-layout (r/atom {"height" 0 "width" 0})]
+    (fn -card-with-button [display]
+     (let [x-carded? (get display :x-card-active?)
+           card-data (get display :card)
+           available-actions (get display :available-actions #{})
 
-        dispatch (get display :dispatch)]
-    [card {:elevation 4
-           :style (merge
-                   {:margin 4
-                    :margin-bottom 16
-                    :padding 12
-                    :padding-bottom 0
-                    :font-size 16
-                    :border-width 4
-                    :border-style "solid"
-                    :border-color "white"
-                    }
-                   (if x-carded?
-                     {:border-color "red"}))}
-     [scroll-view
-      [card-content {:class (str (name (get-in card-data [:state] "blank"))
-                                 " "
-                                 (if x-carded?
-                                   "x-carded"))}
-       [markdown {:style {:body {:font-size 24
-                                 :font-family "Georgia"}}}
-        (get-in card-data [:text])]
-       [view
-        (map (fn [{:keys [name value label generator]}]
-               (with-meta
-                 [view
-                  [h2 label]
-                  [para value]
-                  ;; [:input {:name name :value value}]
-                  ]
-                 {:key name}))
-             (get-in display [:card :inputs]))]]
-      (if (available-actions :x-card)
-        [button {:style {:margin-bottom -12}
-                 :disabled x-carded?
-                 :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
-     [card-actions
-      ;; Maybe move pass here?
-      #_(if (available-actions :pass)
-        [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
-     ]))
+           dispatch (get display :dispatch)
+           child-height (get @child-layout "height" 0)
+           parent-height (get @parent-layout "height" 41)
+
+           overflow? (> (+ 60 child-height)
+                        parent-height)]
+       [card {:elevation 4
+              :on-layout (fn [e]
+                           (reset! parent-layout
+                                   (js->clj (.-layout (.-nativeEvent e)))))
+              :style (merge
+                      {:margin 4
+                       :margin-bottom 16
+                       :padding 12
+                       :padding-bottom 0
+                       :font-size 16
+                       :border-width 4
+                       :height "100%"
+                       :border-style "solid"
+                       :border-color "white"
+                       }
+                      (if x-carded?
+                        {:border-color "red"}))}
+        [scroll-view {:scroll-enabled overflow?}
+         [card-content {:on-layout (fn [e]
+                                     (reset! child-layout
+                                             (js->clj (.-layout (.-nativeEvent e)))))
+                        :class (str (name (get-in card-data [:state] "blank"))
+                                    " "
+                                    (if x-carded?
+                                      "x-carded"))}
+          [markdown {:style {:body {:font-size 24
+                                    :font-family "Georgia"}}}
+           (get-in card-data [:text])]
+          [view
+           (map (fn [{:keys [name value label generator]}]
+                  (with-meta
+                    [view
+                     [h2 label]
+                     [para value]
+                     ;; [:input {:name name :value value}]
+                     ]
+                    {:key name}))
+                (get-in display [:card :inputs]))]]
+         (if (available-actions :x-card)
+           [button {:style {:margin-bottom -12}
+                    :disabled x-carded?
+                    :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
+        [card-actions
+         ;; Maybe move pass here?
+         #_(if (available-actions :pass)
+             [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
+        ]))))
 
 (defn bottom-sheet-card [props]
   (let []

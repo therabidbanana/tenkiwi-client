@@ -1,6 +1,6 @@
 (ns tenkiwi.views.debrief
   (:require [re-frame.core :as re-frame]
-            [reagent.core :as r :refer [atom]]
+            [reagent.core :as r]
             [tenkiwi.views.shared :as ui]))
 
 (defn- extract-display [game-state key-list]

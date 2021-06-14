@@ -2,6 +2,7 @@
   (:require [re-frame.core :as re-frame]
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
+            [tenkiwi.views.oracle :refer [oracle-game-panel]]
             [reagent.core :as r :refer [atom]]))
 
 (def ReactNative (js/require "react-native"))
@@ -55,8 +56,7 @@
       [button
        {:mode     "contained"
         :on-press #(do
-                     (dispatch [:<-join/join-room!])
-                     )}
+                     (dispatch [:<-join/join-room!]))}
        "Join"]]]))
 
 (defn join-panel []
@@ -82,29 +82,29 @@
       (if (= (:room-code game-data) "haslem")
         [button {:mode "outlined"
                  :on-press #(do
-                               (dispatch [:<-game/start! :ftq]))}
+                              (dispatch [:<-game/start! :ftq]))}
          [text "Start: FTQ (Original)"]])
       [button {:mode "outlined"
                :on-press #(do
-                             (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}])
-                             )}
+                            (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}]))}
        [text "Start: For The Captain"]]
       [button {:mode "outlined"
                :on-press #(do
-                             (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}])
-                             )}
+                            (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}]))}
        [text "Start: The Debrief"]]
       [button {:mode "outlined"
                :on-press #(do
-                             (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}])
-                             )}
+                            (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}]))}
        [text "Start: The Culinary Contest"]]
-      ]]))
+      (if (= (:room-code game-data) "haslem")
+        [button {:mode "outlined"
+                 :on-press #(do
+                              (dispatch [:<-game/start! :oracle {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1204467298&single=true&output=tsv"}]))}
+         [text "Seer: D&D"]])]]))
 
 (defn lobby-panel []
   (let [game-data (re-frame/subscribe [:room])]
     [-lobby-panel game-data re-frame/dispatch]))
-
 
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])]
@@ -113,7 +113,8 @@
       [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
       :debrief
       [debrief-game-panel]
-      )))
+      :oracle
+      [oracle-game-panel])))
 
 (defn layout [body]
   [safe-view {:style {:overflow-x "hidden"
@@ -126,8 +127,7 @@
     [:> (.-Caption rn-paper)
      "This work is based on For the Queen"
      ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-     "Creative Commons Attribution 3.0 Unported license"]
-    ]])
+     "Creative Commons Attribution 3.0 Unported license"]]])
 
 (defn -connecting-panel []
   (let []
