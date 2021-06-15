@@ -14,6 +14,8 @@
               #_[tenkiwi.handlers]
               #_[tenkiwi.subs]))
 
+#_(set! *warn-on-infer* true)
+
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
 (def AtExpo (js/require "@expo/vector-icons"))

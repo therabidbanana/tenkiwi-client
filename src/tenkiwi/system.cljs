@@ -85,7 +85,6 @@
 (re-frame/reg-fx
  :websocket
  (fn [chsk-args]
-   (println system)
    (let [socket (get-in system [:sente :connected-socket])
          socket (if socket (deref socket))]
      ;; TODO: Add timeout, callback for response -> dispatch

@@ -14,6 +14,8 @@
             [react-native-tab-view :as tab-lib]
             ))
 
+#_(set! *warn-on-infer* true)
+
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
 (def AtExpo (js/require "@expo/vector-icons"))
@@ -173,7 +175,8 @@
        [card {:elevation 4
               :on-layout (fn [e]
                            (reset! parent-layout
-                                   (js->clj (.-layout (.-nativeEvent e)))))
+                                   ;; oget doesn't work in dev?
+                                   (js->clj (aget (aget e "nativeEvent") "layout"))))
               :style (merge
                       {:margin 4
                        :margin-bottom 16
@@ -190,7 +193,7 @@
         [scroll-view {:scroll-enabled overflow?}
          [card-content {:on-layout (fn [e]
                                      (reset! child-layout
-                                             (js->clj (.-layout (.-nativeEvent e)))))
+                                             (js->clj (aget (aget e "nativeEvent") "layout"))))
                         :class (str (name (get-in card-data [:state] "blank"))
                                     " "
                                     (if x-carded?
