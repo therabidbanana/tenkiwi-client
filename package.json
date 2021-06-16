@@ -4,7 +4,7 @@
   "description": "",
   "author": "",
   "private": true,
-  "main": "js/index.prod.js",
+  "main": "js/index.dev.js",
   "dependencies": {
     "@expo/metro-config": "^0.1.73",
     "@expo/react-native-action-sheet": "^3.9.0",

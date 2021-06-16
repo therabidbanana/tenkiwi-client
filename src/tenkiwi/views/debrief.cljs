@@ -91,8 +91,8 @@
                         :padding 4}}
        [ui/para {:title agent-name}
         (str (if agent-name (str agent-codename ", " agent-role " ")) " (" user-name ")")]]
-      [ui/view {:flex-direction "row"
-                :align-items "center"}
+      [ui/view {:style {:flex-direction "row"
+                        :align-items "center"}}
        ;; TODO - maybe this logic should come from gamemaster
        (if-not current-user?
          [ui/button
@@ -261,11 +261,16 @@
            dimensions (.get ui/dimensions "screen")
            on-tab-change (fn [x] (reset! tab-state x))
            current-index @tab-state
-           sizing {:min-height (.-height dimensions)
-                   :width (.-width dimensions)}]
+           sizing (if ui/web?
+                    {:min-height (.-height dimensions)
+                     :width "100%"}
+                    {:min-height (.-height dimensions)
+                     :width (.-width dimensions)})
+           ]
        [ui/view {:style sizing}
         [ui/tab-view
-         {:initial-layout (assoc sizing :height (.-height dimensions))
+         {:initial-layout (if-not ui/web?
+                            (assoc sizing :height (.-height dimensions)))
           :scroll-enabled true
           :on-index-change on-tab-change
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}

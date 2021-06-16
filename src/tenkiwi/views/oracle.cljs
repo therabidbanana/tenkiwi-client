@@ -269,11 +269,16 @@
            dimensions (.get ui/dimensions "screen")
            on-tab-change (fn [x] (reset! tab-state x))
            current-index @tab-state
-           sizing {:min-height (.-height dimensions)
-                   :width (.-width dimensions)}]
+           sizing (if ui/web?
+                    {:min-height (.-height dimensions)
+                     :width "100%"}
+                    {:min-height (.-height dimensions)
+                     :width (.-width dimensions)})
+           ]
        [ui/view {:style sizing}
         [ui/tab-view
-         {:initial-layout (assoc sizing :height (.-height dimensions))
+         {:initial-layout (if-not ui/web?
+                            (assoc sizing :height (.-height dimensions)))
           :scroll-enabled true
           :on-index-change on-tab-change
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}

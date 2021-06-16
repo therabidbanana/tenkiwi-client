@@ -44,12 +44,15 @@
             display (assoc display :dispatch dispatch)
             on-tab-change (fn [x] (reset! tab-state x))
             current-index @tab-state
-            sizing {:min-height (.-height dimensions)
-                    :width (.-width dimensions)}
+            sizing (if ui/web?
+                     {:min-height (.-height dimensions)
+                      :width "100%"}
+                     {:min-height (.-height dimensions)
+                      :width (.-width dimensions)})
             ]
         [ui/view {:style sizing}
          [ui/tab-view
-          {:initial-layout sizing
+          {:initial-layout (if-not ui/web? sizing)
            :scroll-enabled true
            :on-index-change on-tab-change
            ;;:scene-container-style {:background-color "red"}

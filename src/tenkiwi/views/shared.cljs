@@ -23,6 +23,7 @@
 (def ic (r/adapt-react-class ionicons))
 
 (def platform (.-Platform ReactNative))
+(def web? (= "web" (.-OS platform)))
 (def use-window-dimensions (.-useWindowDimensions ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
@@ -240,21 +241,22 @@
            ]
         (if web?
          [view
-          [view {:style {:min-height "50vh"
+          [view {:style {:min-height "30vh"
                          :visibility "hidden"}}
            [card-with-button props]]
           [portal
            [view {:style {:position "fixed"
                           :bottom 0
                           :background-color "rgba(0,0,0,0.2)"
-                          :height "20vh"
-                          :min-height "20vh"
+                          :height "50vh"
+                          :min-height "50vh"
                           :width "100%"}}
             [card-with-button props]]]]
          [portal
           [bottom-sheet {:snap-points ["65%" "25%" 64]
                          :initial-snap 0
                          :border-radius 8
+                         ;; animation forces 25% snappoint 
                          ;; :enabled-bottom-initial-animation true
                          :enabled-content-tap-interaction false
                          :render-content (fn [p]
