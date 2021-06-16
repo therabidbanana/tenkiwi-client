@@ -76,7 +76,7 @@
         current-user? (= id current-user-id)
         dispatch (:dispatch display)
         total-score (apply + (vals (player-scores id)))]
-    [ui/surface {:style {:margin 8
+    [ui/surface {:style {:margin 4
                          :flex-direction "row"
                          :align-items "center"}}
      [ui/view {:style {:flex 1
@@ -131,7 +131,12 @@
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")]
 
-      [ui/scroll-view
+      [ui/scroll-view {:style {:padding 4}}
+       [ui/h1
+        {:theme {:colors {:text "white"}}
+         :style {:padding-top 4
+                 :padding-left 4}}
+        "Scoreboard"]
        [ui/view 
         (if voting-active?
           (map (fn [player]
@@ -139,7 +144,13 @@
                    [-player-scoreboard-entry (assoc display :dispatch dispatch)
                       current-user-id player-scores player]
                    {:key (:id player)}))
-               all-players))]
+               all-players)
+          [ui/para
+           {:theme {:colors {:text "white"}}
+            :style {:padding-top 4
+                    :padding-left 4
+                    :font-style "italic"}}
+           "Voting will start after introductions"])]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]
        ])))

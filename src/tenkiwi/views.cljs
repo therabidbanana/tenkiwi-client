@@ -204,7 +204,15 @@
           [button {:mode "outlined"
                    :on-press #(do
                                 (dispatch [:<-game/start! :oracle {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1204467298&single=true&output=tsv"}]))}
-           [text "Seer: D&D"]]]])]]))
+           [text "Seer: D&D"]]]])]
+     [view {:style {:padding 8
+                    :text-align "center"
+                    :background-color "rgba(100,80,120,0.8)"}}
+      [:> (.-Caption rn-paper)
+       "This work is based on For the Queen"
+       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
+       "Creative Commons Attribution 3.0 Unported license"]]
+     ]))
 
 (defn lobby-panel []
   (let [game-data (re-frame/subscribe [:room])]

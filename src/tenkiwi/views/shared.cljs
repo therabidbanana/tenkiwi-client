@@ -252,9 +252,10 @@
                           :width "100%"}}
             [card-with-button props]]]]
          [portal
-          [bottom-sheet {:snap-points [(* 0.65 (.-height dimensions)) (* 0.25 (.-height dimensions)) 64]
+          [bottom-sheet {:snap-points ["65%" "25%" 64]
                          :initial-snap 0
-                         :enabled-bottom-initial-animation true
+                         :border-radius 8
+                         ;; :enabled-bottom-initial-animation true
                          :enabled-content-tap-interaction false
                          :render-content (fn [p]
                                            (r/as-element [view {:style {:height "100%"
