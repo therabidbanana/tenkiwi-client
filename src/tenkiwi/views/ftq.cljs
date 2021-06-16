@@ -59,7 +59,7 @@
                                        {:key "other"
                                         :title " "}]}
            :render-scene (fn [props]
-                           (let [key (oget props "route.key")]
+                           (let [key (aget (aget props "route") "key")]
                              (case key
                                "main"
                                (r/as-element [-main-panel display])

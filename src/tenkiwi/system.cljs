@@ -49,9 +49,12 @@
      :sente (component/using
              (new-channel-socket-client "/chsk" ?csrf-token {:type      :ws
                                                              :packer    (get-transit-packer)
-                                                             :protocol :https
-                                                             :host "play.tenkiwi.com"
-                                                             ;; :port 10555
+                                                             ;; Next 2 - prod-mode
+                                                             ;; :protocol :https
+                                                             ;; :host "play.tenkiwi.com"
+                                                             ;; Next 2 - dev mode
+                                                             :host "sshinto.me"
+                                                             :port 10555
                                                              :client-id client-id})
              [:sente-handler :client-id])
      :client-id client-id
