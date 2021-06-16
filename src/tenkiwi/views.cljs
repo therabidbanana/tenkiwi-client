@@ -55,6 +55,9 @@
      [card {:style box-style}
       [para {:style {:margin-bottom 8}}
        "Tenkiwi is a system for playing story-telling games with friends. "
+       "(You will need to be in the same room or in video conference.) "
+       ]
+      [para {:style {:margin-bottom 8}}
        "To get started, what name do you want to use?"
        ]
       [view
@@ -173,7 +176,13 @@
                                (r/create-element PlayerBoot (clj->js (assoc player :dispatch dispatch))))}])]]]
      [surface {:style {:margin 18
                        :padding 8}}
-      [para "Once everyone has joined, choose a game type to start:"]
+      [para
+       "Once everyone has joined, choose a game type to start."
+       " "
+       "Players without the app can join via web at "
+       [para {:style {:font-weight "bold"}}
+        "tenkiwi.com"]
+       ]
       [card
        [card-title {:subtitle "Descended from the Queen"}]
        [card-content
