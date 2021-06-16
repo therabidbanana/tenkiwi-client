@@ -121,12 +121,18 @@ Since Figwheel already does those.
 lein prod-build
 ```
 
-#### boot users
-``` shell
-boot prod
+
+Web build:
+
+``` 
+expo build:web
 ```
 
+Testing build:
 
+```
+npx serve web-build
+```
 
 Successfully created Provisioning Profile
 
