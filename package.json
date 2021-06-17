@@ -1,10 +1,10 @@
 {
-  "name": "your-project",
+  "name": "tenkiwi",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
-  "main": "js/index.dev.js",
+  "main": "js/index.prod.js",
   "dependencies": {
     "@expo/metro-config": "^0.1.73",
     "@expo/react-native-action-sheet": "^3.9.0",

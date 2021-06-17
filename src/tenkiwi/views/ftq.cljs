@@ -4,10 +4,10 @@
             [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
-(defn -other-panel [{:as display
+#_(defn -image-panel [{:as display
                      :keys [dispatch]}]
   [ui/scroll-view
-   #_[:img {:src (str (:text queen))}]
+   [:img {:src (str (:text queen))}]
    (map (fn [{conf :confirm
               :keys [action class text]}]
           (with-meta
@@ -15,9 +15,47 @@
                     {:mode "outlined"
                      :on-press (fn []
                                  (ui/maybe-confirm! conf
-                                                 #(dispatch [:<-game/action! action])))} text)
+                                                    #(dispatch [:<-game/action! action])))} text)
             {:key action}))
         (get-in display [:extra-actions]))])
+
+(defn -other-panel [{:as display
+                     :keys [queen dispatch]}]
+  [ui/scroll-view
+   [ui/view {:style {:height 250
+                     :align-items "center"
+                     :flex-direction "row"}}
+    [ui/button {:style {:flex 1}
+                :content-style {:height 250}
+                :on-press #(dispatch [:<-game/action! :previous-queen {}])}
+     "<"]
+    [ui/image {:style {:flex 8
+                       :width "100%"
+                       :height "100%"}
+               :resize-mode "contain"
+               :source {:uri (str (:text queen))}}]
+
+    [ui/button {:style {:flex 1}
+                :content-style {:height 250}
+                :on-press #(dispatch [:<-game/action! :next-queen {}])}
+     ">"]
+    ]
+   [ui/card {:margin 8
+             :margin-top 12}
+    [ui/card-content
+     (map (fn [{conf :confirm
+                :keys [action class text]}]
+            (with-meta
+              (vector ui/button
+                      {:mode "outlined"
+                       :on-press (fn []
+                                   (ui/maybe-confirm! conf
+                                                      #(dispatch [:<-game/action! action])))} text)
+              {:key action}))
+          (remove #(#{:next-queen :previous-queen} (:action %))
+                  (get-in display [:extra-actions])))]]
+   [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
+    [ui/text ""]]])
 
 (defn -main-panel [display]
   [ui/scroll-view
@@ -41,7 +79,9 @@
                                                    (:inactive-display game))
             x-carded?                      (:x-card-active? display)
 
-            display (assoc display :dispatch dispatch)
+            display (assoc display
+                           :dispatch dispatch
+                           :queen queen)
             on-tab-change (fn [x] (reset! tab-state x))
             current-index @tab-state
             sizing (if ui/web?

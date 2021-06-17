@@ -205,8 +205,6 @@
           [ui/actions-list (assoc display
                                   :dispatch dispatch
                                   :action-valid? valid-button?)]
-          [ui/bottom-sheet-card
-           (assoc display :dispatch dispatch)]
           (if (and voting-active? extra-details)
             [ui/view {:style {:padding 2
                               :padding-top 8}}
@@ -233,7 +231,9 @@
                       {:key (str title1 title2)}))
                   (partition-all 2 extra-details)
                   )])
-          [ui/view {:height (* 0.7 (.-height dimensions))}
+          [ui/bottom-sheet-card
+           (assoc display :dispatch dispatch)]
+          [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
            [ui/text ""]]
           ]])))
 

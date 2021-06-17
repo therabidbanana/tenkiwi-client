@@ -51,7 +51,7 @@
 (defn -join-panel [form-state join dispatch]
   (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
                                     3)]
-    [view
+    [scroll-view
      [card {:style box-style}
       [para {:style {:margin-bottom 8}}
        "Tenkiwi is a system for playing story-telling games with friends. "
@@ -183,29 +183,45 @@
        [para {:style {:font-weight "bold"}}
         "tenkiwi.com"]
        ]
-      [card
-       [card-title {:subtitle "Descended from the Queen"}]
+      [card {:style {:margin-top 8}}
+       [card-title {:title "For the Captain"
+                    :subtitle-number-of-lines 3
+                    :subtitle "A Descended from the Queen game"}]
        [card-content
+        [para "A starship crew put together for one last mission"]
         (if (= (:room-code game-data) "haslem")
           [button {:mode "outlined"
                    :on-press #(do
                                 (dispatch [:<-game/start! :ftq]))}
            [text "FTQ (Original)"]])
         [button {:mode "outlined"
+                 :style {:margin-top 4}
                  :on-press #(do
                               (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}]))}
-         [text "For The Captain"]]]]
-      [card 
-       [card-title {:subtitle "Debrief"}]
+         [text "Start Game"]]]]
+      [card {:style {:margin-top 8}}
+       [card-title {:title "The Debrief"
+                    :subtitle-number-of-lines 3
+                    :subtitle "Based on Mission: Accomplished! by Jeff Stormer"}]
        [card-content
+        [para "A game of almost spies dodging blame and their bad work environment"]
         [button {:mode "outlined"
+                 :style {:margin-top 4}
                  :on-press #(do
                               (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}]))}
-         [text "The Debrief"]]
+         [text "Start Game"]]
+        ]]
+      [card {:style {:margin-top 8}}
+       [card-title {:title "Culinary Contest"
+                    :subtitle-number-of-lines 3
+                    :subtitle "Based on Uranium Chef by Dave Joria and published by Evil Hat Productions"}]
+       [card-content
+        [para "Intergalactic chefs competing to show their stuff"]
         [button {:mode "outlined"
+                 :style {:margin-top 4}
                  :on-press #(do
                               (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}]))}
-         [text "The Culinary Contest"]]]]
+         [text "Start Game"]]]]
       (if (= (:room-code game-data) "haslem")
         [card
          [card-title {:subtitle "Seer System"}]
