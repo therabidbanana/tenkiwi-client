@@ -146,8 +146,10 @@
                     :background-color "rgba(100,80,120,0.8)"}}
       [:> (.-Caption rn-paper)
        "This work is based on For the Queen"
+       " (found at http://www.forthequeengame.com/)"
        ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"]]]
+       "Creative Commons Attribution 3.0 Unported license"
+       "  (http://creativecommons.org/licenses/by/3.0/)."]]]
     ))
 
 (defn join-panel []
@@ -237,8 +239,10 @@
                     :background-color "rgba(100,80,120,0.8)"}}
       [:> (.-Caption rn-paper)
        "This work is based on For the Queen"
+       " (found at http://www.forthequeengame.com/)"
        ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"]]
+       "Creative Commons Attribution 3.0 Unported license"
+       "  (http://creativecommons.org/licenses/by/3.0/)."]]
      ]))
 
 (defn lobby-panel []
