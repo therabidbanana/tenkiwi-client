@@ -214,9 +214,10 @@
       [card {:style {:margin-top 8}}
        [card-title {:title "Culinary Contest"
                     :subtitle-number-of-lines 3
-                    :subtitle "Based on Uranium Chef by Dave Joria and published by Evil Hat Productions"}]
+                    ;;:subtitle "Based on Uranium Chef by Dave Joria and published by Evil Hat Productions"
+                    }]
        [card-content
-        [para "Intergalactic chefs competing to show their stuff"]
+        [para "Intergalactic chefs competing to show their stuff."]
         [button {:mode "outlined"
                  :style {:margin-top 4}
                  :on-press #(do
