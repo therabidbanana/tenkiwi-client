@@ -138,7 +138,8 @@
                  :padding-left 4}}
         "Scoreboard"]
        [ui/view 
-        (if voting-active?
+        ;; Testing always shown scoreboard
+        (if (or voting-active? true)
           (map (fn [player]
                  (with-meta
                    [-player-scoreboard-entry (assoc display :dispatch dispatch)
@@ -165,12 +166,13 @@
  (fn [db]
    (extract-display (:user db)
                     [:stage :stage-name :stage-focus
-                     :player-ranks])))
+                     :active-player :player-ranks])))
 
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
     (let [{:keys [stage stage-name
                   stage-focus company
+                  active-player
                   current-user-id
                   player-ranks]
            {:as display
@@ -204,8 +206,9 @@
           #_[ui/card-with-button (assoc display :dispatch dispatch)]
           [ui/actions-list (assoc display
                                   :dispatch dispatch
+                                  :hide-invalid? true
                                   :action-valid? valid-button?)]
-          (if (and voting-active? extra-details)
+          (if extra-details
             [ui/view {:style {:padding 2
                               :padding-top 8}}
              (map (fn [[{title1 :title items1 :items}
@@ -232,7 +235,10 @@
                   (partition-all 2 extra-details)
                   )])
           [ui/bottom-sheet-card
-           (assoc display :dispatch dispatch)]
+           (assoc display
+                  :dispatch dispatch
+                  :regen-action true
+                  :turn-marker (str (:user-name active-player) "'s turn..."))]
           [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
            [ui/text ""]]
           ]])))

@@ -54,6 +54,7 @@
 (def list-stuff (.-List rn-paper))
 (def list-section (r/adapt-react-class (.-Section list-stuff)))
 (def list-item (r/adapt-react-class (.-Item list-stuff)))
+(def list-icon (r/adapt-react-class (.-Icon list-stuff)))
 (def list-header (r/adapt-react-class (.-Subheader list-stuff)))
 (def card (r/adapt-react-class (.-Card rn-paper)))
 (def surface (r/adapt-react-class (.-Surface rn-paper)))
@@ -90,17 +91,19 @@
       :else
       (on-true))))
 
-(defn -action-button [dispatch action-valid? {:as full-action
-                                              :keys [params confirm action text]
-                                              :or {params {}}}]
-  (let []
-    [button {:style {:margin-top 4}
-             :mode "contained"
-             :disabled (not (action-valid? full-action))
-             :on-press (fn []
-                         (maybe-confirm! confirm
-                                         #(dispatch [:<-game/action! action params])))}
-     text]))
+(defn -action-button [{:keys [dispatch action-valid? hide-invalid?]}
+                      {:as full-action
+                       :keys [params confirm action text]
+                       :or {params {}}}]
+  (let [valid? (action-valid? full-action)]
+    (if (or valid? (not hide-invalid?))
+      [button {:style {:margin-top 4}
+               :mode "contained"
+               :disabled (not (action-valid? full-action))
+               :on-press (fn []
+                           (maybe-confirm! confirm
+                                           #(dispatch [:<-game/action! action params])))}
+       text])))
 
 ;; Action tray is a bit weird because bottom sheet is weird with a render
 ;; content function
@@ -122,8 +125,7 @@
                     :padding-top 8
                     :padding-bottom 8}} ": : :"]
      [scroll-view
-      (map #(with-meta [-action-button dispatch action-valid? %]
-              {:key %}) actions)]]))
+      (map #(vector -action-button (merge props {:key %}) %) actions)]]))
 
 (defn actions-list [{:as props
                      :keys [dispatch sizing actions action-valid?]
@@ -131,8 +133,7 @@
   (let [action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
     [view {:style {:padding 8}}
-     (map #(with-meta [-action-button dispatch action-valid? %]
-             {:key %}) actions)]))
+     (map #(vector -action-button (merge props {:key % }) %) actions)]))
 
 (defn bottom-sheet-fixed [props]
   (let [web? (= "web" (.-OS platform))
@@ -165,6 +166,8 @@
     (fn -card-with-button [display]
      (let [x-carded? (get display :x-card-active?)
            card-data (get display :card)
+           rules?    (get-in card-data [:tags :rules])
+           regen?    (get display :regen-action)
            available-actions (get display :available-actions #{})
 
            dispatch (get display :dispatch)
@@ -172,7 +175,11 @@
            parent-height (get @parent-layout "height" 41)
 
            overflow? (> (+ 60 child-height)
-                        parent-height)]
+                        parent-height)
+           all-inputs (into {}
+                            (map #(vector (:name %) (:value %))
+                                 (get-in display [:card :inputs] [])))
+           ]
        [card {:elevation 4
               :on-layout (fn [e]
                            (reset! parent-layout
@@ -180,17 +187,21 @@
                                    (js->clj (aget (aget e "nativeEvent") "layout"))))
               :style (merge
                       {:margin 4
-                       :margin-bottom 16
+                       :margin-bottom 10
                        :padding 12
                        :padding-bottom 0
                        :font-size 16
                        :border-width 4
-                       :height "100%"
+                       :flex 1
                        :border-style "solid"
                        :border-color "white"
                        }
-                      (if x-carded?
-                        {:border-color "red"}))}
+                      (cond
+                        x-carded?
+                        {:border-color "red"}
+                        ;; rules?
+                        ;; {:border-color "blue"}
+                        ))}
         [scroll-view {:scroll-enabled overflow?}
          [card-content {:on-layout (fn [e]
                                      (reset! child-layout
@@ -199,21 +210,24 @@
                                     " "
                                     (if x-carded?
                                       "x-carded"))}
-          [markdown {:style {:body {:font-size 24
+          [markdown {:style {:body {:font-size 22
                                     :font-family "Georgia"}}}
            (get-in card-data [:text])]
-          [view
+          [list-section
            (map (fn [{:keys [name value label generator]}]
-                  (with-meta
-                    [view
-                     [h2 label]
-                     [para value]
-                     ;; [:input {:name name :value value}]
-                     ]
-                    {:key name}))
+                  [list-item {:key name
+                              :title label
+                              :description value
+                              :on-press (if regen?
+                                          #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
+                              :right (if regen?
+                                       (fn [p] (r/as-element
+                                                [list-icon (merge (js->clj p)
+                                                                  {:icon "refresh"})])))
+                              }])
                 (get-in display [:card :inputs]))]]
          (if (available-actions :x-card)
-           [button {:style {:margin-bottom -12}
+           [button {;;:style {:margin-bottom -12}
                     :disabled x-carded?
                     :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
         [card-actions
@@ -240,18 +254,19 @@
                                    action-sheet-action))
            ]
         (if web?
-         [view
-          [view {:style {:min-height "30vh"
-                         :visibility "hidden"}}
-           [card-with-button props]]
           [portal
            [view {:style {:position "fixed"
                           :bottom 0
-                          :background-color "rgba(0,0,0,0.2)"
+                          :background-color "rgba(0,0,0,0.9)"
                           :height "50vh"
                           :min-height "50vh"
                           :width "100%"}}
-            [card-with-button props]]]]
+            [text {:style {:padding 6
+                           :padding-left 12
+                           :font-weight "bold"
+                           :color "white"}}
+             (:turn-marker props)]
+            [card-with-button props]]]
          [portal
           [bottom-sheet {:snap-points ["65%" "25%" 64]
                          :initial-snap 0
@@ -259,10 +274,18 @@
                          ;; animation forces 25% snappoint 
                          ;; :enabled-bottom-initial-animation true
                          :enabled-content-tap-interaction false
+                         ;; :render-header (if (:turn-marker props)
+                         ;;                  (fn [p]
+                         ;;                   (r/as-element [text (:turn-marker props)])))
                          :render-content (fn [p]
                                            (r/as-element [view {:style {:height "100%"
-                                                                        :padding-top 20
-                                                                        :background-color "rgba(0,0,0,0.8)"}}
+                                                                        :padding-top 6
+                                                                        :background-color "rgba(0,0,0,0.9)"}}
+                                                          [text {:style {:padding 6
+                                                                         :padding-left 12
+                                                                         :font-weight "bold"
+                                                                         :color "white"}}
+                                                           (:turn-marker props)]
                                                           [card-with-button props]]))
                          }]])))
     ))
