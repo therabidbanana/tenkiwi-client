@@ -72,6 +72,7 @@
 
 (def tab-lib (js/require "react-native-tab-view"))
 (def tab-view (r/adapt-react-class (.. tab-lib -TabView)))
+(def tab-bar (r/adapt-react-class (.. tab-lib -TabBar)))
 (def SceneMap (.. tab-lib -SceneMap))
 
 (defn maybe-confirm! [confirm? on-true]
@@ -125,7 +126,9 @@
                     :padding-top 8
                     :padding-bottom 8}} ": : :"]
      [scroll-view
-      (map #(vector -action-button (merge props {:key %}) %) actions)]]))
+      (map #(vector -action-button (merge props {:key %
+                                                 :action-valid? action-valid?})
+                    %) actions)]]))
 
 (defn actions-list [{:as props
                      :keys [dispatch sizing actions action-valid?]
@@ -133,7 +136,9 @@
   (let [action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
     [view {:style {:padding 8}}
-     (map #(vector -action-button (merge props {:key % }) %) actions)]))
+     (map #(vector -action-button (merge props {:key %
+                                                :action-valid? action-valid?})
+                   %) actions)]))
 
 (defn bottom-sheet-fixed [props]
   (let [web? (= "web" (.-OS platform))
@@ -237,7 +242,7 @@
         ]))))
 
 (defn bottom-sheet-card [props]
-  (let []
+  (let [collapsed? (r/atom false)]
     (fn [props]
       (let [web? (= "web" (.-OS platform))
            dimensions (.get dimensions "screen")
@@ -256,15 +261,16 @@
         (if web?
           [portal
            [view {:style {:position "fixed"
-                          :bottom 0
+                          :bottom (if @collapsed? "-55vh" 0)
                           :background-color "rgba(0,0,0,0.9)"
-                          :height "50vh"
-                          :min-height "50vh"
+                          :height "65vh"
+                          :min-height "65vh"
                           :width "100%"}}
             [text {:style {:padding 6
                            :padding-left 12
                            :font-weight "bold"
-                           :color "white"}}
+                           :color "white"}
+                   :on-press #(swap! collapsed? not)}
              (:turn-marker props)]
             [card-with-button props]]]
          [portal

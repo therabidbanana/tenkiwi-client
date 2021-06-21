@@ -60,7 +60,10 @@
 (defn -main-panel [display]
   [ui/scroll-view
    [ui/actions-list display]
-   [ui/bottom-sheet-card display]]
+   [ui/bottom-sheet-card (assoc display
+                                :turn-marker
+                                (str (get-in display [:active-player :user-name])
+                                     "'s turn..."))]]
   )
 
 (defn -ftq-game-panel [user-data dispatch]
@@ -80,6 +83,7 @@
             x-carded?                      (:x-card-active? display)
 
             display (assoc display
+                           :active-player (:active-player game)
                            :dispatch dispatch
                            :queen queen)
             on-tab-change (fn [x] (reset! tab-state x))
@@ -89,6 +93,14 @@
                       :width "100%"}
                      {:min-height (.-height dimensions)
                       :width (.-width dimensions)})
+            tab-style {:minHeight 24
+                       :padding 6
+                       :paddingBottom 9}
+            bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
+            indicator-style {:borderRadius 2
+                             :backgroundColor "rgba(255,255,255,0.15)"
+                             :height 4
+                             :bottom 3}
             ]
         [ui/view {:style sizing}
          [ui/tab-view
@@ -98,9 +110,17 @@
            ;;:scene-container-style {:background-color "red"}
            :navigation-state {:index current-index
                               :routes [{:key "main"
-                                        :title " "}
+                                        :title "Main"}
                                        {:key "other"
-                                        :title " "}]}
+                                        :title "Extras"}]}
+           :render-tab-bar (fn [props]
+                             (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
+                                   _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
+                                   _ (goog.object/set props "style" (clj->js bar-style))
+                                   ;; Disable uppercase transform
+                                   ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
+                                   ]
+                               (r/as-element [ui/tab-bar (js->clj props)])))
            :render-scene (fn [props]
                            (let [key (aget (aget props "route") "key")]
                              (case key

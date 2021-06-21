@@ -1,6 +1,8 @@
 (ns tenkiwi.views.debrief
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r]
+            [oops.core :refer [oget oset!]]
+            [goog.object]
             [tenkiwi.views.shared :as ui]))
 
 (defn- extract-display [game-state key-list]
@@ -217,7 +219,7 @@
                       [ui/view {:flex-direction "row"}
                        (if title1
                          [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(150,150,190,0.7)"
+                                                    :background-color "rgba(255,255,255,0.40)"
                                                     :margin 4
                                                     :flex 1)}
                           [ui/h1 title1]
@@ -225,7 +227,7 @@
                            (map #(with-meta [ui/para %] {:key %}) items1)]])
                        (if title2
                          [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(150,150,190,0.7)"
+                                                    :background-color "rgba(255,255,255,0.40)"
                                                     :margin 4
                                                     :flex 1)}
                           [ui/h1 title2]
@@ -272,21 +274,39 @@
                      :width "100%"}
                     {:min-height (.-height dimensions)
                      :width (.-width dimensions)})
-           ]
+           tab-style {:minHeight 24
+                      :padding 6
+                      :paddingBottom 9}
+           bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
+           indicator-style {:borderRadius 2
+                            :backgroundColor "rgba(255,255,255,0.15)"
+                            :height 4
+                            :bottom 3}]
        [ui/view {:style sizing}
         [ui/tab-view
          {:initial-layout (if-not ui/web?
                             (assoc sizing :height (.-height dimensions)))
           :scroll-enabled true
           :on-index-change on-tab-change
+          :render-tab-bar (fn [props]
+                            (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
+                                  _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
+                                  _ (goog.object/set props "style" (clj->js bar-style))
+                                  ;; Disable uppercase transform
+                                  ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
+                                  ]
+                              (r/as-element [ui/tab-bar (js->clj props)])))
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
           :navigation-state {:index current-index
                              :routes [{:key "main"
-                                       :title " "}
+                                       :title "Main"
+                                       :icon "play-circle-outline"}
                                       {:key "scoreboard"
-                                       :title " "}
+                                       :title "Scores"
+                                       :icon "bar-chart"}
                                       {:key "other"
-                                       :title " "}]}
+                                       :title "Extras"
+                                       :icon "more-horiz"}]}
           :render-scene scene-map}
          ]
         ]))))
