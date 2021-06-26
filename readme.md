@@ -1,7 +1,7 @@
 
 Notes
 
-1. Run lein figwheel first
+1. Run lein figwheel first (or use M-x cider jack in cljs -> lein -> wait 5 seconds -> figwheel-main -> dev -> wait 60 seconds)
 2. Boot expo with expo start
 3. Press w to boot web version 
 4. Ignore CORS with https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related (ew) and only connect with localhost.
@@ -29,10 +29,9 @@ Libraries:
 
 To figure out - 
 
-1. Custom bottom-sheet for web that's fixed to bottom (make sure enough padding in under element?)
-2. How to host web version at tenkiwi
-3. How to extract standard shared elements like the action tray
-4. Main bottleneck - reading large amounts of edn (time to stream only necessary stuff down?)
+1. integrate markdown-display and paper? Rules for rendering to use heading / subheading?
+2. j
+3. How to extract standard shared elements like the action tray better
 
 ## your-project
 

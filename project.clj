@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/clojurescript "1.10.866"]
 
-                 [com.bhauman/figwheel-main "0.2.13"]
+                 ;; [com.bhauman/figwheel-main "0.2.13"]
 
                  [binaryage/oops "0.7.0"]
                  [reagent "0.10.0" :exclusions [cljsjs/react cljsjs/react-dom cljsjs/react-dom-server cljsjs/create-react-class]]
@@ -29,10 +29,14 @@
             "rebuild-modules" ["run" "-m" "user" "--rebuild-modules"]
             "prod-build"      ^{:doc "Recompile code with prod profile."}
             ["with-profile" "prod" "cljsbuild" "once" "main"]}
-  :profiles {:dev  {:dependencies [[figwheel-sidecar "0.5.20"]
-                                   [cider/piggieback "0.4.1"]]
-                    :source-paths ["src" "env/dev"]
-                    :cljsbuild    {:builds [{:id           "main"
+  :profiles {:dev  {:dependencies [#_[figwheel-sidecar "0.5.20"]
+                                   [cider/piggieback "0.5.2"]
+                                   [com.bhauman/figwheel-main "0.2.13"]
+                                   ;; optional but recommended
+                                   [com.bhauman/rebel-readline-cljs "0.1.4"]
+                                   ]
+                    :source-paths ["src"]
+                    #_:cljsbuild    #_{:builds [{:id           "main"
                                              :source-paths ["src" "env/dev"]
                                              :figwheel     true
                                              :compiler     {:output-to     "target/expo/index.js"
