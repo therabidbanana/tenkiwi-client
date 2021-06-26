@@ -3,6 +3,7 @@
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
+            [react-native-markdown-display :as markdown-lib]
             [reagent.core :as r]
             [clojure.string :as str]))
 
@@ -21,6 +22,9 @@
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
 (def Alert (.-Alert ReactNative))
+
+(def markdown-lib (js/require "react-native-markdown-display"))
+(def markdown (r/adapt-react-class (.. markdown-lib -default)))
 
 (def rn-paper (js/require "react-native-paper"))
 
@@ -154,7 +158,7 @@
   [button {:on-press #(dispatch [:<-room/boot-player! id])} "x"])
 
 (defn -lobby-panel [game-data dispatch]
-  (let [{:keys [room-code]
+  (let [{:keys [room-code available-games]
          :as   game-data} @game-data]
     [scroll-view {:style {:padding 4}}
      [card
@@ -175,54 +179,21 @@
        "Players without the app can join via web at "
        [para {:style {:font-weight "bold"}}
         "tenkiwi.com"]]
-      [card {:style {:margin-top 8}}
-       [card-title {:title                    "For the Captain"
-                    :subtitle-number-of-lines 3
-                    :subtitle                 "A Descended from the Queen game"}]
-       [card-content
-        [para "A starship crew put together for one last mission"]
-        (if (= (:room-code game-data) "haslem")
-          [button {:mode     "outlined"
-                   :on-press #(do
-                                (dispatch [:<-game/start! :ftq]))}
-           [text "FTQ (Original)"]])
-        [button {:mode     "outlined"
-                 :style    {:margin-top 4}
-                 :on-press #(do
-                              (dispatch [:<-game/start! :ftq {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=59533190&single=true&output=tsv"}]))}
-         [text "Start Game"]]]]
-      [card {:style {:margin-top 8}}
-       [card-title {:title                    "The Debrief"
-                    :subtitle-number-of-lines 3
-                    :subtitle                 "Based on Mission: Accomplished! by Jeff Stormer"}]
-       [card-content
-        [para "A game of lousy spies dodging blame and trying to survive their bad work environment."]
-        [button {:mode     "outlined"
-                 :style    {:margin-top 4}
-                 :on-press #(do
-                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1113383423&single=true&output=tsv"}]))}
-         [text "Start Game"]]]]
-      [card {:style {:margin-top 8}}
-       [card-title {:title                    "Culinary Contest"
-                    :subtitle-number-of-lines 3
-                    ;; Don't imply Evil Hat support / Uranium Chef connection
-                    ;;:subtitle "Based on Uranium Chef by Dave Joria and published by Evil Hat Productions"
-                    }]
-       [card-content
-        [para "Intergalactic chefs compete to show their skills then judge one another's meals."]
-        [button {:mode     "outlined"
-                 :style    {:margin-top 4}
-                 :on-press #(do
-                              (dispatch [:<-game/start! :debrief {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=599053556&single=true&output=tsv"}]))}
-         [text "Start Game"]]]]
-      (if (= (:room-code game-data) "haslem")
-        [card
-         [card-title {:subtitle "Seer System"}]
-         [card-content
-          [button {:mode     "outlined"
-                   :on-press #(do
-                                (dispatch [:<-game/start! :oracle {:game-url "https://docs.google.com/spreadsheets/d/e/2PACX-1vQy0erICrWZ7GE_pzno23qvseu20CqM1XzuIZkIWp6Bx_dX7JoDaMbWINNcqGtdxkPRiM8rEKvRAvNL/pub?gid=1204467298&single=true&output=tsv"}]))}
-           [text "Seer: D&D"]]]])]
+      (map (fn [{:keys [title subtitle type sheet]
+                 description :text}]
+             [card {:style {:margin-top 8}
+                    :key sheet}
+              [card-title {:title                    title
+                           :subtitle-number-of-lines 3
+                           :subtitle subtitle}]
+              [card-content
+               [markdown {} description]
+               [button {:mode     "outlined"
+                        :style    {:margin-top 4}
+                        :on-press #(do
+                                     (dispatch [:<-game/start! type {:game-url sheet}]))}
+                [text "Start Game"]]]])
+           available-games)]
      [view {:style {:padding          8
                     :text-align       "center"
                     :background-color "rgba(100,80,120,0.8)"}}
