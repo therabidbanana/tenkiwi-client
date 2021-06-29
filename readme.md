@@ -115,11 +115,23 @@ Since Figwheel already does those.
 
 ### Production build (generates js/externs.js and main.js)
 
-#### leiningen users
+#### JS Releases
 ``` shell
+lein clean
 lein prod-build
 ```
 
+Testing build
+```
+vim package.json # Edit index.dev.js to index.prod.js 
+expo start --no-dev
+```
+
+Releasing build to Expo
+
+```
+expo publish
+```
 
 Web build:
 
@@ -127,11 +139,33 @@ Web build:
 expo build:web
 ```
 
-Testing build:
+Testing web build directly:
 
 ```
 npx serve web-build
 ```
+
+(From tenkiwi app:)
+
+```
+rm -rf resources/public/static
+cp -R ../tenkiwi-client/web-build/* resources/public/
+git add resources
+git commit -m "Update web build"
+git push # Does a heroku release
+```
+
+#### Doing a native release
+
+Takes 20-30 minutes to generate an ipa file you can download:
+
+```
+expo build:ios -t archive
+```
+
+Open Transporter app and put the ipa into it.
+
+
 
 Successfully created Provisioning Profile
 
