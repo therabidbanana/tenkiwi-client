@@ -52,6 +52,7 @@
                                                          :main               "env.expo.main"
                                                          :output-dir         "target/expo"
                                                          :static-fns         true
+                                                         ;; :verbose           true
                                                          :externs            ["js/externs.js"]
                                                          :infer-externs      true
                                                          :parallel-build     true
