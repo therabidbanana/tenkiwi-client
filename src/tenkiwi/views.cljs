@@ -3,6 +3,7 @@
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
+            [tenkiwi.views.shared :as ui]
             [react-native-markdown-display :as markdown-lib]
             [reagent.core :as r]
             [clojure.string :as str]))
@@ -221,6 +222,9 @@
 (defn layout [body]
   [safe-view {:style {:overflow-x "hidden"
                       :min-height "100%"
+                      :padding-top (if (ui/os? "android")
+                                     (.. ReactNative -StatusBar -currentHeight))
+                      :flex 1
                       :background-color "#1e88e5"}}
    [view {:style {:background-color "#003366"}} body]])
 

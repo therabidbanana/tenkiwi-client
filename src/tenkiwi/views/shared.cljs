@@ -23,7 +23,11 @@
 (def ic (r/adapt-react-class ionicons))
 
 (def platform (.-Platform ReactNative))
-(def web? (= "web" (.-OS platform)))
+(defn os? [arg]
+  (= (.-OS platform) arg))
+(def web? (os? "web"))
+(def android? (os? "android"))
+(def ios? (os? "ios"))
 (def use-window-dimensions (.-useWindowDimensions ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
@@ -76,21 +80,20 @@
 (def SceneMap (.. tab-lib -SceneMap))
 
 (defn maybe-confirm! [confirm? on-true]
-  (let [web? (= "web" (.-OS platform))]
-    (cond
-      (and confirm? web?)
-      (if (js/confirm "Are you sure?")
-        (on-true))
-      confirm?
-      (.alert Alert "Confirm"
-              "Are you sure?"
-              (clj->js
-               [{:text "OK"
-                 :onPress on-true}
-                {:text "Cancel"
-                 :style "cancel"}]))
-      :else
-      (on-true))))
+  (cond
+    (and confirm? web?)
+    (if (js/confirm "Are you sure?")
+      (on-true))
+    confirm?
+    (.alert Alert "Confirm"
+            "Are you sure?"
+            (clj->js
+             [{:text "OK"
+               :onPress on-true}
+              {:text "Cancel"
+               :style "cancel"}]))
+    :else
+    (on-true)))
 
 (defn -action-button [{:keys [dispatch action-valid? hide-invalid?]}
                       {:as full-action
@@ -141,8 +144,7 @@
                    %) actions)]))
 
 (defn bottom-sheet-fixed [props]
-  (let [web? (= "web" (.-OS platform))
-        dimensions (.get dimensions "screen")]
+  (let [dimensions (.get dimensions "screen")]
     (if web?
       [view
        [view {:style {:min-height "20vh"
@@ -216,7 +218,7 @@
                                     (if x-carded?
                                       "x-carded"))}
           [markdown {:style {:body {:font-size 22
-                                    :font-family "Georgia"}}}
+                                    :font-family (if android? "serif" "Georgia")}}}
            (get-in card-data [:text])]
           [list-section
            (map (fn [{:keys [name value label generator]}]
@@ -244,20 +246,19 @@
 (defn bottom-sheet-card [props]
   (let [collapsed? (r/atom false)]
     (fn [props]
-      (let [web? (= "web" (.-OS platform))
-           dimensions (.get dimensions "screen")
-           action-sheet-props (clj->js
-                               {:options ["Pass" "Discard" "Cancel"]
-                                :destructive-button-index 0
-                                :cancel-button-index 2})
-           action-sheet-action (fn [index]
-                                 (println index))
-           trigger-action-sheet (fn [e]
-                                  (println "props" props)
-                                  ((:showActionSheetWithOptions props)
-                                   action-sheet-props
-                                   action-sheet-action))
-           ]
+      (let [dimensions (.get dimensions "screen")
+            action-sheet-props (clj->js
+                                {:options ["Pass" "Discard" "Cancel"]
+                                 :destructive-button-index 0
+                                 :cancel-button-index 2})
+            action-sheet-action (fn [index]
+                                  (println index))
+            trigger-action-sheet (fn [e]
+                                   (println "props" props)
+                                   ((:showActionSheetWithOptions props)
+                                    action-sheet-props
+                                    action-sheet-action))
+            ]
         (if web?
           [portal
            [view {:style {:position "fixed"
@@ -273,27 +274,27 @@
                    :on-press #(swap! collapsed? not)}
              (:turn-marker props)]
             [card-with-button props]]]
-         [portal
-          [bottom-sheet {:snap-points ["65%" "25%" 64]
-                         :initial-snap 0
-                         :border-radius 8
-                         ;; animation forces 25% snappoint 
-                         ;; :enabled-bottom-initial-animation true
-                         :enabled-content-tap-interaction false
-                         ;; :render-header (if (:turn-marker props)
-                         ;;                  (fn [p]
-                         ;;                   (r/as-element [text (:turn-marker props)])))
-                         :render-content (fn [p]
-                                           (r/as-element [view {:style {:height "100%"
-                                                                        :padding-top 6
-                                                                        :background-color "rgba(0,0,0,0.9)"}}
-                                                          [text {:style {:padding 6
-                                                                         :padding-left 12
-                                                                         :font-weight "bold"
-                                                                         :color "white"}}
-                                                           (:turn-marker props)]
-                                                          [card-with-button props]]))
-                         }]])))
+          [portal
+           [bottom-sheet {:snap-points ["65%" "25%" 64]
+                          :initial-snap 0
+                          :border-radius 8
+                          ;; animation forces 25% snappoint 
+                          ;; :enabled-bottom-initial-animation true
+                          :enabled-content-tap-interaction false
+                          ;; :render-header (if (:turn-marker props)
+                          ;;                  (fn [p]
+                          ;;                   (r/as-element [text (:turn-marker props)])))
+                          :render-content (fn [p]
+                                            (r/as-element [view {:style {:height "100%"
+                                                                         :padding-top 6
+                                                                         :background-color "rgba(0,0,0,0.9)"}}
+                                                           [text {:style {:padding 6
+                                                                          :padding-left 12
+                                                                          :font-weight "bold"
+                                                                          :color "white"}}
+                                                            (:turn-marker props)]
+                                                           [card-with-button props]]))
+                          }]])))
     ))
 
 ;; (def bottom-sheet-card (with-action-sheet (r/reactify-component -bottom-sheet-card)))

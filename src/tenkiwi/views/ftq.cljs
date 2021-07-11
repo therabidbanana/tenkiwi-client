@@ -88,7 +88,7 @@
                            :queen queen)
             on-tab-change (fn [x] (reset! tab-state x))
             current-index @tab-state
-            sizing (if ui/web?
+            sizing (if (ui/os? "web")
                      {:min-height (.-height dimensions)
                       :width "100%"}
                      {:min-height (.-height dimensions)
@@ -104,7 +104,7 @@
             ]
         [ui/view {:style sizing}
          [ui/tab-view
-          {:initial-layout (if-not ui/web? sizing)
+          {:initial-layout (if-not (ui/os? "web") sizing)
            :scroll-enabled true
            :on-index-change on-tab-change
            ;;:scene-container-style {:background-color "red"}
