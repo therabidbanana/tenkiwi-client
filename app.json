@@ -5,7 +5,7 @@
     "slug": "tenkiwi",
     "scheme": "tenkiwi",
     "sdkVersion": "41.0.0",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
     "privacy": "unlisted",
@@ -17,12 +17,13 @@
     },
     "ios": {
       "bundleIdentifier": "com.davidhaslem.tenkiwi",
-      "buildNumber": "1.0.1",
+      "buildNumber": "1.0.3",
       "supportsTablet": false
     },
     "android": {
       "package": "com.davidhaslem.tenkiwi",
-      "versionCode": 1
+      "versionCode": 3,
+      "permissions": []
     }
   }
 }
