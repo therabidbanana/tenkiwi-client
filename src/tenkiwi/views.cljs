@@ -194,7 +194,13 @@
                         :on-press #(do
                                      (dispatch [:<-game/start! type {:game-url sheet}]))}
                 [text "Start Game"]]]])
-           available-games)]
+           available-games)
+      [:> (.-Caption rn-paper)
+       {:style {:margin-top 18
+                :text-align "center"
+                :padding 8}}
+       "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."
+       ]]
      [view {:style {:padding          8
                     :text-align       "center"
                     :background-color "rgba(100,80,120,0.8)"}}
