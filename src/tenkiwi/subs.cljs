@@ -13,6 +13,11 @@
    (:user db)))
 
 (re-frame/reg-sub
+ :toast
+ (fn [db]
+   (:latest-toast db)))
+
+(re-frame/reg-sub
  :room
  (fn [db]
    (get-in db [:user :current-room])))

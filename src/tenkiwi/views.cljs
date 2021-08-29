@@ -3,6 +3,7 @@
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
+            [tenkiwi.views.walking-deck :refer [walking-deck-game-panel]]
             [tenkiwi.views.shared :as ui]
             [react-native-markdown-display :as markdown-lib]
             [reagent.core :as r]
@@ -216,14 +217,26 @@
     [-lobby-panel game-data re-frame/dispatch]))
 
 (defn game-panel []
-  (let [game-type (re-frame/subscribe [:user->game-type])]
-    (case @game-type
-      :ftq
-      [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
-      :debrief
-      [debrief-game-panel]
-      :oracle
-      [oracle-game-panel])))
+  (let [game-type (re-frame/subscribe [:user->game-type])
+        toast     (re-frame/subscribe [:toast])]
+    [ui/view
+     [ui/portal
+      [ui/snackbar {:visible (:visible @toast)
+                    :duration 10000
+                    :wrapper-style {:top 0
+                                    :bottom nil
+                                    :z-index 102}
+                    :on-dismiss #(re-frame/dispatch [:hide-toast])}
+       [ui/text (:message @toast)]]]
+     (case @game-type
+       :ftq
+       [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
+       :debrief
+       [debrief-game-panel]
+       :walking-deck
+       [walking-deck-game-panel]
+       :oracle
+       [oracle-game-panel])]))
 
 (defn layout [body]
   [safe-view {:style {:overflow-x "hidden"
@@ -232,19 +245,21 @@
                                      (.. ReactNative -StatusBar -currentHeight))
                       :flex 1
                       :background-color "#1e88e5"}}
-   [view {:style {:background-color "#003366"}} body]])
+   [view {:style {:background-color "#003366"}}
+    body]])
 
 (defn -connecting-panel []
   (let []
     [text "Connecting to server..."]))
 
 (defn main-panel []
-  (let [user (re-frame/subscribe [:user])
-        room (re-frame/subscribe [:room])
-        game (re-frame/subscribe [:user->game-type])]
+  (let [user  (re-frame/subscribe [:user])
+        room  (re-frame/subscribe [:room])
+        game  (re-frame/subscribe [:user->game-type])]
     (layout
      (cond
        @game [game-panel]
        (get @user :current-room) [lobby-panel]
        (get @user :connected?) [join-panel]
-       :else [-connecting-panel]))))
+       :else [-connecting-panel])
+     )))

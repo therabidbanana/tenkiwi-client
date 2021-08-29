@@ -3,6 +3,7 @@
             [cljs.core.async.interop :refer-macros [<p!]]
             [cljs.core.async :refer [go <!]]
             [re-frame.core :as re-frame]
+            [reagent.core :as reagent]
             [taoensso.sente.packers.transit :refer [get-transit-packer]]
             [tenkiwi.socket-events :refer [event-msg-handler]]
             [tenkiwi.components.sente :refer [new-channel-socket-client]]
@@ -13,6 +14,7 @@
 
 (def store-lib (js/require "@react-native-async-storage/async-storage"))
 (def AsyncStorage (.-default store-lib))
+(defonce timeouts (reagent/atom {}))
 
 (defn get-storage-item [key default]
   (go
@@ -94,3 +96,24 @@
      (if socket
        ((get socket :chsk-send!) chsk-args)
        (js/console.log "Not connected, but trying to send a message." chsk-args)))))
+
+(re-frame/reg-fx
+ :soundboard
+ (fn [{:keys [sound]}]
+   (let []
+     ;; TODO: Work out sound playing via Expo
+     #_(.play (.getElementById js/document (str "sound-" (name sound)))))))
+
+(re-frame/reg-fx
+ :timeout
+ (fn [{:keys [id event time]}]
+   (when-some [existing (get @timeouts id)]
+     (js/clearTimeout existing)
+     (swap! timeouts dissoc id))
+   (when (some? event)
+     (swap! timeouts assoc id
+            (js/setTimeout
+             (fn []
+               (re-frame/dispatch event))
+             time)))))
+
