@@ -5,12 +5,15 @@
 (re-frame/reg-event-db
  :initialize-db
  (fn  [_ _]
+   ;; TODO: unclear if ever called successfully. See initialize-system instead
+   (println "Initializing....")
    db/default-db))
 
 (re-frame/reg-event-fx
  :initialize-system
- (fn  [_ _]
-   {:fx [[:websocket [:user/connected!]]]}))
+ (fn  [db _]
+   {:db (merge db/default-db db)
+    :fx [[:websocket [:user/connected!]]]}))
 
 (re-frame/reg-event-fx
  :user/connected!
@@ -55,6 +58,31 @@
                                        :params  (first params)
                                        :room-id room-id}]]]})))
 
+;; Inbound short-term events
+
+(re-frame/reg-event-fx
+ :->sound/trigger!
+ (fn [{:keys [db]} [_ sound]]
+   {:db db
+    :fx [[:soundboard {:sound sound}]]}))
+
+(re-frame/reg-event-fx
+ :->toast/show!
+ (fn [{:keys [db]} [_ message]]
+   {:db (assoc db :latest-toast {:visible true
+                                 :message message})
+    :timeout {:id    :toast
+              :event [:hide-toast]
+              :time  7000}}
+   ))
+
+(re-frame/reg-event-db
+ :hide-toast
+ (fn [db [_]]
+   (assoc-in db [:latest-toast :visible] false)))
+
+;;; -------
+
 (re-frame/reg-event-db
  :->game/changed!
  (fn [db [_ params]]
@@ -76,14 +104,16 @@
  (fn [db [_ params]]
    (let [current-room (get-in db [:user :current-room])]
      (if (= (:room-code params) (:room-code current-room))
-       (update-in db [:user] assoc :current-room params)))))
+       (update-in db [:user] assoc :current-room params)
+       db))))
 
 (re-frame/reg-event-db
  :->room/user-left!
  (fn [db [_ params]]
    (let [current-room (get-in db [:user :current-room])]
      (if (= (:room-code params) (:room-code current-room))
-       (update-in db [:user] assoc :current-room params)))))
+       (update-in db [:user] assoc :current-room params)
+       db))))
 
 (re-frame/reg-event-fx
  :<-game/start!

@@ -41,7 +41,7 @@
 (defmethod -event-msg-handler :chsk/handshake
            [{:as ev-msg :keys [?data]}]
            (let [[?uid ?csrf-token ?handshake-data] ?data]
-             (re-frame/dispatch [:initialize-system])))
+             (re-frame/dispatch-sync [:initialize-system])))
 
 (defmethod -event-msg-handler :chsk/ws-ping
   [{:as ev-msg :keys [?data]}]
