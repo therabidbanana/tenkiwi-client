@@ -68,6 +68,7 @@
 (def chip (r/adapt-react-class (.-Chip rn-paper)))
 (def card-content (r/adapt-react-class (.. rn-paper -Card -Content)))
 (def card-actions (r/adapt-react-class (.. rn-paper -Card -Actions)))
+(def card-title (r/adapt-react-class (.. rn-paper -Card -Title)))
 
 (def sheet-lib (js/require "reanimated-bottom-sheet"))
 (def bottom-sheet (r/adapt-react-class (.. sheet-lib -default)))

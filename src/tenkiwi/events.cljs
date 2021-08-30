@@ -27,9 +27,12 @@
  :join/set-params
  (fn [db [_ params]]
    (let [{:keys [user-name
+                 unlock-code
                  room-code]} params
-         room-code (clojure.string/lower-case (or room-code ""))
-         params (assoc params :room-code room-code)]
+         small-code (clojure.string/lower-case (or room-code ""))
+         params (if room-code
+                  (assoc params :room-code small-code)
+                  params)]
      (update-in db [:join] merge params))))
 
 (re-frame/reg-event-db
@@ -124,7 +127,11 @@
 (re-frame/reg-event-fx
  :<-join/join-room!
  (fn [{:keys [db]} [_ val]]
-   (let [join (:join db)]
+   (let [{:keys [unlock-code]
+          :as join} (:join db)
+         join       (if unlock-code
+                      (assoc join :unlock-codes [unlock-code])
+                      join)]
      {:fx [[:websocket [:room/join-room! join]]]})))
 
 (re-frame/reg-event-fx
