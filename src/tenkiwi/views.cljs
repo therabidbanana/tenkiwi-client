@@ -56,12 +56,11 @@
 
 (defn -join-panel [form-state join dispatch]
   (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
-                                    3)]
+                                    3)
+        dimensions (.get ui/dimensions "screen")
+        ]
     [scroll-view
      [card {:style box-style}
-      [para {:style {:margin-bottom 8}}
-       "Tenkiwi is a system for playing story-telling games with friends. "
-       "(You will need to be in the same room or in video conference.) "]
       [para {:style {:margin-bottom 8}}
        "To get started, what name do you want to use?"]
       [view
@@ -147,26 +146,94 @@
              :on-press #(reset! form-state :name)}
 
             "Go back"]]])]
-      #_[view {:style {:margin-top 8}}
-         [button
-          {:mode     "contained"
-           :on-press #(do
-                        (dispatch [:<-join/join-room!]))}
-          "Join"]]]
-     [view {:style {:padding          8
-                    :text-align       "center"
-                    :background-color "rgba(100,80,120,0.8)"}}
-      [:> (.-Caption rn-paper)
-       "This work is based on For the Queen"
-       " (found at http://www.forthequeengame.com/)"
-       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"
-       "  (http://creativecommons.org/licenses/by/3.0/)."]]]))
+      ]
+     [ui/view {:height (* 0.7 (.-height dimensions))}
+      [ui/text ""]]
+     ]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])
         form-state (r/atom :name)]
     [-join-panel form-state user-atom re-frame/dispatch]))
+
+(defn welcome-panel []
+  (let [user-atom   (re-frame/subscribe [:join])
+        dimensions (.get ui/dimensions "screen")
+        form-state (r/atom :name)]
+    [ui/scroll-view
+     [ui/card
+      [ui/card-content
+       [ui/para
+        "Welcome to Tenkiwi"
+        ]]]
+     [ui/view {:height (* 0.7 (.-height dimensions))}
+      [ui/text ""]]
+     (if (clojure.string/blank? (:room-code @user-atom))
+       [ui/bottom-sheet-card
+        {:dispatch re-frame/dispatch
+         :turn-marker "About Tenkiwi"
+         :card {:text (str
+                       "Tenkiwi is an app for playing storytelling games with friends.\n\n"
+                       "For this to work, you're going to need a way to talk to each other, either being in the same room or in a video conference app.\n\n"
+                       "However you choose to play Tenkiwi, the goal stays the same - to have fun telling a story together."
+                       )} }])]
+    ))
+
+(defn settings-panel []
+  (let [user-atom   (re-frame/subscribe [:join])
+        dimensions (.get ui/dimensions "screen")
+        form-state (r/atom :name)]
+    [ui/scroll-view {:style {:margin 12}}
+     [ui/card {:style {:margin-top 12}}
+      [ui/card-title {:title "Credits"
+                      :subtitle "Tenkiwi"}]
+      [ui/card-content
+       [ui/para
+        "Tenkiwi is a hybrid storytelling game app built by David Haslem."]]]
+     [ui/card {:style {:margin-top 12}}
+      [ui/card-title {:subtitle "Descended from the Queen"}]
+      [ui/card-content
+       [ui/para
+        "This work is based on For the Queen"
+        " (found at http://www.forthequeengame.com/)"
+        ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
+        "Creative Commons Attribution 3.0 Unported license"
+        "  (http://creativecommons.org/licenses/by/3.0/)."]]]
+     [ui/card {:style {:margin-top 12}}
+      [ui/card-title {:subtitle "X-Card"}]
+      [ui/card-content
+       [ui/para
+        "This application adapts the X-Card, originally by John Stavropoulos"
+        "  (http://tinyurl.com/x-card-rpg)."]]]
+     [ui/view {:height (* 0.7 (.-height dimensions))}
+      [ui/text ""]]
+     [view {:style {:padding          8
+                    :text-align       "center"
+                    :background-color "rgba(100,80,120,0.8)"}}
+      ]]))
+
+(defn opening-panel []
+  (let [tab-state (r/atom 0)
+        scene-map (ui/SceneMap (clj->js {:welcome (r/reactify-component welcome-panel)
+                                         :play (r/reactify-component join-panel)
+                                         :settings (r/reactify-component settings-panel)}))]
+    (fn []
+      (let [
+            on-tab-change (fn [x] (reset! tab-state x))
+            current-index @tab-state
+            ]
+        [ui/clean-tab-view
+         {:on-index-change on-tab-change
+          ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
+          :navigation-state {:index current-index
+                             :routes [{:key "welcome"
+                                       :title "Welcome"}
+                                      {:key "play"
+                                       :title "Play"}
+                                      {:key "settings"
+                                       :title "Other"}]}
+          :render-scene scene-map}
+         ]))))
 
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])
@@ -218,6 +285,6 @@
      (cond
        @game [game-panel]
        (get @user :current-room) [lobby-panel]
-       (get @user :connected?) [join-panel]
+       (get @user :connected?) [opening-panel]
        :else [-connecting-panel])
      )))
