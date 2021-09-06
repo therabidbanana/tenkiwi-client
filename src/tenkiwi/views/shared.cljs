@@ -38,6 +38,7 @@
 (def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
 (def scroll-view (r/adapt-react-class (.-ScrollView ReactNative)))
 (def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
+(def refresh-control (r/adapt-react-class (.-RefreshControl ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
 (def dimensions (.-Dimensions ReactNative))
 (def image (r/adapt-react-class (.-Image ReactNative)))
@@ -120,6 +121,28 @@
                                 (assoc sizing :height (.-height dimensions)))
               :scroll-enabled true
               :render-tab-bar tab-render})]]))
+
+(defn collapse-scroll-view [props & children]
+  (let [collapse (get props :collapse!)
+        only-collapse! (get props :only-collapse!)
+        scroller (if collapse
+                   (fn [e] (if (>= 0 (.-y(.-contentOffset (.-nativeEvent e))))
+                             (@collapse false)
+                             (@collapse true))
+                     ))]
+    (cond
+      scroller
+      (into [scroll-view (-> props
+                             (assoc :scroll-event-throttle 100)
+                             (assoc :on-scroll scroller))]
+            children)
+      only-collapse!
+      (into [scroll-view
+             (assoc props :on-scroll-begin-drag (partial @only-collapse! true))]
+            children)
+      :else
+      (into [scroll-view props]
+            children))))
 
 (defn maybe-confirm! [confirm? on-true]
   (cond

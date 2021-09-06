@@ -10,14 +10,16 @@
        "-"
        (str/join "" (take number (shuffle alphabet)))))
 
-(defonce do-collapse! (r/atom nil))
+(defonce do-collapse! (r/atom (fn [])))
 
 (defn -join-panel [form-state join dispatch]
   (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
                                     3)
         dimensions (.get ui/dimensions "screen")
         ]
-    [ui/scroll-view {:style {:padding 24}}
+    [ui/collapse-scroll-view {:style {:padding 24}
+                              ;:collapse! do-collapse!
+                              :only-collapse! do-collapse!}
      [ui/card {:style {:padding 18}}
       [ui/card-title {:title "What name do you want to use?"}]
       [ui/card-content
@@ -104,8 +106,8 @@
 
 (defn welcome-panel []
   (let [dimensions (.get ui/dimensions "screen")]
-    [ui/scroll-view {:style {:padding 24}
-                     :on-scroll-begin-drag (partial @do-collapse! true)}
+    [ui/collapse-scroll-view {:style {:padding 24}
+                              :collapse! do-collapse!}
      [ui/card {:style {:padding 24}}
       [ui/card-title {:title "How to play"
                       :subtitle ""}]
@@ -138,8 +140,8 @@
   (fn -settings-panel []
     (let [dimensions (.get ui/dimensions "screen")
           current-codes (get (deref storage) :unlock-codes [])]
-      [ui/scroll-view {:style {:padding 24}
-                       :on-scroll-begin-drag @do-collapse!}
+      [ui/collapse-scroll-view {:style {:padding 24}
+                                :only-collapse! do-collapse!}
        [ui/card {:style {:padding 18}}
         [ui/card-title {:title "Personal Settings"}]
         [ui/card-content

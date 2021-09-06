@@ -4,6 +4,8 @@
             [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
+
+(defonce do-collapse! (r/atom (fn [])))
 #_(defn -image-panel [{:as display
                      :keys [dispatch]}]
   [ui/scroll-view
@@ -21,7 +23,7 @@
 
 (defn -other-panel [{:as display
                      :keys [queen dispatch]}]
-  [ui/scroll-view
+  [ui/collapse-scroll-view {:collapse! do-collapse!}
    [ui/view {:style {:height 250
                      :align-items "center"
                      :flex-direction "row"}}
@@ -58,7 +60,7 @@
     [ui/text ""]]])
 
 (defn -main-panel [display]
-  [ui/scroll-view
+  [ui/collapse-scroll-view {:collapse! do-collapse!}
    [ui/actions-list display]
    [ui/bottom-sheet-card (assoc display
                                 :turn-marker
