@@ -4,6 +4,7 @@
             [cljs.core.async :refer [go <!]]
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]
+            [clojure.edn :as edn]
             [taoensso.sente.packers.transit :refer [get-transit-packer]]
             [tenkiwi.socket-events :refer [event-msg-handler]]
             [tenkiwi.components.sente :refer [new-channel-socket-client]]
@@ -24,6 +25,30 @@
                  default)]
       (.setItem AsyncStorage key (clj->js item))
       item)))
+
+(defn set-storage-item [key str]
+  (.setItem AsyncStorage (clj->js key) (clj->js str)))
+
+(defn- stringify [val] (clj->js (prn-str val)))
+(defn- unstring [str] (edn/read-string str))
+
+(defn load-storage-items [keys callback]
+  (let [key-arr (mapv stringify keys)
+
+        cb (fn [errs vals]
+             (let [mapped (reduce #(assoc %1
+                                          (unstring (first %2))
+                                          (unstring (last %2)))
+                                  {}
+                                  (js->clj vals))]
+               (callback mapped)))]
+    (.multiGet AsyncStorage (clj->js key-arr) cb)))
+
+(defn set-storage-items [map]
+  (let [keystrs (mapv stringify (keys map))
+        valstrs (mapv stringify (vals map))
+        tuples  (mapv #(array %1 %2) keystrs valstrs)]
+    (.multiSet AsyncStorage (clj->js tuples))))
 
 ;;;; Scrape document for a csrf token to boot sente with
 #_(def ?csrf-token
@@ -87,6 +112,11 @@
  (fn [cofx component]
    (assoc cofx component (get-in system [component]))))
 
+(re-frame/reg-cofx
+ :storage
+ (fn [cofx key]
+   (assoc cofx :storage {key (get-storage-item (name key) "")})))
+
 (re-frame/reg-fx
  :websocket
  (fn [chsk-args]
@@ -96,6 +126,22 @@
      (if socket
        ((get socket :chsk-send!) chsk-args)
        (js/console.log "Not connected, but trying to send a message." chsk-args)))))
+
+(def supported-storage-keys #{:unlock-codes})
+(re-frame/reg-fx
+ :set-storage
+ (fn [map]
+   (let [bad-keys (remove supported-storage-keys (keys map))]
+     (doseq [bad-key bad-keys]
+       (println "Attempting set on unsupported key" bad-key (get map bad-key)))
+     (set-storage-items map))))
+
+(re-frame/reg-fx
+ :load-storage
+ (fn [_]
+   (let [keys supported-storage-keys
+         handle-vals (fn [pairs] (re-frame/dispatch [:sync-storage pairs]))]
+     (load-storage-items keys handle-vals))))
 
 (re-frame/reg-fx
  :soundboard

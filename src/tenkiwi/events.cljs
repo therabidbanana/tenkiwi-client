@@ -2,18 +2,24 @@
   (:require [re-frame.core :as re-frame]
             [tenkiwi.db :as db]))
 
-(re-frame/reg-event-db
+(re-frame/reg-event-fx
  :initialize-db
- (fn  [_ _]
+ (fn  [db _]
    ;; TODO: unclear if ever called successfully. See initialize-system instead
    (println "Initializing....")
-   db/default-db))
+   {:db db/default-db}))
+
+(re-frame/reg-event-db
+ :sync-storage
+ (fn  [db [_ params]]
+   (update-in db [:storage] merge params)))
 
 (re-frame/reg-event-fx
  :initialize-system
- (fn  [db _]
+ (fn  [{:keys [db]} _]
    {:db (merge db/default-db db)
-    :fx [[:websocket [:user/connected!]]]}))
+    :fx [[:websocket [:user/connected!]]
+         [:load-storage]]}))
 
 (re-frame/reg-event-fx
  :user/connected!
@@ -27,17 +33,32 @@
  :join/set-params
  (fn [db [_ params]]
    (let [{:keys [user-name
+                 unlock-code
                  room-code]} params
-         room-code (clojure.string/lower-case (or room-code ""))
-         params (assoc params :room-code room-code)]
+         small-code (clojure.string/lower-case (or room-code ""))
+         params (if room-code
+                  (assoc params :room-code small-code)
+                  params)]
      (update-in db [:join] merge params))))
+
+(re-frame/reg-event-fx
+ :save-settings!
+ (fn [{:keys [db]} _]
+   (let [updates  (get-in db [:forms :settings])
+         settings (-> (get db :storage)
+                      (update-in [:unlock-codes] conj (:unlock-code updates))
+                      (update-in [:unlock-codes] distinct))]
+     {:db (-> db
+              (assoc :settings settings)
+              (assoc-in [:forms :settings] {})
+              (update :storage merge settings))
+      :fx [[:set-storage settings]]})))
 
 (re-frame/reg-event-db
  :forms/set-params
  (fn [db [_ params]]
    (let [{:keys [action]} params
          remaining-params (dissoc params :action)]
-     (println remaining-params)
      (update-in db [:forms action] merge remaining-params))))
 
 (re-frame/reg-event-db
@@ -124,7 +145,11 @@
 (re-frame/reg-event-fx
  :<-join/join-room!
  (fn [{:keys [db]} [_ val]]
-   (let [join (:join db)]
+   (let [{:as join} (:join db)
+         {:keys [unlock-codes]} (:storage db)
+         join       (if unlock-codes
+                      (assoc join :unlock-codes unlock-codes)
+                      join)]
      {:fx [[:websocket [:room/join-room! join]]]})))
 
 (re-frame/reg-event-fx

@@ -5,6 +5,8 @@
             [goog.object]
             [tenkiwi.views.shared :as ui]))
 
+(defonce do-collapse! (r/atom (fn [])))
+
 (defn- extract-display [game-state key-list]
   (let [{user-id        :id
          :as            data
@@ -32,8 +34,7 @@
           voting-active? (if-not (#{:intro} stage)
                            true
                            false)]
-
-      [ui/scroll-view
+      [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/card {:style {:margin 8}}
         [ui/card-content 
          [ui/h1 "Round Themes"]
@@ -133,7 +134,8 @@
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")]
 
-      [ui/scroll-view {:style {:padding 4}}
+      [ui/collapse-scroll-view {:collapse! do-collapse!
+                                :style {:padding 12}}
        [ui/h1
         {:theme {:colors {:text "white"}}
          :style {:padding-top 4
@@ -198,7 +200,7 @@
                             :else
                             (not disabled?)))
           ]
-        [ui/scroll-view
+        [ui/collapse-scroll-view {:collapse! do-collapse!}
          [ui/view
           [ui/view
            [ui/para {:theme {:colors {:text "white"}}
@@ -238,6 +240,7 @@
                   )])
           [ui/bottom-sheet-card
            (assoc display
+                  :collapse! do-collapse!
                   :dispatch dispatch
                   :regen-action true
                   :turn-marker (str (:user-name active-player) "'s turn..."))]

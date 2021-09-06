@@ -4,6 +4,8 @@
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
             [tenkiwi.views.walking-deck :refer [walking-deck-game-panel]]
+            [tenkiwi.views.lobby :refer [lobby-panel]]
+            [tenkiwi.views.home-screen :refer [opening-panel]]
             [tenkiwi.views.shared :as ui]
             [react-native-markdown-display :as markdown-lib]
             [reagent.core :as r]
@@ -48,173 +50,6 @@
 (def box-style {:margin 12
                 :padding 12})
 
-(defn secure-rand-id [alphabet number]
-  (str (str/join "" (take number (shuffle alphabet)))
-       "-"
-       (str/join "" (take number (shuffle alphabet)))))
-
-(defn -join-panel [form-state join dispatch]
-  (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
-                                    3)]
-    [scroll-view
-     [card {:style box-style}
-      [para {:style {:margin-bottom 8}}
-       "Tenkiwi is a system for playing story-telling games with friends. "
-       "(You will need to be in the same room or in video conference.) "]
-      [para {:style {:margin-bottom 8}}
-       "To get started, what name do you want to use?"]
-      [view
-       [text-input {:name           "game-user-name"
-                    :label          "Name"
-                    :mode           "outlined"
-                    :auto-focus     true
-                    :default-value  (-> join deref :user-name)
-                    :on-change-text #(dispatch [:join/set-params {:user-name %}])}]
-       (cond
-         (= :name @form-state)
-         [view
-          [view {:style {:margin-top 8}}
-           [button {:mode     "contained"
-                    :on-press #(do
-                                 (dispatch [:join/set-params {:room-code random-room}])
-                                 (reset! form-state :host))}
-            "Host a Game"]]
-          [view {:style {:margin-top 8}}
-           [button {:mode     "contained"
-                    :on-press #(do
-                                 (dispatch [:join/set-params {:room-code ""}])
-                                 (reset! form-state :join))}
-            "Join Someone"]]]
-         (= :host @form-state)
-         [view
-          [para {:style {:margin-top    12
-                         :margin-bottom 4}}
-           "A code friends will use to join the game:"]
-          [text-input {:name            "game-lobby-code"
-                       :label           "Lobby Code"
-                       :mode            "outlined"
-                       :auto-focus      true
-                       :auto-capitalize "none"
-                       :auto-correct    false
-                       :default-value   (-> join deref :room-code)
-                       :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
-          [view  {:style {:margin-top 8}}
-           [button
-            {:mode     "contained"
-             :disabled (< (-> join deref :room-code count) 4)
-             :on-press #(do
-                          (dispatch [:<-join/join-room!]))}
-            "Start"]
-           [button
-            {:style    {:margin-top 4}
-             :on-press #(reset! form-state :name)}
-
-            "Go back"]]]
-         :else
-         [view
-          [para {:style {:margin-top    12
-                         :margin-bottom 4}}
-           "The host will be able to tell you the code:"]
-          [text-input {:name            "game-lobby-code"
-                       :label           "Lobby Code"
-                       :mode            "outlined"
-                       :auto-focus      true
-                       :auto-capitalize "none"
-                       :auto-correct    false
-                       :default-value   (-> join deref :room-code)
-                       :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
-          [view {:style {:margin-top 8}}
-           [button
-            {:mode     "contained"
-             :disabled (< (-> join deref :room-code count) 4)
-             :on-press #(do
-                          (dispatch [:<-join/join-room!]))}
-            "Join"]
-           [button
-            {:style    {:margin-top 4}
-             :on-press #(reset! form-state :name)}
-
-            "Go back"]]])]
-      #_[view {:style {:margin-top 8}}
-         [button
-          {:mode     "contained"
-           :on-press #(do
-                        (dispatch [:<-join/join-room!]))}
-          "Join"]]]
-     [view {:style {:padding          8
-                    :text-align       "center"
-                    :background-color "rgba(100,80,120,0.8)"}}
-      [:> (.-Caption rn-paper)
-       "This work is based on For the Queen"
-       " (found at http://www.forthequeengame.com/)"
-       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"
-       "  (http://creativecommons.org/licenses/by/3.0/)."]]]))
-
-(defn join-panel []
-  (let [user-atom   (re-frame/subscribe [:join])
-        form-state (r/atom :name)]
-    [-join-panel form-state user-atom re-frame/dispatch]))
-
-(defn -player-boot [{:keys [id dispatch] :as props}]
-  [button {:on-press #(dispatch [:<-room/boot-player! id])} "x"])
-
-(defn -lobby-panel [game-data dispatch]
-  (let [{:keys [room-code available-games]
-         :as   game-data} @game-data]
-    [scroll-view {:style {:padding 4}}
-     [card
-      [card-title {:title    "Players"
-                   :subtitle (str "Lobby Code: " room-code)}]
-      [card-content
-       [list-section
-        (for [player (:players game-data)]
-          ^{:key (:id player)}
-          [list-item {:title (:user-name player)
-                      :right (fn [props]
-                               (r/as-element [-player-boot (assoc player :dispatch dispatch)]))}])]]]
-     [surface {:style {:margin  18
-                       :padding 8}}
-      [para
-       "Once everyone has joined, choose a game type to start."
-       " "
-       "Players without the app can join via web at "
-       [para {:style {:font-weight "bold"}}
-        "tenkiwi.com"]]
-      (map (fn [{:keys [title subtitle type sheet]
-                 description :text}]
-             [card {:style {:margin-top 8}
-                    :key sheet}
-              [card-title {:title                    title
-                           :subtitle-number-of-lines 3
-                           :subtitle subtitle}]
-              [card-content
-               [markdown {} description]
-               [button {:mode     "outlined"
-                        :style    {:margin-top 4}
-                        :on-press #(do
-                                     (dispatch [:<-game/start! type {:game-url sheet}]))}
-                [text "Start Game"]]]])
-           available-games)
-      [:> (.-Caption rn-paper)
-       {:style {:margin-top 18
-                :text-align "center"
-                :padding 8}}
-       "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."
-       ]]
-     [view {:style {:padding          8
-                    :text-align       "center"
-                    :background-color "rgba(100,80,120,0.8)"}}
-      [:> (.-Caption rn-paper)
-       "This work is based on For the Queen"
-       " (found at http://www.forthequeengame.com/)"
-       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"
-       "  (http://creativecommons.org/licenses/by/3.0/)."]]]))
-
-(defn lobby-panel []
-  (let [game-data (re-frame/subscribe [:room])]
-    [-lobby-panel game-data re-frame/dispatch]))
 
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])
@@ -250,7 +85,13 @@
 
 (defn -connecting-panel []
   (let []
-    [text "Connecting to server..."]))
+    [view {:style
+           {:height "100%"
+            :padding 16}}
+     [card {:style {:margin-top "auto"
+                    :margin-bottom "auto"}}
+      [card-content {}
+       [para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 
 (defn main-panel []
   (let [user  (re-frame/subscribe [:user])
@@ -260,6 +101,6 @@
      (cond
        @game [game-panel]
        (get @user :current-room) [lobby-panel]
-       (get @user :connected?) [join-panel]
+       (get @user :connected?) [opening-panel]
        :else [-connecting-panel])
      )))
