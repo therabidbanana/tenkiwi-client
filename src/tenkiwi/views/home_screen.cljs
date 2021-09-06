@@ -21,7 +21,7 @@
                               ;:collapse! do-collapse!
                               :only-collapse! do-collapse!}
      [ui/card {:style {:padding 18}}
-      [ui/card-title {:title "What name do you want to use?"}]
+      [ui/card-title {:title "What's your name?"}]
       [ui/card-content
        [ui/view
         [ui/text-input {:name           "game-user-name"

@@ -126,7 +126,10 @@
   (let [collapse (get props :collapse!)
         only-collapse! (get props :only-collapse!)
         scroller (if collapse
-                   (fn [e] (if (>= 0 (.-y(.-contentOffset (.-nativeEvent e))))
+                   (fn [e] (if (>= 0 (-> e
+                                         (aget "nativeEvent")
+                                         (aget "contentOffset")
+                                         (aget "y")))
                              (@collapse false)
                              (@collapse true))
                      ))]
@@ -326,7 +329,7 @@
                        ([]
                         (do
                           (swap! collapsed? not)
-                          (.snapTo @ref (if @collapsed? 2 0))))
+                          ((aget @ref "snapTo") (if @collapsed? 2 0))))
                        ([e]
                         (if (boolean? e)
                           (collapse-it e e)
@@ -334,7 +337,7 @@
                        ([maybe e]
                         (do
                           (reset! collapsed? maybe)
-                          (.snapTo @ref (if @collapsed? 2 0)))))
+                          ((aget @ref "snapTo") (if @collapsed? 2 0)))))
 
         collapse! (doto (or collapse! (r/atom nil))
                     (reset! do-collapse!))]
