@@ -13,6 +13,11 @@
    (:user db)))
 
 (re-frame/reg-sub
+ :storage
+ (fn [db]
+   (:storage db)))
+
+(re-frame/reg-sub
  :toast
  (fn [db]
    (:latest-toast db)))
@@ -41,3 +46,8 @@
  :forms
  (fn [db]
    (:forms db)))
+
+(re-frame/reg-sub
+ :form
+ (fn [db [_ key]]
+   (get-in db [:forms key])))

@@ -3,6 +3,7 @@
 (def default-db
   {:name "re-frame"
    :forms {}
+   :storage {}
    :latest-toast {:visible false
                   :message "Test"}
    :user {:user-name ""

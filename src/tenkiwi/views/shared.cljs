@@ -10,6 +10,7 @@
             [react-native-paper :as rn-paper]
             ["@expo/react-native-action-sheet" :as action-sheet-lib]
             [reanimated-bottom-sheet :as sheet-lib]
+            [react-native-reanimated :as Reanimated]
             [react-native-markdown-display :as markdown-lib]
             [react-native-tab-view :as tab-lib]
             ))
@@ -19,8 +20,12 @@
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
 (def AtExpo (js/require "@expo/vector-icons"))
+(def Reanimated (js/require "react-native-reanimated"))
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
+
+(def animated-value (.-Value Reanimated))
+(def call (.-call Reanimated))
 
 (def platform (.-Platform ReactNative))
 (defn os? [arg]
@@ -54,6 +59,7 @@
 (def para (r/adapt-react-class (.-Paragraph rn-paper)))
 (def h1 (r/adapt-react-class (.-Title rn-paper)))
 (def h2 (r/adapt-react-class (.-Subheading rn-paper)))
+(def headline (r/adapt-react-class (.-Headline rn-paper)))
 (def button (r/adapt-react-class (.-Button rn-paper)))
 (def snackbar (r/adapt-react-class (.-Snackbar rn-paper)))
 (def list-stuff (.-List rn-paper))
@@ -287,8 +293,28 @@
              [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
         ]))))
 
-(defn bottom-sheet-card [props]
-  (let [collapsed? (r/atom false)]
+(defn bottom-sheet-card [{:as props :keys [start-collapsed?
+                                           collapse!]}]
+  (let [collapsed?   (r/atom (or start-collapsed? false))
+        on-open      #(reset! collapsed? false)
+        on-close     #(reset! collapsed? true)
+        ref          (r/atom nil)
+        do-collapse! (fn collapse-it
+                       ([]
+                        (do
+                          (swap! collapsed? not)
+                          (.snapTo @ref (if @collapsed? 2 0))))
+                       ([e]
+                        (if (boolean? e)
+                          (collapse-it e e)
+                          (collapse-it)))
+                       ([maybe e]
+                        (do
+                          (reset! collapsed? maybe)
+                          (.snapTo @ref (if @collapsed? 2 0)))))
+
+        collapse! (doto (or collapse! (r/atom nil))
+                    (reset! do-collapse!))]
     (fn [props]
       (let [dimensions (.get dimensions "screen")
             action-sheet-props (clj->js
@@ -315,13 +341,16 @@
                            :padding-left 12
                            :font-weight "bold"
                            :color "white"}
-                   :on-press #(swap! collapsed? not)}
+                   :on-press @collapse!}
              (:turn-marker props)]
             [card-with-button props]]]
           [portal
            [bottom-sheet {:snap-points ["65%" "25%" 64]
-                          :initial-snap 0
+                          :ref #(reset! ref %)
+                          :initial-snap (if @collapsed? 2 0)
                           :border-radius 8
+                          :on-close-end on-close
+                          :on-open-start on-open
                           ;; animation forces 25% snappoint 
                           ;; :enabled-bottom-initial-animation true
                           :enabled-content-tap-interaction false
@@ -332,7 +361,8 @@
                                             (r/as-element [view {:style {:height "100%"
                                                                          :padding-top 6
                                                                          :background-color "rgba(0,0,0,0.9)"}}
-                                                           [text {:style {:padding 6
+                                                           [text {:on-press @collapse!
+                                                                  :style {:padding 6
                                                                           :padding-left 12
                                                                           :font-weight "bold"
                                                                           :color "white"}}
