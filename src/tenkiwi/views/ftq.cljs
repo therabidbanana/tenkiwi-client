@@ -63,6 +63,7 @@
   [ui/collapse-scroll-view {:collapse! do-collapse!}
    [ui/actions-list display]
    [ui/bottom-sheet-card (assoc display
+                                :collapse! do-collapse!
                                 :turn-marker
                                 (str (get-in display [:active-player :user-name])
                                      "'s turn..."))]]
