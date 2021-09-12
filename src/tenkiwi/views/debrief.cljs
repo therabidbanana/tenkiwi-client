@@ -170,12 +170,14 @@
  (fn [db]
    (extract-display (:user db)
                     [:stage :stage-name :stage-focus
+                     :dossiers
                      :active-player :player-ranks])))
 
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
     (let [{:keys [stage stage-name
                   stage-focus company
+                  dossiers
                   active-player
                   current-user-id
                   player-ranks]
@@ -185,6 +187,7 @@
           voting-active? (if-not (#{:intro} stage)
                            true
                            false)
+          active-player  (merge active-player (get dossiers (:id active-player) {}))
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")
 
@@ -243,7 +246,12 @@
                   :collapse! do-collapse!
                   :dispatch dispatch
                   :regen-action true
-                  :turn-marker (str (:user-name active-player) "'s turn..."))]
+                  :turn-marker (str
+                                (if-let [agent-name (:agent-codename active-player)]
+                                  (str
+                                   agent-name " "
+                                   "(" (:user-name active-player) ")")
+                                  (:user-name active-player)) "'s turn..."))]
           [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
            [ui/text ""]]
           ]])))
