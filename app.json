@@ -1,29 +1,50 @@
 {
-  "expo": {
-    "name": "Tenkiwi",
-    "description": "No description",
-    "slug": "tenkiwi",
-    "scheme": "tenkiwi",
-    "sdkVersion": "41.0.0",
-    "version": "1.0.3",
-    "orientation": "portrait",
-    "primaryColor": "#cccccc",
-    "privacy": "unlisted",
-    "icon": "./assets/icons/app.png",
-    "splash": {
-      "image": "./assets/icons/loading.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "bundleIdentifier": "com.davidhaslem.tenkiwi",
-      "buildNumber": "1.0.3",
-      "supportsTablet": false
-    },
-    "android": {
-      "package": "com.davidhaslem.tenkiwi",
-      "versionCode": 3,
-      "permissions": []
+    "expo": {
+        "name": "Tenkiwi",
+        "description": "No description",
+        "slug": "tenkiwi",
+        "scheme": "tenkiwi",
+        "sdkVersion": "41.0.0",
+        "version": "1.0.4",
+        "orientation": "portrait",
+        "primaryColor": "#cccccc",
+        "privacy": "unlisted",
+        "icon": "./assets/icons/app.png",
+        "splash": {
+            "image": "./assets/icons/loading.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#ffffff"
+        },
+        "ios": {
+            "bundleIdentifier": "com.davidhaslem.tenkiwi",
+            "buildNumber": "1.0.4",
+            "supportsTablet": false,
+            "associatedDomains": [
+                "applinks:play.tenkiwi.com"
+            ],
+        },
+        "android": {
+            "package": "com.davidhaslem.tenkiwi",
+            "versionCode": 4,
+            "permissions": [],
+            "intentFilters": [
+                {
+                    "action": "VIEW",
+                    "autoVerify": true,
+                    "data": [
+                        {
+                            "scheme": "https",
+                            "host": "play.tenkiwi.com",
+                            "pathPrefix": "/"
+                        },
+                    ],
+                    "category": [
+                        "BROWSABLE",
+                        "DEFAULT"
+                    ]
+                }
+            ]
+
+        }
     }
-  }
 }
