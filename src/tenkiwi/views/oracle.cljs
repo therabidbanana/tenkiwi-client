@@ -5,6 +5,8 @@
             [tenkiwi.views.shared :as ui]))
 
 
+(defonce do-collapse! (r/atom (fn [])))
+
 (defn- extract-display [game-state key-list]
   (let [{user-id        :id
          :as            data
@@ -105,7 +107,7 @@
  :oracle-other
  (fn [db]
    (extract-display (:user db)
-                    [:stage :company :mission])))
+                    [:active-decks])))
 
 (defn build-other-panel [form-atom game-state-atom dispatch]
   (fn -other-panel []
@@ -114,7 +116,7 @@
           dimensions (.get ui/dimensions "screen")
           ]
 
-      [ui/scroll-view
+      [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/card {:style {:padding 4
                          :margin 8}}
         (map (fn [{conf      :confirm
@@ -148,14 +150,42 @@
    (extract-display (:user db)
                     [])))
 
+(defn draw-pile [dispatch {:as   deck
+                           :keys [id action params text
+                                  disabled? confirm?
+                                  action-group-details]}]
+  (let [{:keys [title empty? count]} action-group-details
+        total (get-in action-group-details [:params :deck-size])
+        theme (get-in action-group-details [:params :theme])
+        tags  (get-in action-group-details [:params :tags])]
+    [ui/card {:style {:margin 12}}
+     [ui/card-title {:title title
+                     :subtitle (str theme " [" (clojure.string/join ", " tags)"]")}]
+     [ui/card-content
+      [ui/para (str theme)]]
+     [ui/card-actions
+      [ui/button {;:mode "outlined"
+                  :disabled? disabled?
+                  :on-press (fn [] (ui/maybe-confirm! confirm? #(dispatch [:<-game/action! action params])))}
+       text]
+      [ui/caption (str count " / " total)]
+      ]]))
+
 (defn build-deck-panel [form-atom game-state-atom dispatch]
   (fn -deck-panel []
     (let [{:keys [extra-actions]} (:display @game-state-atom)
+          {:keys [active-decks]} @game-state-atom
+
           dimensions (.get ui/dimensions "screen")
           ]
-
-      [ui/scroll-view
-       [ui/card {:style {:padding 4
+      [ui/collapse-scroll-view {:collapse! do-collapse!}
+       [ui/view
+        (map #(with-meta [draw-pile dispatch %]
+                {:key (-> % :params)})
+             (-> (group-by :action-group extra-actions)
+                 :draw-pile))]
+       [ui/card {:key "new"
+                 :style {:padding 4
                          :margin 8}}
         (map (fn [{conf      :confirm
                    disabled? :disabled
@@ -186,16 +216,12 @@
  :oracle-main
  (fn [db]
    (extract-display (:user db)
-                    [:stage :stage-name :stage-focus
-                     :player-ranks])))
+                    [:players-by-id :active-player])))
 
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
-    (let [{:keys [stage
-                  stage-name
-                  stage-focus
-                  current-user-id
-                  player-ranks]
+    (let [{:keys [current-user-id
+                  active-player]
            {:as display
             :keys [extra-details]} :display
            :as game-state} @game-state-atom
@@ -208,10 +234,11 @@
                               :as                   button}]
                           (not disabled?))
           ]
-        [ui/scroll-view
+        [ui/collapse-scroll-view {:collapse! do-collapse!}
          [ui/view
           [ui/view
-           [ui/para {:theme {:colors {:text "white"}}
+           ;; TODO: change to draw from
+           #_[ui/para {:theme {:colors {:text "white"}}
                      :style {:padding-top 4
                              :padding-left 8}}
             (str stage-name "\n" stage-focus)]]
@@ -220,7 +247,10 @@
                                   :dispatch dispatch
                                   :action-valid? valid-button?)]
           [ui/bottom-sheet-card
-           (assoc display :dispatch dispatch)]
+           (assoc display
+                  :turn-marker (str (:user-name active-player) "'s turn...")
+                  :dispatch dispatch
+                  :collapse! do-collapse!)]
           (if extra-details
             [ui/view {:style {:padding 2
                               :padding-top 8}}
@@ -263,32 +293,18 @@
                                          :decks (r/reactify-component deck-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
-     (let [;; "window" dimensions wrong to start sometimes - height 36?
-           ;;  note: useWindowDimensions hook did _not_ prevent this problem
-           ;;  most likely reagent deferring a render and causing window to be small?
-           dimensions (.get ui/dimensions "screen")
-           on-tab-change (fn [x] (reset! tab-state x))
+     (let [on-tab-change (fn [x] (reset! tab-state x))
            current-index @tab-state
-           sizing (if (ui/os? "web")
-                    {:min-height (.-height dimensions)
-                     :width "100%"}
-                    {:min-height (.-height dimensions)
-                     :width (.-width dimensions)})
            ]
-       [ui/view {:style sizing}
-        [ui/tab-view
-         {:initial-layout (if-not (ui/os? "web")
-                            (assoc sizing :height (.-height dimensions)))
-          :scroll-enabled true
-          :on-index-change on-tab-change
-          ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
-          :navigation-state {:index current-index
-                             :routes [{:key "main"
-                                       :title " "}
-                                      {:key "decks"
-                                       :title " "}
-                                      {:key "other"
-                                       :title " "}]}
-          :render-scene scene-map}
-         ]
+       [ui/clean-tab-view
+        {:on-index-change on-tab-change
+         ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
+         :navigation-state {:index current-index
+                            :routes [{:key "main"
+                                      :title "Turn"}
+                                     {:key "decks"
+                                      :title "Decks"}
+                                     {:key "other"
+                                      :title "Other"}]}
+         :render-scene scene-map}
         ]))))

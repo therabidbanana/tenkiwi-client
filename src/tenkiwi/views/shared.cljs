@@ -60,6 +60,7 @@
 (def para (r/adapt-react-class (.-Paragraph rn-paper)))
 (def h1 (r/adapt-react-class (.-Title rn-paper)))
 (def h2 (r/adapt-react-class (.-Subheading rn-paper)))
+(def caption (r/adapt-react-class (.-Caption rn-paper)))
 (def headline (r/adapt-react-class (.-Headline rn-paper)))
 (def button (r/adapt-react-class (.-Button rn-paper)))
 (def snackbar (r/adapt-react-class (.-Snackbar rn-paper)))
@@ -126,13 +127,15 @@
   (let [collapse (get props :collapse!)
         only-collapse! (get props :only-collapse!)
         scroller (if collapse
-                   (fn [e] (if (>= 0 (-> e
-                                         (aget "nativeEvent")
-                                         (aget "contentOffset")
-                                         (aget "y")))
-                             (@collapse false)
-                             (@collapse true))
-                     ))]
+                   (fn [e]
+                     (let [y (-> e
+                                 (aget "nativeEvent")
+                                 (aget "contentOffset")
+                                 (aget "y"))]
+                       (cond (<= 40 y)
+                             (@collapse true)
+                             (<= y 0)
+                             (@collapse false)))))]
     (cond
       scroller
       (into [scroll-view (-> props
