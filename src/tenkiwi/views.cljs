@@ -57,7 +57,7 @@
     [ui/view
      [ui/portal
       [ui/snackbar {:visible (:visible @toast)
-                    :duration 10000
+                    :duration 5000
                     :wrapper-style {:top 0
                                     :bottom nil
                                     :z-index 102}
