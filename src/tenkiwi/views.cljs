@@ -70,6 +70,8 @@
        [debrief-game-panel]
        :walking-deck
        [walking-deck-game-panel]
+       :walking-deck-v2
+       [walking-deck-game-panel]
        :oracle
        [oracle-game-panel])]))
 

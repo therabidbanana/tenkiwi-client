@@ -155,7 +155,7 @@ git commit -m "Update web build"
 git push # Does a heroku release
 ```
 
-#### Doing a native release
+#### ios Doing a native release
 
 Takes 20-30 minutes to generate an ipa file you can download:
 
@@ -163,23 +163,44 @@ Takes 20-30 minutes to generate an ipa file you can download:
 expo build:ios -t archive
 ```
 
-Open Transporter app and put the ipa into it.
+(to update permissions)
 
+https://developer.apple.com/account/resources/identifiers/list
 
+```
+expo build:ios --clear-provisioning-profile
+```
 
 Successfully created Provisioning Profile
 
   Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: QVC3H6C2KU)
+    Provisioning profile (ID: BD4M2L5GT2)
     Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
 
 
 Project Credential Configuration:
   Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: QVC3H6C2KU)
+    Provisioning profile (ID: BD4M2L5GT2)
     Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
 
   Distribution Certificate - Certificate ID: 22GJK6K536
     Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
   Push Notifications Key - Key ID: KP5JWWK4JK
     Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
+
+Open Transporter app and put the ipa into it.
+
+Then go to the app store to set it up. (If you're looking for them, builds are in a nonsensical place)
+
+https://appstoreconnect.apple.com/apps/1571524662/testflight/ios
+
+#### Android 
+
+```
+expo build:android -t app-bundle
+```
+
+Upload into app store:
+
+https://play.google.com/console/u/0/developers/5401255112018197410/app/4973781934088736512/tracks/production?tab=releaseDashboard
+
