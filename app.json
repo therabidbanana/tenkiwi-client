@@ -9,6 +9,7 @@
         "orientation": "portrait",
         "primaryColor": "#cccccc",
         "privacy": "unlisted",
+        "entryPoint": "js/index.prod.js",
         "icon": "./assets/icons/app.png",
         "splash": {
             "image": "./assets/icons/loading.png",

@@ -66,28 +66,18 @@ npm install -g expo-cli
     lein figwheel
 ```
 
-##### boot users
-``` shell
-    boot dev
-
-    ;; then input (cljs-repl) in the connected clojure repl to connect to boot cljs repl
-```
 
 #### Start Exponent server (Using `expo`)
 
-##### Also connect to Android device
 
 ``` shell
-    expo start
-    (hit a)
+    yarn start 
 ```
 
-##### Also connect to iOS Simulator
+This will run "DEV=true expo start", using figwheel entry point.
 
-``` shell
-    exp start
-    (hit i)
-```
+Note that by default live reload will be enabled, which is bad. Turn the "production mode" toggle on to disable that while still having access to perf monitor.
+
 
 ### Add new assets or external modules
 1. `require` module:
@@ -123,7 +113,6 @@ lein prod-build
 
 Testing build
 ```
-vim package.json # Edit index.dev.js to index.prod.js 
 expo start --no-dev
 ```
 
