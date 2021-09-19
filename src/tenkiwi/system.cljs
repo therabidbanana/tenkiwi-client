@@ -67,7 +67,6 @@
       (.setItem js/localStorage "device-id" as-str)
       client-id)))
 
-;; TODO: CHSK should probably live in here (prevent CSRF failures on figwheel?)
 (defn new-system [on-boot]
   (let [client-id (get-storage-item "device-id" (str (random-uuid)))
         on-boot (or on-boot (constantly true))]
@@ -121,7 +120,10 @@
  :websocket
  (fn [chsk-args]
    (let [socket (get-in system [:sente :connected-socket])
-         socket (if socket (deref socket))]
+         socket (if socket (deref socket))
+         socket (if (-> socket :chsk-state deref :open?)
+                  socket
+                  nil)]
      ;; TODO: Add timeout, callback for response -> dispatch
      (if socket
        ((get socket :chsk-send!) chsk-args)

@@ -26,11 +26,22 @@
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
   (let [[old-state-map new-state-map] ?data]
-    (if (:first-open? new-state-map)
+    (cond
+      (:first-open? new-state-map)
       (do
         (re-frame/dispatch [:user/connected!])
         (->output! "Channel socket successfully established!: %s" new-state-map))
-      (->output! "Channel socket state change: %s"              new-state-map))))
+      (and (:ever-opened? new-state-map) (not (:open? new-state-map)))
+      (do
+        (->output! "Channel socket lost connection!: %s" new-state-map)
+        (re-frame/dispatch [:user/lost-connection!]))
+      (and (:ever-opened? new-state-map) (:open? new-state-map))
+      (do
+        (->output! "Channel socket reconnected!: %s" new-state-map)
+        (re-frame/dispatch [:user/regained-connection!]))
+      :else
+      (->output! "Channel socket state change: %s" new-state-map)
+      )))
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]

@@ -29,6 +29,22 @@
                    :id (-> sente :connected-socket deref :client-id)
                    :connected? true)}))
 
+(re-frame/reg-event-fx
+ :user/lost-connection!
+ [(re-frame/inject-cofx :system :sente)]
+ (fn [{:as x :keys [db sente]} [_ params]]
+   {:db (update-in db [:user] assoc
+                   :id (-> sente :connected-socket deref :client-id)
+                   :connected? false)}))
+
+(re-frame/reg-event-fx
+ :user/regained-connection!
+ [(re-frame/inject-cofx :system :sente)]
+ (fn [{:as x :keys [db sente]} [_ params]]
+   {:db (update-in db [:user] assoc
+                   :id (-> sente :connected-socket deref :client-id)
+                   :connected? true)}))
+
 (re-frame/reg-event-db
  :join/set-params
  (fn [db [_ params]]
