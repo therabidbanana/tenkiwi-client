@@ -76,24 +76,24 @@
        [oracle-game-panel])]))
 
 (defn layout [body]
-  [safe-view {:style {:overflow-x "hidden"
+  [ui/safe-view {:style {:overflow-x "hidden"
                       :min-height "100%"
                       :padding-top (if (ui/os? "android")
                                      (.. ReactNative -StatusBar -currentHeight))
                       :flex 1
                       :background-color "#1e88e5"}}
-   [view {:style {:background-color "#003366"}}
+   [ui/view {:style {:background-color "#003366"}}
     body]])
 
 (defn -connecting-panel []
   (let []
-    [view {:style
+    [ui/view {:style
            {:height "100%"
             :padding 16}}
-     [card {:style {:margin-top "auto"
+     [ui/card {:style {:margin-top "auto"
                     :margin-bottom "auto"}}
-      [card-content {}
-       [para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
+      [ui/card-content {}
+       [ui/para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 
 (defn main-panel []
   (let [user  (re-frame/subscribe [:user])
