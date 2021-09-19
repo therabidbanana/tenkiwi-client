@@ -77,11 +77,13 @@
 
 (defn layout [body]
   [ui/safe-view {:style {:overflow-x "hidden"
-                      :min-height "100%"
-                      :padding-top (if (ui/os? "android")
-                                     (.. ReactNative -StatusBar -currentHeight))
-                      :flex 1
-                      :background-color "#1e88e5"}}
+                         :min-height "100%"
+                         :padding-top (if (ui/os? "android")
+                                        (.. ReactNative -StatusBar -currentHeight))
+                         :flex 1
+                         :background-color "rgba(3,25,53,1.0)"}}
+   [ui/status-bar {:style "light"
+                   :background-color "rgba(3,25,53,1.0)"}]
    [ui/view {:style {:background-color "#003366"}}
     body]])
 

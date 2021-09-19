@@ -8,6 +8,7 @@
             [react-native :as ReactNative]
             ["@expo/vector-icons" :as AtExpo]
             [react-native-paper :as rn-paper]
+            [expo-status-bar :as expo-status-bar]
             ["@expo/react-native-action-sheet" :as action-sheet-lib]
             [reanimated-bottom-sheet :as sheet-lib]
             [react-native-reanimated :as Reanimated]
@@ -19,12 +20,14 @@
 
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
+(def expo-status-bar (js/require "expo-status-bar"))
 (def AtExpo (js/require "@expo/vector-icons"))
 (def Reanimated (js/require "react-native-reanimated"))
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
 
 (def animated-value (.-Value Reanimated))
+(def status-bar (r/adapt-react-class (.-StatusBar expo-status-bar)))
 (def call (.-call Reanimated))
 
 (def platform (.-Platform ReactNative))
@@ -102,7 +105,9 @@
         tab-style {:minHeight 24
                    :padding 6
                    :paddingBottom 9}
-        bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
+        bar-style {:backgroundColor
+                   "rgba(5,25,53,1.0)"
+                   #_"rgba(0,0,0,0.3)"}
         indicator-style {:borderRadius 2
                          :backgroundColor "rgba(255,255,255,0.15)"
                          :height 4
