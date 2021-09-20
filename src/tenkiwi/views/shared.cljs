@@ -9,6 +9,7 @@
             ["@expo/vector-icons" :as AtExpo]
             [react-native-paper :as rn-paper]
             [expo-status-bar :as expo-status-bar]
+            [expo-linear-gradient :as expo-linear-gradient]
             ["@expo/react-native-action-sheet" :as action-sheet-lib]
             [reanimated-bottom-sheet :as sheet-lib]
             [react-native-reanimated :as Reanimated]
@@ -21,6 +22,7 @@
 (def ReactNative (js/require "react-native"))
 (def expo (js/require "expo"))
 (def expo-status-bar (js/require "expo-status-bar"))
+(def expo-linear-gradient (js/require "expo-linear-gradient"))
 (def AtExpo (js/require "@expo/vector-icons"))
 (def Reanimated (js/require "react-native-reanimated"))
 (def ionicons (.-Ionicons AtExpo))
@@ -28,6 +30,7 @@
 
 (def animated-value (.-Value Reanimated))
 (def status-bar (r/adapt-react-class (.-StatusBar expo-status-bar)))
+(def linear-gradient (r/adapt-react-class (.-LinearGradient expo-linear-gradient)))
 (def call (.-call Reanimated))
 
 (def platform (.-Platform ReactNative))
@@ -293,34 +296,48 @@
                         ;; rules?
                         ;; {:border-color "blue"}
                         ))}
-        [scroll-view {:scroll-enabled overflow?}
-         [card-content {:on-layout (fn [e]
-                                     (reset! child-layout
-                                             (js->clj (aget (aget e "nativeEvent") "layout"))))
-                        :class (str (name (get-in card-data [:state] "blank"))
-                                    " "
-                                    (if x-carded?
-                                      "x-carded"))}
-          [markdown {:style {:body {:font-size 22
-                                    :font-family (if android? "serif" "Georgia")}}}
-           full-text]
-          [list-section
-           (map (fn [{:keys [name value label generator]}]
-                  [list-item {:key name
-                              :title label
-                              :description value
-                              :on-press (if regen?
-                                          #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
-                              :right (if regen?
-                                       (fn [p] (r/as-element
-                                                [list-icon (merge (js->clj p)
-                                                                  {:icon "refresh"})])))
-                              }])
-                (get-in display [:card :inputs]))]]
-         (if (available-actions :x-card)
-           [button {;;:style {:margin-bottom -12}
-                    :disabled x-carded?
-                    :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
+        [view {:style {:flex-direction "column"
+                       :flex 1}}
+         [scroll-view {:scroll-enabled overflow?
+                       :shows-vertical-scroll-indicator (not web?)
+                       :style {:flex 1}}
+          [card-content {:on-layout (fn [e]
+                                      (reset! child-layout
+                                              (js->clj (aget (aget e "nativeEvent") "layout"))))
+                         :class (str (name (get-in card-data [:state] "blank"))
+                                     " "
+                                     (if x-carded?
+                                       "x-carded"))}
+           [markdown {:style {:body {:font-size 22
+                                     :font-family (if android? "serif" "Georgia")}}}
+            full-text]
+           [list-section
+            (map (fn [{:keys [name value label generator]}]
+                   [list-item {:key name
+                               :title label
+                               :description value
+                               :on-press (if regen?
+                                           #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
+                               :right (if regen?
+                                        (fn [p] (r/as-element
+                                                 [list-icon (merge (js->clj p)
+                                                                   {:icon "refresh"})])))
+                               }])
+                 (get-in display [:card :inputs]))]]
+          (if (available-actions :x-card)
+            [button {;;:style {:margin-bottom -12}
+                     :disabled x-carded?
+                     :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
+         (if overflow?
+           [linear-gradient {:colors ["rgba(0,0,0,0.0)", "rgba(0,0,0,0.01)", "rgba(0,0,0, 0.18)"]
+                             :style {:border-radius 4
+                                     :position "absolute"
+                                     :bottom 0
+                                     :width "100%"
+                                     :height 18}
+                             :start {:x 0 :y 0}
+                             :end {:x 0 :y 1}
+                             :pointer-events "none"}])]
         [card-actions
          ;; Maybe move pass here?
          #_(if (available-actions :pass)
