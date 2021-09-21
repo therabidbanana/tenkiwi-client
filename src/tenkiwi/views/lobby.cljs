@@ -45,20 +45,13 @@
                 [ui/text "Start Game"]]]])
            available-games)
       [:> (.-Caption ui/rn-paper)
-       {:style {:margin-top 18
+       [ui/markdown {} "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."]
+       #_{:style {:margin-top 18
                 :text-align "center"
                 :padding 8}}
-       "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."
+       
        ]]
-     [ui/view {:style {:padding          8
-                    :text-align       "center"
-                    :background-color "rgba(100,80,120,0.8)"}}
-      [:> (.-Caption ui/rn-paper)
-       "This work is based on For the Queen"
-       " (found at http://www.forthequeengame.com/)"
-       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"
-       "  (http://creativecommons.org/licenses/by/3.0/)."]]]))
+     ]))
 
 (defn config-panel []
   (let [game-data (re-frame/subscribe [:room])]
@@ -101,21 +94,9 @@
                                      (dispatch [:<-game/start! type {:game-url sheet}]))}
                 [ui/text "Start Game"]]]])
            available-games)
-      [:> (.-Caption ui/rn-paper)
-       {:style {:margin-top 18
-                :text-align "center"
-                :padding 8}}
-       "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."
-       ]]
-     [ui/view {:style {:padding          8
-                    :text-align       "center"
-                    :background-color "rgba(100,80,120,0.8)"}}
-      [:> (.-Caption ui/rn-paper)
-       "This work is based on For the Queen"
-       " (found at http://www.forthequeengame.com/)"
-       ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
-       "Creative Commons Attribution 3.0 Unported license"
-       "  (http://creativecommons.org/licenses/by/3.0/)."]]]))
+      [ui/markdown {}
+       "Want to add your own? Games are simple spreadsheets - get [more details here.](https://docs.google.com/forms/d/e/1FAIpQLScmKrw1TDr-OaYrGjmBLCWQj6aex9XCCvdRI-ogOEeYr3n-Xg/viewform?usp=sf_link)"]]
+     ]))
 
 (defn main-lobby-panel []
   (let [game-data (re-frame/subscribe [:room])]
