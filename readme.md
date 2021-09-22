@@ -134,6 +134,12 @@ Testing web build directly:
 npx serve web-build
 ```
 
+Deploying web build to itch.io:
+
+```
+butler push web-build therabidbanana/tenkiwi:web
+```
+
 (From tenkiwi app:)
 
 ```
@@ -143,6 +149,8 @@ git add resources
 git commit -m "Update web build"
 git push # Does a heroku release
 ```
+
+
 
 #### ios Doing a native release
 
