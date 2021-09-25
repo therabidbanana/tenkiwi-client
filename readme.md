@@ -201,3 +201,16 @@ Upload into app store:
 
 https://play.google.com/console/u/0/developers/5401255112018197410/app/4973781934088736512/tracks/production?tab=releaseDashboard
 
+
+
+### What?
+
+Sometimes running lein prod-build exits with no message:
+
+davidhaslem at Davids-MacBook-Air.local in [~/projects/cljs-apps/tenkiwi-client]  on git:master ✗  7d8ce2e "Support butler release"
+20:56:19 › lein prod-build
+Compiling ClojureScript...
+
+(dead)
+
+I don't understand this error yet. Retrying enough times seems to have helped. (I also touched a file: env/prod/user.clj to add a useless println)
