@@ -262,10 +262,12 @@
 
            overflow? (> (+ 60 child-height)
                         parent-height)
+           inputs     (get-in display [:card :inputs] [])
            all-inputs (into {}
                             (map #(vector (:name %) (:value %))
-                                 (get-in display [:card :inputs] [])))
+                                 inputs))
 
+           prompt-options (get-in card-data [:prompt-options])
            additional-prompts (get-in display [:additional-prompts])
            card-text (get-in card-data [:text])
            ;; Only used in walking-deck - maybe extract?
@@ -311,19 +313,34 @@
            [markdown {:style {:body {:font-size 22
                                      :font-family (if android? "serif" "Georgia")}}}
             full-text]
-           [list-section
-            (map (fn [{:keys [name value label generator]}]
-                   [list-item {:key name
-                               :title label
-                               :description value
-                               :on-press (if regen?
-                                           #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
-                               :right (if regen?
-                                        (fn [p] (r/as-element
+           (if-not (empty? prompt-options)
+             [list-section
+              (map (fn [{:keys [text label description name value selected? label generator]}]
+                     [list-item {:key name
+                                 :title label
+                                 :description description
+                                 :on-press (if-not selected?
+                                             #(dispatch [:<-game/action! :choose-option name]))
+                                 :left (fn [p]
+                                          (r/as-element
                                                  [list-icon (merge (js->clj p)
-                                                                   {:icon "refresh"})])))
-                               }])
-                 (get-in display [:card :inputs]))]]
+                                                                   {:icon (if selected? "radiobox-marked" "radiobox-blank")})]))
+                                 }])
+                   prompt-options)])
+           (if-not (empty? inputs)
+             [list-section
+              (map (fn [{:keys [name value label generator]}]
+                     [list-item {:key name
+                                 :title label
+                                 :description value
+                                 :on-press (if regen?
+                                             #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
+                                 :right (if regen?
+                                          (fn [p] (r/as-element
+                                                   [list-icon (merge (js->clj p)
+                                                                     {:icon "refresh"})])))
+                                 }])
+                   inputs)])]
           (if (available-actions :x-card)
             [button {;;:style {:margin-bottom -12}
                      :disabled x-carded?
