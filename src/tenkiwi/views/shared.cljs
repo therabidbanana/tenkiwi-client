@@ -273,7 +273,7 @@
            ;; Only used in walking-deck - maybe extract?
            full-text (if additional-prompts
                        (clojure.string/join "\n\n * * * * * \n"
-                                            (concat [card-text] additional-prompts))
+                                            (concat (reverse additional-prompts) [card-text]))
                        card-text)
            ]
        [card {:elevation 4
