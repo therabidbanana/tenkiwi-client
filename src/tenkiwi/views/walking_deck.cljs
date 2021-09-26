@@ -198,11 +198,18 @@
           
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")
+          prompt-options (get-in display [:card :prompt-options])
 
           valid-button? (fn [{:keys                 [action params disabled?]
                               {:keys [id rank act]} :params
                               :as                   button}]
-                          (not disabled?))
+                          (cond
+                            (#{:done} action)
+                            (and
+                             (not disabled?)
+                             (or (empty? prompt-options) (some :selected? prompt-options)))
+                            :else
+                            (not disabled?)))
           ]
         [ui/scroll-view
          [ui/view
