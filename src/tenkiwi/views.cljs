@@ -3,6 +3,7 @@
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
+            [tenkiwi.views.opera :refer [opera-game-panel]]
             [tenkiwi.views.walking-deck :refer [walking-deck-game-panel]]
             [tenkiwi.views.lobby :refer [lobby-panel]]
             [tenkiwi.views.home-screen :refer [opening-panel]]
@@ -68,6 +69,8 @@
        [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
        :debrief
        [debrief-game-panel]
+       :opera
+       [opera-game-panel]
        :walking-deck
        [walking-deck-game-panel]
        :walking-deck-v2
