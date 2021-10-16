@@ -200,7 +200,18 @@
                                   :hide-invalid? true
                                   :action-valid? valid-button?)]
           (if has-scene?
-            [ui/progressbar {:progress (/ (-> clocks :plot) 8)}])
+            [ui/progressbar {:progress (/ (-> clocks :plot) 8)
+                             :color (get {1 "#66bb6a"
+                                          2 "#fff59d"
+                                          3 "#fdd835"
+                                          4 "#ff9800"
+                                          5 "#ef5350"} position)}]
+            [ui/progressbar {:progress 1.0
+                             :color (get {1 "#66bb6a"
+                                          2 "#fff59d"
+                                          3 "#fdd835"
+                                          4 "#ff9800"
+                                          5 "#ef5350"} position)}])
           (if extra-details
             [ui/view {:style {:padding     2
                               :padding-top 8}}
