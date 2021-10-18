@@ -190,6 +190,13 @@
            "[Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).")]]]
        [ui/card {:style {:margin-top 18
                          :padding 24}}
+        [ui/card-title {:title "Redacted Materials"}]
+        [ui/card-content
+         [ui/markdown
+          (str 
+           "Some games in this work use material from the External Containment Bureau roleplaying game (found at [https://mythicgazetteer.itch.io/external-containment-bureau](https://mythicgazetteer.itch.io/external-containment-bureau)), designed by Lexi Antoku, Eric Brunsell, Michael Elliott, Justin Ford, and Eli Kurtz, and published by Mythic Gazetteer LLC, pursuant to the open license available at [mythicgazetteer.com/redacted-material](http://mythicgazetteer.com/redacted-material/)")]]]
+       [ui/card {:style {:margin-top 18
+                         :padding 24}}
         [ui/card-title {:title "X-Card"}]
         [ui/card-content
          [ui/markdown

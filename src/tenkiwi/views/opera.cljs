@@ -173,6 +173,11 @@
           box-style      {:margin-top 8 :padding 10}
           dimensions     (.get ui/dimensions "screen")
           has-scene?     (-> card :scene)
+          position-color (get {1 "#66bb6a"
+                               2 "#fff59d"
+                               3 "#fdd835"
+                               4 "#ff9800"
+                               5 "#ef5350"} position)
 
           valid-button? (fn [{:keys                 [action params disabled?]
                               {:keys [id rank act]} :params
@@ -201,17 +206,9 @@
                                   :action-valid? valid-button?)]
           (if has-scene?
             [ui/progressbar {:progress (/ (-> clocks :plot) 8)
-                             :color (get {1 "#66bb6a"
-                                          2 "#fff59d"
-                                          3 "#fdd835"
-                                          4 "#ff9800"
-                                          5 "#ef5350"} position)}]
+                             :color position-color}]
             [ui/progressbar {:progress 1.0
-                             :color (get {1 "#66bb6a"
-                                          2 "#fff59d"
-                                          3 "#fdd835"
-                                          4 "#ff9800"
-                                          5 "#ef5350"} position)}])
+                             :color position-color}])
           (if extra-details
             [ui/view {:style {:padding     2
                               :padding-top 8}}
