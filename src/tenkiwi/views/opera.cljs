@@ -24,18 +24,71 @@
  :opera-other
  (fn [db]
    (extract-display (:user db)
-                    [:stage :mission])))
+                    [:all-players :dossiers :stage :mission])))
+
+(defn -player-scoreboard-entry [display current-user-id dossiers player]
+  (let [{:keys [id user-name dead? background codename department]} player
+        current-user? (= id current-user-id)
+        dispatch (:dispatch display)
+        total-score (get-in dossiers [id :stress])]
+    [ui/surface {:style {:margin 4
+                         :flex-direction "row"
+                         :align-items "center"}}
+     [ui/view {:style {:flex 1
+                       :padding 4
+                       :align-items "center"}}
+      [ui/h1 {} total-score]]
+     [ui/view {:style {:flex 7
+                       :padding 4}}
+      [ui/view {:style {:border-bottom-style "dashed"
+                        :border-bottom-color "#bebebe"
+                        :border-bottom-width 1
+                        :padding 4}}
+       [ui/para {:title background}
+        (str (if codename (str codename ", " department " ")) " (" user-name ")")]]
+      [ui/view {:style {:flex-direction "row"
+                        :align-items "center"}}
+       [ui/button
+        {:style {:flex 1}
+         :on-press #(dispatch [:<-game/action! :downstress-player {:player-id id}])}
+        " - "]
+       [ui/text {:style {:text-align "center"
+                         :margin-top 9
+                         :margin-bottom 9
+                         :font-style "italic"
+                         :opacity (if current-user? 0.4 0.7)
+                         :flex 1}}
+        (str (get-in dossiers [id :stress]))]
+       [ui/button
+        {:style {:flex 1}
+         :on-press #(dispatch [:<-game/action! :upstress-player {:player-id id}])}
+        " + "]
+       ]]]))
 
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
-    (let [{:keys [extra-actions]} (:display @game-state-atom)
-          {:keys [stage mission]} @game-state-atom
+    (let [{:keys [display current-user-id
+                  dossiers all-players stage mission]} @game-state-atom
+
+          {:keys [extra-actions]} display
+          all-players    (map #(merge % (get dossiers (:id %) {}))
+                              all-players)
+
           extra-actions (remove (fn [x] (#{:jump-ahead} (:action x))) extra-actions)
           dimensions (.get ui/dimensions "screen")
-          voting-active? (if-not (#{:intro} stage)
+          Voting-active? (if-not (#{:intro} stage)
                            true
                            false)]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
+       (if voting-active?
+         [ui/view
+          ;; Testing always shown scoreboard
+          (map (fn [player]
+                 (with-meta
+                   [-player-scoreboard-entry (assoc display :dispatch dispatch)
+                    current-user-id dossiers player]
+                   {:key (:id player)}))
+               all-players)])
        (if voting-active?
          [ui/card {:style {:margin 8}}
           [ui/card-content
@@ -241,7 +294,7 @@
                   :dispatch dispatch
                   :regen-action true
                   :turn-marker (str
-                                (if-let [agent-name (:agent-codename active-player)]
+                                (if-let [agent-name (:codename active-player)]
                                   (str
                                    agent-name " "
                                    "(" (:user-name active-player) ")")
