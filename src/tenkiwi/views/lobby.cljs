@@ -71,6 +71,7 @@
          game-type
          [ui/surface {:style {:margin  18
                               :padding 8}}
+          [ui/activity-indicator]
           [ui/button {:mode     "outlined"
                       :style    {:margin-top 4}
                       :on-press #(do
