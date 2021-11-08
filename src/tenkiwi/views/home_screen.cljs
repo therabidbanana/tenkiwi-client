@@ -7,14 +7,14 @@
 
 (defn secure-rand-id [alphabet number]
   (str (str/join "" (take number (shuffle alphabet)))
-       "-"
+       ""
        (str/join "" (take number (shuffle alphabet)))))
 
 (defonce do-collapse! (r/atom (fn [])))
 
 (defn -join-panel [form-state join dispatch]
   (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
-                                    3)
+                                    2)
         dimensions (.get ui/dimensions "screen")
         ]
     [ui/collapse-scroll-view {:style {:padding 24}
