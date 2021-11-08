@@ -11,18 +11,8 @@
   (let [{:keys [room-code available-games]
          :as   game-data} @game-data]
     [ui/scroll-view {:style {:padding 4}}
-     [ui/card
-      [ui/card-title {:title    "Players"
-                   :subtitle (str "Lobby Code: " room-code)}]
-      [ui/card-content
-       [ui/list-section
-        (for [player (:players game-data)]
-          ^{:key (:id player)}
-          [ui/list-item {:title (:user-name player)
-                      :right (fn [props]
-                               (r/as-element [-player-boot (assoc player :dispatch dispatch)]))}])]]]
      [ui/surface {:style {:margin  18
-                       :padding 8}}
+                          :padding 8}}
       [ui/para
        "Once everyone has joined, choose a game type to start."
        " "
@@ -32,25 +22,20 @@
       (map (fn [{:keys [title subtitle type sheet]
                  description :text}]
              [ui/card {:style {:margin-top 8}
-                    :key sheet}
+                       :key sheet}
               [ui/card-title {:title                    title
-                           :subtitle-number-of-lines 3
-                           :subtitle subtitle}]
+                              :subtitle-number-of-lines 3
+                              :subtitle subtitle}]
               [ui/card-content
                [ui/markdown {} description]
                [ui/button {:mode     "outlined"
-                        :style    {:margin-top 4}
-                        :on-press #(do
-                                     (dispatch [:<-game/start! type {:game-url sheet}]))}
+                           :style    {:margin-top 4}
+                           :on-press #(do
+                                        (dispatch [:<-game/start! type {:game-url sheet}]))}
                 [ui/text "Start Game"]]]])
            available-games)
-      [:> (.-Caption ui/rn-paper)
-       [ui/markdown {} "Want to add your own? Games are simple spreadsheets - contact tenkiwigame@gmail.com for more info."]
-       #_{:style {:margin-top 18
-                :text-align "center"
-                :padding 8}}
-       
-       ]]
+      [ui/markdown {}
+       "Want to add your own? Games are simple spreadsheets - get [more details here.](https://docs.google.com/forms/d/e/1FAIpQLScmKrw1TDr-OaYrGjmBLCWQj6aex9XCCvdRI-ogOEeYr3n-Xg/viewform?usp=sf_link)"]]
      ]))
 
 (defn config-panel []
@@ -71,31 +56,6 @@
           [ui/list-item {:title (:user-name player)
                       :right (fn [props]
                                (r/as-element [-player-boot (assoc player :dispatch dispatch)]))}])]]]
-     [ui/surface {:style {:margin  18
-                       :padding 8}}
-      [ui/para
-       "Once everyone has joined, choose a game type to start."
-       " "
-       "Players without the app can join via web at "
-       [ui/para {:style {:font-weight "bold"}}
-        "tenkiwi.com"]]
-      (map (fn [{:keys [title subtitle type sheet]
-                 description :text}]
-             [ui/card {:style {:margin-top 8}
-                    :key sheet}
-              [ui/card-title {:title                    title
-                           :subtitle-number-of-lines 3
-                           :subtitle subtitle}]
-              [ui/card-content
-               [ui/markdown {} description]
-               [ui/button {:mode     "outlined"
-                        :style    {:margin-top 4}
-                        :on-press #(do
-                                     (dispatch [:<-game/start! type {:game-url sheet}]))}
-                [ui/text "Start Game"]]]])
-           available-games)
-      [ui/markdown {}
-       "Want to add your own? Games are simple spreadsheets - get [more details here.](https://docs.google.com/forms/d/e/1FAIpQLScmKrw1TDr-OaYrGjmBLCWQj6aex9XCCvdRI-ogOEeYr3n-Xg/viewform?usp=sf_link)"]]
      ]))
 
 (defn main-lobby-panel []
@@ -117,7 +77,7 @@
           :navigation-state {:index current-index
                              :routes [{:key "main"
                                        :title "Lobby"}
-                                      #_{:key "config"
+                                      {:key "config"
                                        :title "Configure"}]}
           :render-scene scene-map}
          ]))))
