@@ -129,6 +129,14 @@
          (update-in db [:user] assoc :current-room params))))))
 
 (re-frame/reg-event-db
+ :->game/selected!
+ (fn [db [_ params]]
+   (let [current-room (get-in db [:user :current-room])]
+     (if (= (:room-code params) (:room-code current-room))
+       (do
+         (update-in db [:user] assoc :current-room params))))))
+
+(re-frame/reg-event-db
  :->game/started!
  (fn [db [_ params]]
    (let [current-room (get-in db [:user :current-room])]
@@ -151,6 +159,17 @@
      (if (= (:room-code params) (:room-code current-room))
        (update-in db [:user] assoc :current-room params)
        db))))
+
+(re-frame/reg-event-fx
+ :<-game/select!
+ (fn [{:keys [db]} [_ id & params]]
+   (let [params (assoc (or (first params) {})
+                       :game-type id)]
+     {:db (if id
+            (update-in db [:forms :game-lobby] merge params)
+            (assoc-in db [:forms :game-lobby] {}))
+      :fx [[:websocket [:game/select! {:game-type id
+                                       :params params}]]]})))
 
 (re-frame/reg-event-fx
  :<-game/start!
