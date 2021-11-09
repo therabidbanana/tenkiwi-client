@@ -28,7 +28,8 @@
    (let [room (get-in db [:user :current-room])]
      (println room)
      (assoc room
-            :host? (= (:host-id room) (get-in db [:user :id]))))))
+            :host? (= (:host-id room) (get-in db [:user :id]))
+            :current-player-id (get-in db [:user :id])))))
 
 (re-frame/reg-sub
  :game

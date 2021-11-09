@@ -29,14 +29,15 @@
                         :selected (= value (get params name))}
                        text])]
     [ui/scroll-view {:style {:padding 4}}
-     [ui/card
+     #_[ui/card
       [ui/card-title {:title "Personal Details"}]
       [ui/card-content
        [ui/text "(Nothing to configure)"]]]
      (if host?
        (cond
          configuration
-         [ui/card
+         [ui/surface {:style {:margin 4
+                              :padding 8}}
           (map
            (fn [{:keys [type label name options value nested]}]
              [ui/view {:key name}
@@ -62,13 +63,16 @@
                                 :default-value     (get params name)}])
               ])
            inputs)
-          [ui/surface {:style {:margin  18
-                               :padding 8}}
-           [ui/button {:mode     "outlined"
-                       :style    {:margin-top 4}
-                       :on-press #(do
-                                    (dispatch [:<-game/select! nil {}]))}
-            [ui/text "Deselect Game"]]]]
+          [ui/button {:mode     "contained"
+                      :style    {:margin-top 8}
+                      :on-press #(do
+                                   (dispatch [:<-game/start! game-type params]))}
+           [ui/text "Start Game"]]
+          [ui/button {:mode     "outlined"
+                      :style    {:margin-top 8}
+                      :on-press #(do
+                                   (dispatch [:<-game/select! nil {}]))}
+           [ui/text "Deselect Game"]]]
          game-type
          [ui/surface {:style {:margin  18
                               :padding 8}}
@@ -98,7 +102,11 @@
                     [ui/text "Select Game"]]]])
                available-games)
           [ui/markdown {}
-           "Want to add your own? Games are simple spreadsheets - get [more details here.](https://docs.google.com/forms/d/e/1FAIpQLScmKrw1TDr-OaYrGjmBLCWQj6aex9XCCvdRI-ogOEeYr3n-Xg/viewform?usp=sf_link)"]]))
+           "Want to add your own? Games are simple spreadsheets - get [more details here.](https://docs.google.com/forms/d/e/1FAIpQLScmKrw1TDr-OaYrGjmBLCWQj6aex9XCCvdRI-ogOEeYr3n-Xg/viewform?usp=sf_link)"]])
+       ;; if not host
+       [ui/card
+        [ui/card-title {:title "Game Configuration"}]
+        [ui/card-content [ui/text "Your host will set this up."]]])
      ]))
 
 (defn config-panel []
@@ -107,7 +115,7 @@
     [-config-panel game-data config-data re-frame/dispatch]))
 
 (defn -lobby-panel [game-data config-data dispatch]
-  (let [{:keys [room-code host? game-setup]
+  (let [{:keys [room-code host? current-player-id game-setup]
          :as   game-data} @game-data
 
         {:keys [game-type title game-url]
@@ -138,11 +146,17 @@
        [ui/card-content
         [ui/text (or title "(None Selected Yet)")]
         (if (and game-type host?)
-          [ui/button {:mode     "outlined"
-                      :style    {:margin-top 4}
+          [ui/button {:mode     "contained"
+                      :style    {:margin-top 8}
                       :on-press #(do
                                    (dispatch [:<-game/start! game-type config-data]))}
-           [ui/text "Start Game"]])
+           [ui/text "Start Game"]]
+          [ui/button {:mode     "outlined"
+                      :style    {:margin-top 8}
+                      :on-press #(do
+                                   (dispatch [:<-room/boot-player! current-player-id]))}
+           [ui/text "Leave Game"]]
+          )
         ]]]
      ]))
 

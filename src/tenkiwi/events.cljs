@@ -185,7 +185,8 @@
          join       (if unlock-codes
                       (assoc join :unlock-codes unlock-codes)
                       join)]
-     {:fx [[:websocket [:room/join-room! join]]]})))
+     {:db (assoc-in db [:forms :game-lobby] {})
+      :fx [[:websocket [:room/join-room! join]]]})))
 
 (re-frame/reg-event-fx
  :<-room/boot-player!
