@@ -80,7 +80,7 @@
                            true
                            false)]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
-       (if voting-active?
+       #_(if voting-active?
          [ui/view
           ;; Testing always shown scoreboard
           (map (fn [player]
