@@ -76,7 +76,7 @@
 
           extra-actions (remove (fn [x] (#{:jump-ahead} (:action x))) extra-actions)
           dimensions (.get ui/dimensions "screen")
-          Voting-active? (if-not (#{:intro} stage)
+          voting-active? (if-not (#{:intro} stage)
                            true
                            false)]
       [ui/collapse-scroll-view {:collapse! do-collapse!}

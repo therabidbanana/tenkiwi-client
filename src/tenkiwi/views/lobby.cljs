@@ -21,12 +21,13 @@
         update-val  (fn [name val]
                       (dispatch [:forms/set-params (assoc {:action :game-lobby}
                                                           name val)]))
-        form-option (fn [name {:keys [id title]}]
+        form-option (fn [name {text :name
+                               :keys [value]}]
                       [ui/chip
-                       {:on-press #(update-val name id)
-                        :key    id
-                        :selected (= id (get params name))}
-                       title])]
+                       {:on-press #(update-val name value)
+                        :key    value
+                        :selected (= value (get params name))}
+                       text])]
     [ui/scroll-view {:style {:padding 4}}
      [ui/card
       [ui/card-title {:title "Personal Details"}]
