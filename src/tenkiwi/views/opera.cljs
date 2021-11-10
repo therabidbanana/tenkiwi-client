@@ -27,10 +27,10 @@
                     [:all-players :dossiers :stage :mission])))
 
 (defn -player-scoreboard-entry [display current-user-id dossiers player]
-  (let [{:keys [id user-name dead? background codename department]} player
+  (let [{:keys [id agent-id user-name dead? background codename department]} player
         current-user? (= id current-user-id)
         dispatch (:dispatch display)
-        total-score (get-in dossiers [id :stress])]
+        total-score (get-in dossiers [agent-id :stress])]
     [ui/surface {:style {:margin 4
                          :flex-direction "row"
                          :align-items "center"}}
@@ -50,7 +50,7 @@
                         :align-items "center"}}
        [ui/button
         {:style {:flex 1}
-         :on-press #(dispatch [:<-game/action! :downstress-player {:player-id id}])}
+         :on-press #(dispatch [:<-game/action! :downstress-player {:player-id id :agent-id agent-id}])}
         " - "]
        [ui/text {:style {:text-align "center"
                          :margin-top 9
@@ -58,10 +58,10 @@
                          :font-style "italic"
                          :opacity (if current-user? 0.4 0.7)
                          :flex 1}}
-        (str (get-in dossiers [id :stress]))]
+        (str (get-in dossiers [agent-id :stress]))]
        [ui/button
         {:style {:flex 1}
-         :on-press #(dispatch [:<-game/action! :upstress-player {:player-id id}])}
+         :on-press #(dispatch [:<-game/action! :upstress-player {:player-id id :agent-id agent-id}])}
         " + "]
        ]]]))
 
@@ -71,7 +71,7 @@
                   dossiers all-players stage mission]} @game-state-atom
 
           {:keys [extra-actions]} display
-          all-players    (map #(merge % (get dossiers (:id %) {}))
+          all-players    (map #(merge % (get dossiers (:agent-id %) {}))
                               all-players)
 
           extra-actions (remove (fn [x] (#{:jump-ahead} (:action x))) extra-actions)
@@ -87,7 +87,7 @@
                  (with-meta
                    [-player-scoreboard-entry (assoc display :dispatch dispatch)
                     current-user-id dossiers player]
-                   {:key (:id player)}))
+                   {:key (:agent-id player)}))
                all-players)])
        (if voting-active?
          [ui/card {:style {:margin 8}}
@@ -119,7 +119,7 @@
  (fn [db]
    (extract-display (:user db)
                     [:dossiers :all-players
-                     :scenes
+                     :scenes :clocks
                      :stage :player-scores])))
 
 (defn -note-card [title list]
@@ -127,19 +127,19 @@
    [ui/card-content {}
     [ui/h1 {} title]
     [ui/view {:style {:padding 4}}
-     (map (fn [x] [ui/markdown x]) list)]]])
+     (map (fn [x] (with-meta [ui/markdown x] {:key x})) list)]]])
 
 (defn build-notes-panel [game-state-atom dispatch]
   (fn -notes-panel []
     (let [{:keys [dossiers scenes all-players
-                  stage player-scores
+                  stage clocks player-scores
                   current-user-id
                   display]
            :as   game}            @game-state-atom
           {:keys [extra-actions]} display
           extra-actions (filter (fn [x] (#{:jump-ahead} (:action x))) extra-actions)
 
-          all-players   (map #(merge % (get dossiers (:id %) {}))
+          all-players   (map #(merge % (get dossiers (:agent-id %) {}))
                              all-players)
           persons       (->> (map :npc scenes) distinct)
           places        (->> (map :setting scenes) distinct)
@@ -149,6 +149,7 @@
           complications (->> (filter (fn [{:keys [type]}] (#{:complication} type)) scenes)
                              (map :text)
                              distinct)
+          unresolved    (get clocks :complications (count complications))
 
           notes-active? (if-not (#{:intro} stage)
                           true
@@ -180,7 +181,8 @@
                        {:key action}))
                    extra-actions)])
            [-note-card "People" persons]
-           [-note-card "Complications" complications]
+           [-note-card (str "Complications"
+                            " (" unresolved " unresolved)") complications]
            [-note-card "Places" places]]
           [ui/para
            {:theme {:colors {:text "white"}}
@@ -222,7 +224,7 @@
           voting-active? (if-not (#{:intro} stage)
                            true
                            false)
-          active-player  (merge active-player (get dossiers (:id active-player) {}))
+          active-player  (merge active-player (get dossiers (:agent-id active-player) {}))
           box-style      {:margin-top 8 :padding 10}
           dimensions     (.get ui/dimensions "screen")
           has-scene?     (-> card :scene)
