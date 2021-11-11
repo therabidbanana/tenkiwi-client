@@ -151,9 +151,7 @@ https://play.google.com/console/u/0/developers/5401255112018197410/app/497378193
 
 ## Credits
 
-### Tenkiwi
-
-Tenkiwi is built by David Haslem (@therabidbanana).
+Copyright © 2021 David Haslem
 
 ### X-Card
 
