@@ -27,25 +27,27 @@
                     [:all-players :dossiers :stage :mission])))
 
 (defn -player-scoreboard-entry [display current-user-id dossiers player]
-  (let [{:keys [id agent-id user-name dead? background codename department]} player
+  (let [{:keys [id agent-id knack user-name dead? background codename department]} player
         current-user? (= id current-user-id)
         dispatch (:dispatch display)
         total-score (get-in dossiers [agent-id :stress])]
-    [ui/surface {:style {:margin 4
+    [ui/surface {:style {:margin 16
                          :flex-direction "row"
                          :align-items "center"}}
-     [ui/view {:style {:flex 1
-                       :padding 4
-                       :align-items "center"}}
-      [ui/h1 {} total-score]]
      [ui/view {:style {:flex 7
-                       :padding 4}}
+                       :padding 8}}
       [ui/view {:style {:border-bottom-style "dashed"
                         :border-bottom-color "#bebebe"
                         :border-bottom-width 1
                         :padding 4}}
-       [ui/para {:title background}
-        (str (if codename (str codename ", " department " ")) " (" user-name ")")]]
+       (if codename [ui/h2 (str codename)])
+       [ui/list-section
+        [ui/list-header user-name]
+        (if department [ui/list-item {:title "Department" :description department}])
+        (if background [ui/list-item {:title "Background" :description background}])
+        (if knack [ui/list-item {:title "Supernatural Abilities" :description (str knack " (uncertified)")}])
+        ]
+       ]
       [ui/view {:style {:flex-direction "row"
                         :align-items "center"}}
        [ui/button
@@ -58,7 +60,7 @@
                          :font-style "italic"
                          :opacity (if current-user? 0.4 0.7)
                          :flex 1}}
-        (str (get-in dossiers [agent-id :stress]))]
+        (str total-score)]
        [ui/button
         {:style {:flex 1}
          :on-press #(dispatch [:<-game/action! :upstress-player {:player-id id :agent-id agent-id}])}
@@ -80,7 +82,7 @@
                            true
                            false)]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
-       #_(if voting-active?
+       (if voting-active?
          [ui/view
           ;; Testing always shown scoreboard
           (map (fn [player]
