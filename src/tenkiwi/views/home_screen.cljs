@@ -15,8 +15,7 @@
 (defn -join-panel [form-state join dispatch]
   (let [random-room (secure-rand-id "abcdefghijklmnopqrstuvwxyz23456789"
                                     2)
-        dimensions (.get ui/dimensions "screen")
-        ]
+        dimensions (.get ui/dimensions "screen")]
     [ui/collapse-scroll-view {:style {:padding 24}
                               ;:collapse! do-collapse!
                               :only-collapse! do-collapse!}
@@ -49,15 +48,15 @@
           (= :host @form-state)
           [ui/view
            [ui/para {:style {:margin-top    12
-                          :margin-bottom 4}}
+                             :margin-bottom 4}}
             "A code friends will use to join the game:"]
            [ui/text-input {:name            "game-lobby-code"
-                        :label           "Lobby Code"
-                        :mode            "outlined"
-                        :auto-capitalize "none"
-                        :auto-correct    false
-                        :default-value   (-> join deref :room-code)
-                        :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
+                           :label           "Lobby Code"
+                           :mode            "outlined"
+                           :auto-capitalize "none"
+                           :auto-correct    false
+                           :default-value   (-> join deref :room-code)
+                           :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
            [ui/view  {:style {:margin-top 8}}
             [ui/button
              {:mode     "contained"
@@ -73,15 +72,15 @@
           :else
           [ui/view
            [ui/para {:style {:margin-top    12
-                          :margin-bottom 4}}
+                             :margin-bottom 4}}
             "The host will be able to tell you the code:"]
            [ui/text-input {:name            "game-lobby-code"
-                        :label           "Lobby Code"
-                        :mode            "outlined"
-                        :auto-capitalize "none"
-                        :auto-correct    false
-                        :default-value   (-> join deref :room-code)
-                        :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
+                           :label           "Lobby Code"
+                           :mode            "outlined"
+                           :auto-capitalize "none"
+                           :auto-correct    false
+                           :default-value   (-> join deref :room-code)
+                           :on-change-text  #(dispatch [:join/set-params {:room-code (str/lower-case %)}])}]
            [ui/view {:style {:margin-top 8}}
             [ui/button
              {:mode     "contained"
@@ -93,11 +92,9 @@
              {:style    {:margin-top 4}
               :on-press #(reset! form-state :name)}
 
-             "Go back"]]])]]
-      ]
+             "Go back"]]])]]]
      [ui/view {:height (* 0.7 (.-height dimensions))}
-      [ui/text ""]]
-     ]))
+      [ui/text ""]]]))
 
 (defn join-panel []
   (let [user-atom   (re-frame/subscribe [:join])
@@ -113,15 +110,13 @@
                       :subtitle ""}]
       [ui/card-content
        [ui/para
-        "Tenkiwi games are played by showing a series of \"cards\", like the one below, and taking turns reading them. When it's your turn, you'll read the card, then click a button to finish your turn."
-        ]
+        "Tenkiwi games are played by showing a series of \"cards\", like the one below, and taking turns reading them. When it's your turn, you'll read the card, then click a button to finish your turn."]
        [ui/view {:style {:margin 16}}
         [ui/button {:mode "contained"} "Finish Turn"]]
        [ui/para
         "Games have multiple screens you can flip between. Swipe left and right or use the tab bar up top to switch over.\n\n"
         "Some games might have additional actions you can take, such as giving each other points, passing a card to someone else, or generating new prompts.\n\n"
-        "There may also be some randomly generated text snippets to help you craft your story on the fly."]
-        ]]
+        "There may also be some randomly generated text snippets to help you craft your story on the fly."]]]
      [ui/view {:height (* 0.7 (.-height dimensions))}
       [ui/text ""]]
      [ui/bottom-sheet-card
@@ -132,9 +127,7 @@
        :card {:text (str
                      "Tenkiwi is an app for playing storytelling games with friends.\n\n"
                      "For this to work, you're going to need a way to talk to each other, either being in the same room or in a video conference app will work.\n\n"
-                     "Swipe this card down to read more about how to play, or click \"Play\" up above to start."
-                     )} }]]
-    ))
+                     "Swipe this card down to read more about how to play, or click \"Play\" up above to start.")}}]]))
 
 (defn build-settings-panel [form storage dispatch]
   (fn -settings-panel []
@@ -170,8 +163,7 @@
               "Go back"]]
           [ui/markdown {}
            (str "Previously saved codes:\n\n* "
-                (clojure.string/join "\n* " current-codes))]]]
-        ]
+                (clojure.string/join "\n* " current-codes))]]]]
        [ui/card {:style {:margin-top 12
                          :padding 24}}
         [ui/card-title {:title "Credits"
@@ -184,7 +176,7 @@
         [ui/card-title {:title "Descended from the Queen"}]
         [ui/card-content
          [ui/markdown
-          (str 
+          (str
            "Some games in this work are based on [For the Queen](http://www.forthequeengame.com/)"
            ", product of Alex Roberts and Evil Hat Productions, and licensed for our use under the "
            "[Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).")]]]
@@ -193,14 +185,14 @@
         [ui/card-title {:title "Redacted Materials"}]
         [ui/card-content
          [ui/markdown
-          (str 
+          (str
            "Some games in this work use material from the External Containment Bureau roleplaying game (found at [https://mythicgazetteer.itch.io/external-containment-bureau](https://mythicgazetteer.itch.io/external-containment-bureau)), designed by Lexi Antoku, Eric Brunsell, Michael Elliott, Justin Ford, and Eli Kurtz, and published by Mythic Gazetteer LLC, pursuant to the open license available at [mythicgazetteer.com/redacted-material](http://mythicgazetteer.com/redacted-material/)")]]]
        [ui/card {:style {:margin-top 18
                          :padding 24}}
         [ui/card-title {:title "X-Card"}]
         [ui/card-content
          [ui/markdown
-          (str 
+          (str
            "This application adapts the X-Card, originally by John Stavropoulos"
            "\n\n[http://tinyurl.com/x-card-rpg](http://tinyurl.com/x-card-rpg).")]]]
        [ui/view {:height (* 0.7 (.-height dimensions))}
@@ -236,5 +228,4 @@
                                        :title "Play"}
                                       {:key "settings"
                                        :title "More"}]}
-          :render-scene scene-map}
-         ]))))
+          :render-scene scene-map}]))))

@@ -45,9 +45,8 @@
         [ui/list-header user-name]
         (if department [ui/list-item {:title "Department" :description department}])
         (if background [ui/list-item {:title "Background" :description background}])
-        (if knack [ui/list-item {:title "Supernatural Abilities" :description (str knack " (uncertified)")}])
-        ]
-       ]
+        (if knack [ui/list-item {:title "Supernatural Abilities" :description (str knack " (uncertified)")}])]]
+
       [ui/view {:style {:flex-direction "row"
                         :align-items "center"}}
        [ui/button
@@ -64,8 +63,7 @@
        [ui/button
         {:style {:flex 1}
          :on-press #(dispatch [:<-game/action! :upstress-player {:player-id id :agent-id agent-id}])}
-        " + "]
-       ]]]))
+        " + "]]]]))
 
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
@@ -109,8 +107,7 @@
              extra-actions)]
 
        [ui/view {:height (* 0.7 (.-height dimensions))}
-        [ui/text ""]]]
-      )))
+        [ui/text ""]]])))
 
 (defn other-panel []
   (let [game-state (re-frame/subscribe [:opera-other])]
@@ -166,7 +163,7 @@
          :style {:padding-top  4
                  :padding-left 4}}
         "Investigation Notes"]
-       [ui/view 
+       [ui/view
         (if notes-active?
           [ui/view {}
            [-note-card "Clues" clues]
@@ -193,9 +190,7 @@
                     :font-style   "italic"}}
            "Notes will appear as game begins"])]
        [ui/view {:height (* 0.7 (.-height dimensions))}
-        [ui/text ""]]
-       ])))
-
+        [ui/text ""]]])))
 
 (defn notes-panel []
   (let [game-state (re-frame/subscribe [:opera-notes])]
@@ -246,66 +241,62 @@
                              (nil? (get-in player-ranks [current-user-id act rank]))
                              (not= id (get-in player-ranks [current-user-id act :best])))
                             :else
-                            (not disabled?)))
-          ]
+                            (not disabled?)))]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
-         [ui/view
-          [ui/view
-           [ui/para {:theme {:colors {:text "white"}}
-                     :style {:padding-top  4
-                             :padding-left 8}}
-            (str stage-name #_(str (-> clocks :plot) " / " 8))]
-           ]
-          #_[ui/card-with-button (assoc display :dispatch dispatch)]
-          [ui/actions-list (assoc display
-                                  :dispatch dispatch
-                                  :hide-invalid? true
-                                  :action-valid? valid-button?)]
-          (if has-scene?
-            [ui/progressbar {:progress (/ (-> clocks :plot) 8)
-                             :color position-color}]
-            [ui/progressbar {:progress 1.0
-                             :color position-color}])
-          (if extra-details
-            [ui/view {:style {:padding     2
-                              :padding-top 8}}
-             (map (fn [[{title1 :title items1 :items}
-                        {title2 :title items2 :items}]]
-                    (with-meta
-                      [ui/view {:flex-direction "row"}
-                       (if title1
-                         [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(255,255,255,0.40)"
-                                                    :margin 4
-                                                    :flex 1)}
-                          [ui/h1 title1]
-                          [ui/view
-                           (map #(with-meta [ui/markdown %] {:key %}) items1)]])
-                       (if title2
-                         [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(255,255,255,0.40)"
-                                                    :margin 4
-                                                    :flex 1)}
-                          [ui/h1 title2]
-                          [ui/view
-                           (map #(with-meta [ui/markdown %] {:key %}) items2)]])]
-                      {:key (str title1 title2)}))
-                  (partition-all 2 extra-details)
-                  )])
-          [ui/bottom-sheet-card
-           (assoc display
-                  :collapse! do-collapse!
-                  :dispatch dispatch
-                  :regen-action true
-                  :turn-marker (str
-                                (if-let [agent-name (:codename active-player)]
-                                  (str
-                                   agent-name " "
-                                   "(" (:user-name active-player) ")")
-                                  (:user-name active-player)) "'s turn..."))]
-          [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
-           [ui/text ""]]
-          ]])))
+       [ui/view
+        [ui/view
+         [ui/para {:theme {:colors {:text "white"}}
+                   :style {:padding-top  4
+                           :padding-left 8}}
+          (str stage-name #_(str (-> clocks :plot) " / " 8))]]
+        #_[ui/card-with-button (assoc display :dispatch dispatch)]
+        [ui/actions-list (assoc display
+                                :dispatch dispatch
+                                :hide-invalid? true
+                                :action-valid? valid-button?)]
+        (if has-scene?
+          [ui/progressbar {:progress (/ (-> clocks :plot) 8)
+                           :color position-color}]
+          [ui/progressbar {:progress 1.0
+                           :color position-color}])
+        (if extra-details
+          [ui/view {:style {:padding     2
+                            :padding-top 8}}
+           (map (fn [[{title1 :title items1 :items}
+                      {title2 :title items2 :items}]]
+                  (with-meta
+                    [ui/view {:flex-direction "row"}
+                     (if title1
+                       [ui/surface {:style (assoc box-style
+                                                  :background-color "rgba(255,255,255,0.40)"
+                                                  :margin 4
+                                                  :flex 1)}
+                        [ui/h1 title1]
+                        [ui/view
+                         (map #(with-meta [ui/markdown %] {:key %}) items1)]])
+                     (if title2
+                       [ui/surface {:style (assoc box-style
+                                                  :background-color "rgba(255,255,255,0.40)"
+                                                  :margin 4
+                                                  :flex 1)}
+                        [ui/h1 title2]
+                        [ui/view
+                         (map #(with-meta [ui/markdown %] {:key %}) items2)]])]
+                    {:key (str title1 title2)}))
+                (partition-all 2 extra-details))])
+        [ui/bottom-sheet-card
+         (assoc display
+                :collapse! do-collapse!
+                :dispatch dispatch
+                :regen-action true
+                :turn-marker (str
+                              (if-let [agent-name (:codename active-player)]
+                                (str
+                                 agent-name " "
+                                 "(" (:user-name active-player) ")")
+                                (:user-name active-player)) "'s turn..."))]
+        [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
+         [ui/text ""]]]])))
 
 (defn main-panel []
   (let [game-state (re-frame/subscribe [:opera-main])]
@@ -318,7 +309,7 @@
                                          :notes (r/reactify-component notes-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
-     (let [;; ;; TODO - hide self-vote or push to server
+      (let [;; ;; TODO - hide self-vote or push to server
            ;; self-vote?    (fn [{:keys                 [action params]
            ;;                     {:keys [id rank act]} :params
            ;;                     :as                   button}]
@@ -328,47 +319,45 @@
            ;; "window" dimensions wrong to start sometimes - height 36?
            ;;  note: useWindowDimensions hook did _not_ prevent this problem
            ;;  most likely reagent deferring a render and causing window to be small?
-           dimensions (.get ui/dimensions "screen")
-           on-tab-change (fn [x] (reset! tab-state x))
-           current-index @tab-state
-           sizing (if (ui/os? "web")
-                    {:min-height (.-height dimensions)
-                     :width "100%"}
-                    {:min-height (.-height dimensions)
-                     :width (.-width dimensions)})
-           tab-style {:minHeight 24
-                      :padding 6
-                      :paddingBottom 9}
-           bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
-           indicator-style {:borderRadius 2
-                            :backgroundColor "rgba(255,255,255,0.15)"
-                            :height 4
-                            :bottom 3}]
-       [ui/view {:style sizing}
-        [ui/tab-view
-         {:initial-layout (if-not (ui/os? "web")
-                            (assoc sizing :height (.-height dimensions)))
-          :scroll-enabled true
-          :on-index-change on-tab-change
-          :render-tab-bar (fn [props]
-                            (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
-                                  _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
-                                  _ (goog.object/set props "style" (clj->js bar-style))
+            dimensions (.get ui/dimensions "screen")
+            on-tab-change (fn [x] (reset! tab-state x))
+            current-index @tab-state
+            sizing (if (ui/os? "web")
+                     {:min-height (.-height dimensions)
+                      :width "100%"}
+                     {:min-height (.-height dimensions)
+                      :width (.-width dimensions)})
+            tab-style {:minHeight 24
+                       :padding 6
+                       :paddingBottom 9}
+            bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
+            indicator-style {:borderRadius 2
+                             :backgroundColor "rgba(255,255,255,0.15)"
+                             :height 4
+                             :bottom 3}]
+        [ui/view {:style sizing}
+         [ui/tab-view
+          {:initial-layout (if-not (ui/os? "web")
+                             (assoc sizing :height (.-height dimensions)))
+           :scroll-enabled true
+           :on-index-change on-tab-change
+           :render-tab-bar (fn [props]
+                             (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
+                                   _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
+                                   _ (goog.object/set props "style" (clj->js bar-style))
                                   ;; Disable uppercase transform
                                   ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
-                                  ]
-                              (r/as-element [ui/tab-bar (js->clj props)])))
+                                   ]
+                               (r/as-element [ui/tab-bar (js->clj props)])))
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
-          :navigation-state {:index current-index
-                             :routes [{:key "main"
-                                       :title "Main"
-                                       :icon "play-circle-outline"}
-                                      {:key "notes"
-                                       :title "Notes"
-                                       :icon "bar-chart"}
-                                      {:key "other"
-                                       :title "Extras"
-                                       :icon "more-horiz"}]}
-          :render-scene scene-map}
-         ]
-        ]))))
+           :navigation-state {:index current-index
+                              :routes [{:key "main"
+                                        :title "Main"
+                                        :icon "play-circle-outline"}
+                                       {:key "notes"
+                                        :title "Notes"
+                                        :icon "bar-chart"}
+                                       {:key "other"
+                                        :title "Extras"
+                                        :icon "more-horiz"}]}
+           :render-scene scene-map}]]))))

@@ -14,8 +14,7 @@
             [reanimated-bottom-sheet :as sheet-lib]
             [react-native-reanimated :as Reanimated]
             [react-native-markdown-display :as markdown-lib]
-            [react-native-tab-view :as tab-lib]
-            ))
+            [react-native-tab-view :as tab-lib]))
 
 #_(set! *warn-on-infer* true)
 
@@ -193,8 +192,7 @@
 ;; Action tray is a bit weird because bottom sheet is weird with a render
 ;; content function
 (defn -action-tray [{:as props
-                     :keys [dispatch sizing actions action-valid?]
-                     }]
+                     :keys [dispatch sizing actions action-valid?]}]
   (let [dispatch (or dispatch (get props "dispatch"))
         actions (or actions (get props "actions"))
         action-valid? (or action-valid?
@@ -215,8 +213,7 @@
                     %) actions)]]))
 
 (defn actions-list [{:as props
-                     :keys [dispatch sizing actions action-valid?]
-                     }]
+                     :keys [dispatch sizing actions action-valid?]}]
   (let [action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
     [view {:style {:padding 8}}
@@ -244,124 +241,117 @@
                       :initial-snap 1
                       :enabled-bottom-initial-animation true
                       :enabled-content-tap-interaction false
-                      :render-content (fn [p] (r/as-element [-action-tray props]))
-                      }]])
-    ))
+                      :render-content (fn [p] (r/as-element [-action-tray props]))}]])))
 
 (defn card-with-button [display]
   (let [parent-layout (r/atom {"height" 40 "width" 40})
         child-layout (r/atom {"height" 0 "width" 0})]
     (fn -card-with-button [display]
-     (let [x-carded? (get display :x-card-active?)
-           card-data (get display :card)
-           rules?    (get-in card-data [:tags :rules])
-           regen?    (get display :regen-action)
-           available-actions (get display :available-actions #{})
+      (let [x-carded? (get display :x-card-active?)
+            card-data (get display :card)
+            rules?    (get-in card-data [:tags :rules])
+            regen?    (get display :regen-action)
+            available-actions (get display :available-actions #{})
 
-           dispatch (get display :dispatch)
-           child-height (get @child-layout "height" 0)
-           parent-height (get @parent-layout "height" 41)
+            dispatch (get display :dispatch)
+            child-height (get @child-layout "height" 0)
+            parent-height (get @parent-layout "height" 41)
 
-           overflow? (> (+ 60 child-height)
-                        parent-height)
-           inputs     (get-in display [:card :inputs] [])
-           all-inputs (into {}
-                            (map #(vector (:name %) (:value %))
-                                 inputs))
+            overflow? (> (+ 60 child-height)
+                         parent-height)
+            inputs     (get-in display [:card :inputs] [])
+            all-inputs (into {}
+                             (map #(vector (:name %) (:value %))
+                                  inputs))
 
-           prompt-options (get-in card-data [:prompt-options])
-           additional-prompts (get-in display [:additional-prompts])
-           card-text (get-in card-data [:text])
+            prompt-options (get-in card-data [:prompt-options])
+            additional-prompts (get-in display [:additional-prompts])
+            card-text (get-in card-data [:text])
            ;; Only used in walking-deck - maybe extract?
-           full-text (if additional-prompts
-                       (clojure.string/join "\n\n * * * * * \n"
-                                            (concat (reverse additional-prompts) [card-text]))
-                       card-text)
-           ]
-       [card {:elevation 4
-              :on-layout (fn [e]
-                           (reset! parent-layout
+            full-text (if additional-prompts
+                        (clojure.string/join "\n\n * * * * * \n"
+                                             (concat (reverse additional-prompts) [card-text]))
+                        card-text)]
+        [card {:elevation 4
+               :on-layout (fn [e]
+                            (reset! parent-layout
                                    ;; oget doesn't work in dev?
-                                   (js->clj (aget (aget e "nativeEvent") "layout"))))
-              :style (merge
-                      {:margin 4
-                       :margin-bottom 10
-                       :padding 12
-                       :padding-bottom 0
-                       :font-size 16
-                       :border-width 4
-                       :flex 1
-                       :border-style "solid"
-                       :border-color "white"
-                       }
-                      (cond
-                        x-carded?
-                        {:border-color "red"}
+                                    (js->clj (aget (aget e "nativeEvent") "layout"))))
+               :style (merge
+                       {:margin 4
+                        :margin-bottom 10
+                        :padding 12
+                        :padding-bottom 0
+                        :font-size 16
+                        :border-width 4
+                        :flex 1
+                        :border-style "solid"
+                        :border-color "white"}
+                       (cond
+                         x-carded?
+                         {:border-color "red"}
                         ;; rules?
                         ;; {:border-color "blue"}
-                        ))}
-        [view {:style {:flex-direction "column"
-                       :flex 1}}
-         [scroll-view {:scroll-enabled overflow?
-                       :shows-vertical-scroll-indicator (not web?)
-                       :style {:flex 1}}
-          [card-content {:on-layout (fn [e]
-                                      (reset! child-layout
-                                              (js->clj (aget (aget e "nativeEvent") "layout"))))
-                         :class (str (name (get-in card-data [:state] "blank"))
-                                     " "
-                                     (if x-carded?
-                                       "x-carded"))}
-           [markdown {:style {:body {:font-size 22
-                                     :font-family (if android? "serif" "Georgia")}}}
-            full-text]
-           (if-not (empty? prompt-options)
-             [list-section
-              (map (fn [{:keys [text label description name value selected? label generator]}]
-                     [list-item {:key name
-                                 :title label
-                                 :description description
-                                 :on-press (if-not selected?
-                                             #(dispatch [:<-game/action! :choose-option name]))
-                                 :left (fn [p]
+                         ))}
+         [view {:style {:flex-direction "column"
+                        :flex 1}}
+          [scroll-view {:scroll-enabled overflow?
+                        :shows-vertical-scroll-indicator (not web?)
+                        :style {:flex 1}}
+           [card-content {:on-layout (fn [e]
+                                       (reset! child-layout
+                                               (js->clj (aget (aget e "nativeEvent") "layout"))))
+                          :class (str (name (get-in card-data [:state] "blank"))
+                                      " "
+                                      (if x-carded?
+                                        "x-carded"))}
+            [markdown {:style {:body {:font-size 22
+                                      :font-family (if android? "serif" "Georgia")}}}
+             full-text]
+            (if-not (empty? prompt-options)
+              [list-section
+               (map (fn [{:keys [text label description name value selected? label generator]}]
+                      [list-item {:key name
+                                  :title label
+                                  :description description
+                                  :on-press (if-not selected?
+                                              #(dispatch [:<-game/action! :choose-option name]))
+                                  :left (fn [p]
                                           (r/as-element
-                                                 [list-icon (merge (js->clj p)
-                                                                   {:icon (if selected? "radiobox-marked" "radiobox-blank")})]))
-                                 }])
-                   prompt-options)])
-           (if-not (empty? inputs)
-             [list-section
-              (map (fn [{:keys [name value label generator]}]
-                     [list-item {:key name
-                                 :title label
-                                 :description value
-                                 :on-press (if regen?
-                                             #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
-                                 :right (if regen?
-                                          (fn [p] (r/as-element
-                                                   [list-icon (merge (js->clj p)
-                                                                     {:icon "refresh"})])))
-                                 }])
-                   inputs)])]
-          (if (available-actions :x-card)
-            [button {;;:style {:margin-bottom -12}
-                     :disabled x-carded?
-                     :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
-         (if overflow?
-           [linear-gradient {:colors ["rgba(0,0,0,0.0)", "rgba(0,0,0,0.01)", "rgba(0,0,0, 0.18)"]
-                             :style {:border-radius 4
-                                     :position "absolute"
-                                     :bottom 0
-                                     :width "100%"
-                                     :height 18}
-                             :start {:x 0 :y 0}
-                             :end {:x 0 :y 1}
-                             :pointer-events "none"}])]
-        [card-actions
+                                           [list-icon (merge (js->clj p)
+                                                             {:icon (if selected? "radiobox-marked" "radiobox-blank")})]))}])
+                    prompt-options)])
+            (if-not (empty? inputs)
+              [list-section
+               (map (fn [{:keys [name value label generator]}]
+                      [list-item {:key name
+                                  :title label
+                                  :description value
+                                  :on-press (if regen?
+                                              #(dispatch [:<-game/action! :regen (dissoc all-inputs name)]))
+                                  :right (if regen?
+                                           (fn [p] (r/as-element
+                                                    [list-icon (merge (js->clj p)
+                                                                      {:icon "refresh"})])))}])
+                    inputs)])]
+           (if (available-actions :x-card)
+             [button {;;:style {:margin-bottom -12}
+                      :disabled x-carded?
+                      :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
+          (if overflow?
+            [linear-gradient {:colors ["rgba(0,0,0,0.0)", "rgba(0,0,0,0.01)", "rgba(0,0,0, 0.18)"]
+                              :style {:border-radius 4
+                                      :position "absolute"
+                                      :bottom 0
+                                      :width "100%"
+                                      :height 18}
+                              :start {:x 0 :y 0}
+                              :end {:x 0 :y 1}
+                              :pointer-events "none"}])]
+         [card-actions
          ;; Maybe move pass here?
-         #_(if (available-actions :pass)
-             [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]
-        ]))))
+          #_(if (available-actions :pass)
+              [button {:on-press #(dispatch [:<-game/action! :pass])} "Pass Card"])]]))))
 
 (defn bottom-sheet-card [{:as props :keys [start-collapsed?
                                            collapse!]}]
@@ -397,8 +387,7 @@
                                    (println "props" props)
                                    ((:showActionSheetWithOptions props)
                                     action-sheet-props
-                                    action-sheet-action))
-            ]
+                                    action-sheet-action))]
         (if web?
           [portal
            [view {:style {:position "fixed"
@@ -437,8 +426,6 @@
                                                                           :font-weight "bold"
                                                                           :color "white"}}
                                                             (:turn-marker props)]
-                                                           [card-with-button props]]))
-                          }]])))
-    ))
+                                                           [card-with-button props]]))}]])))))
 
 ;; (def bottom-sheet-card (with-action-sheet (r/reactify-component -bottom-sheet-card)))

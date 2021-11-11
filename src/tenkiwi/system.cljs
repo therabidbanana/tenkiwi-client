@@ -52,9 +52,9 @@
 
 ;;;; Scrape document for a csrf token to boot sente with
 #_(def ?csrf-token
-  (when-let [el (or (.getElementById js/document "sente-csrf-token")
-                    "wA25k5v3gxuYtmEiKtcDZWZaeg9weWTSfThOWoJzhQFG2FeXQ8Q0mD5IGZEoTUGxkdltUI46QRc%2BdPa3")]
-    (.getAttribute el "data-csrf-token")))
+    (when-let [el (or (.getElementById js/document "sente-csrf-token")
+                      "wA25k5v3gxuYtmEiKtcDZWZaeg9weWTSfThOWoJzhQFG2FeXQ8Q0mD5IGZEoTUGxkdltUI46QRc%2BdPa3")]
+      (.getAttribute el "data-csrf-token")))
 
 (def ?csrf-token
   "wA25k5v3gxuYtmEiKtcDZWZaeg9weWTSfThOWoJzhQFG2FeXQ8Q0mD5IGZEoTUGxkdltUI46QRc+dPa3")

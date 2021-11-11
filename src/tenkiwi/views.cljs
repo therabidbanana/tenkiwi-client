@@ -51,7 +51,6 @@
 (def box-style {:margin 12
                 :padding 12})
 
-
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])
         toast     (re-frame/subscribe [:toast])]
@@ -93,10 +92,10 @@
 (defn -connecting-panel []
   (let []
     [ui/view {:style
-           {:height "100%"
-            :padding 16}}
+              {:height "100%"
+               :padding 16}}
      [ui/card {:style {:margin-top "auto"
-                    :margin-bottom "auto"}}
+                       :margin-bottom "auto"}}
       [ui/card-content {}
        [ui/para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 
@@ -109,5 +108,4 @@
        @game [game-panel]
        (get @user :current-room) [lobby-panel]
        (get @user :connected?) [opening-panel]
-       :else [-connecting-panel])
-     )))
+       :else [-connecting-panel]))))

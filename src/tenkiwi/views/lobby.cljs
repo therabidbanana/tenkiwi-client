@@ -11,7 +11,7 @@
   (let [{:keys [host? room-code available-games game-setup]
          :as   game-data} @game-data
         {:keys [game-type game-url]
-         :as config-data} @config-data
+         :as   config-data} @config-data
 
         configuration (:configuration game-setup)
         params        (merge (:params configuration)
@@ -21,22 +21,22 @@
         update-val  (fn [name val]
                       (dispatch [:forms/set-params (assoc {:action :game-lobby}
                                                           name val)]))
-        form-option (fn [name {text :name
+        form-option (fn [name {text  :name
                                :keys [value]}]
                       [ui/chip
                        {:on-press #(update-val name value)
-                        :key    value
+                        :key      value
                         :selected (= value (get params name))}
                        text])]
     [ui/scroll-view {:style {:padding 4}}
      #_[ui/card
-      [ui/card-title {:title "Personal Details"}]
-      [ui/card-content
-       [ui/text "(Nothing to configure)"]]]
+        [ui/card-title {:title "Personal Details"}]
+        [ui/card-content
+         [ui/text "(Nothing to configure)"]]]
      (if host?
        (cond
          configuration
-         [ui/surface {:style {:margin 4
+         [ui/surface {:style {:margin  4
                               :padding 8}}
           (map
            (fn [{:keys [type label name options value nested]}]
@@ -44,24 +44,23 @@
               (cond
                 (#{:select} type)
                 [ui/card {}
-                 [ui/card-content 
+                 [ui/card-content
                   [ui/text label]
                   (if (map? options)
                     (map (fn [[group-name opts]]
                            (if (or
                                 (and nested (#{(get params nested)} group-name))
                                 (nil? nested))
-                             [ui/view {:key group-name
+                             [ui/view {:key   group-name
                                        :label group-name}
                               (map #(form-option name %) opts)]))
                          options)
                     (map #(form-option name %) options))]]
                 :else
                 [ui/text-input {:on-change-text #(update-val name %)
-                                :label     label
-                                :name      name
-                                :default-value     (get params name)}])
-              ])
+                                :label          label
+                                :name           name
+                                :default-value  (get params name)}])])
            inputs)
           [ui/button {:mode     "contained"
                       :style    {:margin-top 8}
@@ -85,19 +84,19 @@
          :else
          [ui/surface {:style {:margin  18
                               :padding 8}}
-          (map (fn [{:keys [title subtitle type sheet]
+          (map (fn [{:keys       [title subtitle type sheet]
                      description :text}]
                  [ui/card {:style {:margin-top 8}
-                           :key sheet}
+                           :key   sheet}
                   [ui/card-title {:title                    title
                                   :subtitle-number-of-lines 3
-                                  :subtitle subtitle}]
+                                  :subtitle                 subtitle}]
                   [ui/card-content
                    [ui/markdown {} description]
                    [ui/button {:mode     "outlined"
                                :style    {:margin-top 4}
                                :on-press #(do
-                                            (dispatch [:<-game/select! type {:title title
+                                            (dispatch [:<-game/select! type {:title    title
                                                                              :game-url sheet}]))}
                     [ui/text "Select Game"]]]])
                available-games)
@@ -106,8 +105,7 @@
        ;; if not host
        [ui/card
         [ui/card-title {:title "Game Configuration"}]
-        [ui/card-content [ui/text "Your host will set this up."]]])
-     ]))
+        [ui/card-content [ui/text "Your host will set this up."]]])]))
 
 (defn config-panel []
   (let [game-data (re-frame/subscribe [:room])
@@ -124,15 +122,15 @@
     [ui/scroll-view {:style {:padding 4}}
      [ui/card
       [ui/card-title {:title    "Players"
-                   :subtitle (str "Lobby Code: " room-code)}]
+                      :subtitle (str "Lobby Code: " room-code)}]
       [ui/card-content
        [ui/list-section
         (for [player (:players game-data)]
           ^{:key (:id player)}
           [ui/list-item {:title (:user-name player)
-                      :right (fn [props]
-                               (if host?
-                                 (r/as-element [-player-boot (assoc player :dispatch dispatch)])))}])]]]
+                         :right (fn [props]
+                                  (if host?
+                                    (r/as-element [-player-boot (assoc player :dispatch dispatch)])))}])]]]
      [ui/surface {:style {:margin  18
                           :padding 8}}
       [ui/para
@@ -155,10 +153,7 @@
                       :style    {:margin-top 8}
                       :on-press #(do
                                    (dispatch [:<-room/boot-player! current-player-id]))}
-           [ui/text "Leave Game"]]
-          )
-        ]]]
-     ]))
+           [ui/text "Leave Game"]])]]]]))
 
 (defn main-lobby-panel []
   (let [game-data (re-frame/subscribe [:room])
@@ -170,10 +165,8 @@
         scene-map (ui/SceneMap (clj->js {:main (r/reactify-component main-lobby-panel)
                                          :config (r/reactify-component config-panel)}))]
     (fn []
-      (let [
-            on-tab-change (fn [x] (reset! tab-state x))
-            current-index @tab-state
-            ]
+      (let [on-tab-change (fn [x] (reset! tab-state x))
+            current-index @tab-state]
         [ui/clean-tab-view
          {:on-index-change on-tab-change
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
@@ -182,5 +175,4 @@
                                        :title "Lobby"}
                                       {:key "config"
                                        :title "Configure"}]}
-          :render-scene scene-map}
-         ]))))
+          :render-scene scene-map}]))))

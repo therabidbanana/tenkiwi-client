@@ -9,19 +9,19 @@
 
 ;;;; Sente event handlers
 (defmulti -event-msg-handler
-          "Multimethod to handle Sente `event-msg`s"
-          :id ; Dispatch on event-id
-          )
+  "Multimethod to handle Sente `event-msg`s"
+  :id ; Dispatch on event-id
+  )
 
 (defn event-msg-handler
-      "Wraps `-event-msg-handler` with logging, error catching, etc."
-      [{:as ev-msg :keys [id ?data event]}]
-      (-event-msg-handler ev-msg))
+  "Wraps `-event-msg-handler` with logging, error catching, etc."
+  [{:as ev-msg :keys [id ?data event]}]
+  (-event-msg-handler ev-msg))
 
 (defmethod -event-msg-handler
-           :default ; Default/fallback case (no other matching handler)
-           [{:as ev-msg :keys [event]}]
-           (->output! "Unhandled event: %s" event))
+  :default ; Default/fallback case (no other matching handler)
+  [{:as ev-msg :keys [event]}]
+  (->output! "Unhandled event: %s" event))
 
 (defmethod -event-msg-handler :chsk/state
   [{:as ev-msg :keys [?data]}]
@@ -40,8 +40,7 @@
         (->output! "Channel socket reconnected!: %s" new-state-map)
         (re-frame/dispatch [:user/regained-connection!]))
       :else
-      (->output! "Channel socket state change: %s" new-state-map)
-      )))
+      (->output! "Channel socket state change: %s" new-state-map))))
 
 (defmethod -event-msg-handler :chsk/recv
   [{:as ev-msg :keys [?data]}]
@@ -50,9 +49,9 @@
   #_(->output! "Push event from server: %s" ?data))
 
 (defmethod -event-msg-handler :chsk/handshake
-           [{:as ev-msg :keys [?data]}]
-           (let [[?uid ?csrf-token ?handshake-data] ?data]
-             (re-frame/dispatch-sync [:initialize-system])))
+  [{:as ev-msg :keys [?data]}]
+  (let [[?uid ?csrf-token ?handshake-data] ?data]
+    (re-frame/dispatch-sync [:initialize-system])))
 
 (defmethod -event-msg-handler :chsk/ws-ping
   [{:as ev-msg :keys [?data]}]

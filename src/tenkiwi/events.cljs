@@ -110,8 +110,7 @@
                                  :message message})
     :timeout {:id    :toast
               :event [:hide-toast]
-              :time  7000}}
-   ))
+              :time  7000}}))
 
 (re-frame/reg-event-db
  :hide-toast

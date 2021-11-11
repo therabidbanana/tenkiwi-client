@@ -4,7 +4,6 @@
             [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
-
 (defn- extract-display [game-state key-list]
   (let [{user-id        :id
          :as            data
@@ -46,24 +45,24 @@
                             without-val  (disj current-vals val)]
                         [ui/chip
                          {:on-press #(if selected?
-                                               (update-val name without-val)
-                                               (update-val name with-val))
+                                       (update-val name without-val)
+                                       (update-val name with-val))
                           :key (str name val)
                           :selected selected?}
                          val]))]
     [ui/card
      #_{:on-submit #(if (and (not disabled?)
-                           (or (not conf) (js/confirm "Are you sure?")))
-                    (do
-                      (dispatch [:<-game/action! action params])
-                      (.preventDefault %)))}
+                             (or (not conf) (js/confirm "Are you sure?")))
+                      (do
+                        (dispatch [:<-game/action! action params])
+                        (.preventDefault %)))}
      (map
       (fn [{:keys [type label name options value nested]}]
         [ui/view {:key name}
          (cond
            (#{:select} type)
            [ui/card {}
-            [ui/card-content 
+            [ui/card-content
              [ui/text label]
              (if (map? options)
                (map (fn [[group-name opts]]
@@ -77,7 +76,7 @@
                (map #(form-option name %) options))]]
            (#{:tag-select} type)
            [ui/card {}
-            [ui/card-content 
+            [ui/card-content
              [ui/text label]
              (if (map? options)
                (map (fn [[group-name opts]]
@@ -92,8 +91,7 @@
            [ui/text-input {:on-change-text #(update-val name %)
                            :label     label
                            :name      name
-                           :default-value     (get params name)}])
-         ])
+                           :default-value     (get params name)}])])
       inputs)
      [ui/button {:mode "outlined"
                  :on-press #(if (and (not disabled?)
@@ -111,8 +109,7 @@
   (fn -other-panel []
     (let [{:keys [extra-actions]} (:display @game-state-atom)
           {:keys [company stage mission]} @game-state-atom
-          dimensions (.get ui/dimensions "screen")
-          ]
+          dimensions (.get ui/dimensions "screen")]
 
       [ui/scroll-view
        [ui/card {:style {:padding 4
@@ -134,8 +131,7 @@
              (remove :inputs extra-actions))]
 
        [ui/view {:height (* 0.7 (.-height dimensions))}
-        [ui/text ""]]]
-      )))
+        [ui/text ""]]])))
 
 (defn other-panel []
   (let [game-state (re-frame/subscribe [:walking-deck-other])
@@ -155,8 +151,7 @@
                      ;; (if active? "* ")
                      (if ready? " ✅ ")
                      (:title character) " (" user-name ")"
-                     (if dead? " 💀")
-                     )]
+                     (if dead? " 💀"))]
     [ui/card {:style {:padding 8}}
      [ui/text player-name]]))
 
@@ -173,8 +168,7 @@
        (map-indexed (fn [i p] (with-meta [-cast-member (or ready-players {}) p] {:key i}))
                     (sort-by :order players))
        [ui/view {:height (* 0.7 (.-height dimensions))}
-        [ui/text ""]]]
-      )))
+        [ui/text ""]]])))
 
 (defn cast-panel []
   (let [game-state (re-frame/subscribe [:walking-deck-cast])]
@@ -195,7 +189,7 @@
            {:as display
             :keys [extra-details]} :display
            :as game-state} @game-state-atom
-          
+
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")
           prompt-options (get-in display [:card :prompt-options])
@@ -209,57 +203,53 @@
                              (not disabled?)
                              (or (empty? prompt-options) (some :selected? prompt-options)))
                             :else
-                            (not disabled?)))
-          ]
-        [ui/scroll-view
-         [ui/view
-          [ui/view
-           [ui/para {:theme {:colors {:text "white"}}
-                     :style {:padding-top 4
-                             :padding-left 8}}
-            (if (> act 3)
-              (str "End Game")
-              (str act-prompt))]]
-          #_[ui/card-with-button (assoc display :dispatch dispatch)]
-          [ui/actions-list (assoc display
-                                  :dispatch dispatch
-                                  :action-valid? valid-button?)]
-          [ui/bottom-sheet-card
-           (assoc display :dispatch dispatch)]
-          (if extra-details
-            [ui/view {:style {:padding 2
-                              :padding-top 8}}
-             (map (fn [[{title1 :title items1 :items}
-                        {title2 :title items2 :items}]]
-                    (with-meta
-                      [ui/view {:flex-direction "row"}
-                       (if title1
-                         [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(150,150,190,0.7)"
-                                                    :margin 4
-                                                    :flex 1)}
-                          [ui/h1 title1]
-                          [ui/view
-                           (map #(with-meta [ui/para %] {:key %}) items1)]])
-                       (if title2
-                         [ui/surface {:style (assoc box-style
-                                                    :background-color "rgba(150,150,190,0.7)"
-                                                    :margin 4
-                                                    :flex 1)}
-                          [ui/h1 title2]
-                          [ui/view
-                           (map #(with-meta [ui/para %] {:key %}) items2)]])]
-                      {:key (str title1 title2)}))
-                  (partition-all 2 extra-details)
-                  )])
-          [ui/view {:height (* 0.7 (.-height dimensions))}
-           [ui/text ""]]
-          ]])))
+                            (not disabled?)))]
+      [ui/scroll-view
+       [ui/view
+        [ui/view
+         [ui/para {:theme {:colors {:text "white"}}
+                   :style {:padding-top 4
+                           :padding-left 8}}
+          (if (> act 3)
+            (str "End Game")
+            (str act-prompt))]]
+        #_[ui/card-with-button (assoc display :dispatch dispatch)]
+        [ui/actions-list (assoc display
+                                :dispatch dispatch
+                                :action-valid? valid-button?)]
+        [ui/bottom-sheet-card
+         (assoc display :dispatch dispatch)]
+        (if extra-details
+          [ui/view {:style {:padding 2
+                            :padding-top 8}}
+           (map (fn [[{title1 :title items1 :items}
+                      {title2 :title items2 :items}]]
+                  (with-meta
+                    [ui/view {:flex-direction "row"}
+                     (if title1
+                       [ui/surface {:style (assoc box-style
+                                                  :background-color "rgba(150,150,190,0.7)"
+                                                  :margin 4
+                                                  :flex 1)}
+                        [ui/h1 title1]
+                        [ui/view
+                         (map #(with-meta [ui/para %] {:key %}) items1)]])
+                     (if title2
+                       [ui/surface {:style (assoc box-style
+                                                  :background-color "rgba(150,150,190,0.7)"
+                                                  :margin 4
+                                                  :flex 1)}
+                        [ui/h1 title2]
+                        [ui/view
+                         (map #(with-meta [ui/para %] {:key %}) items2)]])]
+                    {:key (str title1 title2)}))
+                (partition-all 2 extra-details))])
+        [ui/view {:height (* 0.7 (.-height dimensions))}
+         [ui/text ""]]]])))
 
 (defn main-panel []
   (let [game-state (re-frame/subscribe [:walking-deck-main])]
     (build-main-panel game-state re-frame/dispatch)))
-
 
 (defn walking-deck-game-panel []
   (let [tab-state (r/atom 0)
@@ -267,19 +257,16 @@
                                          :cast (r/reactify-component cast-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
-     (let [
-           on-tab-change (fn [x] (reset! tab-state x))
-           current-index @tab-state
-           ]
-       [ui/clean-tab-view
-        {:on-index-change on-tab-change
+      (let [on-tab-change (fn [x] (reset! tab-state x))
+            current-index @tab-state]
+        [ui/clean-tab-view
+         {:on-index-change on-tab-change
          ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
-         :navigation-state {:index current-index
-                            :routes [{:key "main"
-                                      :title "Main"}
-                                     {:key "cast"
-                                      :title "Cast"}
-                                     {:key "other"
-                                      :title "Extras"}]}
-         :render-scene scene-map}
-        ]))))
+          :navigation-state {:index current-index
+                             :routes [{:key "main"
+                                       :title "Main"}
+                                      {:key "cast"
+                                       :title "Cast"}
+                                      {:key "other"
+                                       :title "Extras"}]}
+          :render-scene scene-map}]))))
