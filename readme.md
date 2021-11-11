@@ -33,9 +33,9 @@ Communication with the server is supported with Sente.
 
 ### Usage
 
-#### Install Expo [XDE and mobile client](https://docs.expo.io/versions/v15.0.0/introduction/installation.html)
+#### Install Expo 
 
-Go install the expo-cli: https://blog.expo.io/expo-cli-2-0-released-a7a9c250e99c
+Go install the expo-cli: https://docs.expo.dev/get-started/installation
 
 ```shell
 npm install -g expo-cli
