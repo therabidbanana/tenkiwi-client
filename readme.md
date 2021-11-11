@@ -1,39 +1,35 @@
+# Tenkiwi Client
 
-Notes
+## What is it?
 
-1. Run lein figwheel first (or use M-x cider jack in cljs -> lein -> wait 5 seconds -> figwheel-main -> dev -> wait 60 seconds)
-2. Boot expo with expo start
-3. Press w to boot web version 
-4. Ignore CORS with https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc/related (ew) and only connect with localhost.
+Tenkiwi is a platform for playing storytelling games with friends online - a
+Virtual Tabletop (VTT) for a very specific kind of game. 
+
+The gameplay is most directly influenced by For the Queen, and there is a
+specific mode for playing Descended from the Queen games.
+
+### Supported Game Modes
+
+1. Descended from the Queen ([For the Queen](http://www.forthequeengame.com/))
+2. Debrief (custom) - semi-competitive, with mini character creation, a spoiler
+   character and three rounds of voting. 
+3. Opera (custom) - players solve mysteries
+
+### Server Required
+
+The client only contains the necessary logic to display and interact with the
+game. Rules are built into the server and the client is intended to be as dumb
+as possible (making it easy to add new games without deploying to the app
+store).
+
+### Built with Expo
+
+### And Clojurescript
+
+Communication with the server is supported with Sente. 
 
 
-Relevant changes to get cross-platform compile were in package.json and babel.config.js
-
-See example of web specific change core.cljs
-
-Libraries:
-
-(MIT) https://github.com/callstack/react-native-paper
-
-(MIT) https://github.com/osdnk/react-native-reanimated-bottom-sheet
- (+ MIT Deps) 
- https://github.com/software-mansion/react-native-reanimated
- https://github.com/software-mansion/react-native-gesture-handler
-
-(MIT) https://github.com/satya164/react-native-tab-view
- (+ MIT Dep)
- https://github.com/callstack/react-native-pager-view
-
-(MIT) https://github.com/iamacup/react-native-markdown-display
-
-
-To figure out - 
-
-1. integrate markdown-display and paper? Rules for rendering to use heading / subheading?
-2. j
-3. How to extract standard shared elements like the action tray better
-
-## your-project
+## Development
 
 ### Usage
 
@@ -77,31 +73,6 @@ npm install -g expo-cli
 This will run "DEV=true expo start", using figwheel entry point.
 
 Note that by default live reload will be enabled, which is bad. Turn the "production mode" toggle on to disable that while still having access to perf monitor.
-
-
-### Add new assets or external modules
-1. `require` module:
-
-``` clj
-    (def cljs-logo (js/require "./assets/images/cljs.png"))
-    (def FontAwesome (js/require "@expo/vector-icons/FontAwesome"))
-```
-2. Reload simulator or device
-
-
-
-### Figwheel main conversion
-
-Getting prod builds working required updating clojurescript, requiring an update to figwheel-main
-
-Figwheel-main example came from https://github.com/bhauman/react-native-figwheel-bridge, which replaced most of the figwheel-bridge.js and all of env/dev/* in the process. We may want to adapt some of that work.
-
-TODO: 
-
-Currently we have to switch main.js to js/index.js to do a prod build in package.json. How can we require figwheel bridge only in dev mode?
-
-### Make sure you disable live reload from the Developer Menu, also turn off Hot Module Reload.
-Since Figwheel already does those.
 
 ### Production build (generates js/externs.js and main.js)
 
@@ -160,31 +131,6 @@ Takes 20-30 minutes to generate an ipa file you can download:
 expo build:ios -t archive
 ```
 
-(to update permissions)
-
-https://developer.apple.com/account/resources/identifiers/list
-
-```
-expo build:ios --clear-provisioning-profile
-```
-
-Successfully created Provisioning Profile
-
-  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: BD4M2L5GT2)
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-
-
-Project Credential Configuration:
-  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: BD4M2L5GT2)
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-
-  Distribution Certificate - Certificate ID: 22GJK6K536
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-  Push Notifications Key - Key ID: KP5JWWK4JK
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-
 Open Transporter app and put the ipa into it.
 
 Then go to the app store to set it up. (If you're looking for them, builds are in a nonsensical place)
@@ -203,14 +149,30 @@ https://play.google.com/console/u/0/developers/5401255112018197410/app/497378193
 
 
 
-### What?
+## Credits
 
-Sometimes running lein prod-build exits with no message:
+### Tenkiwi
 
-davidhaslem at Davids-MacBook-Air.local in [~/projects/cljs-apps/tenkiwi-client]  on git:master ✗  7d8ce2e "Support butler release"
-20:56:19 › lein prod-build
-Compiling ClojureScript...
+Tenkiwi is built by David Haslem (@therabidbanana).
 
-(dead)
+### X-Card
 
-I don't understand this error yet. Retrying enough times seems to have helped. (I also touched a file: env/prod/user.clj to add a useless println)
+This application adapts the X-Card, originally by John Stavropoulos
+
+[http://tinyurl.com/x-card-rpg](http://tinyurl.com/x-card-rpg).
+
+### Descended from the Queen
+
+Some games in this work are based on [For the Queen](http://www.forthequeengame.com/)
+, product of Alex Roberts and Evil Hat Productions, and licensed for our use under the 
+[Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).
+
+### Redacted Materials
+
+Some games in this work use material from the External Containment Bureau
+roleplaying game (found at
+[https://mythicgazetteer.itch.io/external-containment-bureau](https://mythicgazetteer.itch.io/external-containment-bureau)),
+designed by Lexi Antoku, Eric Brunsell, Michael Elliott, Justin Ford, and Eli
+Kurtz, and published by Mythic Gazetteer LLC, pursuant to the open license
+available at
+[mythicgazetteer.com/redacted-material](http://mythicgazetteer.com/redacted-material/)
