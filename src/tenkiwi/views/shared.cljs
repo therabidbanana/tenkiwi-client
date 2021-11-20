@@ -249,6 +249,7 @@
     (fn -card-with-button [display]
       (let [x-carded? (get display :x-card-active?)
             card-data (get display :card)
+            border-color (get display :border-color)
             rules?    (get-in card-data [:tags :rules])
             regen?    (get display :regen-action)
             available-actions (get display :available-actions #{})
@@ -290,6 +291,8 @@
                        (cond
                          x-carded?
                          {:border-color "red"}
+                         border-color
+                         {:border-color border-color}
                         ;; rules?
                         ;; {:border-color "blue"}
                          ))}

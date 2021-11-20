@@ -60,15 +60,27 @@
     [ui/text ""]]])
 
 (defn -main-panel [display]
-  [ui/collapse-scroll-view {:collapse! do-collapse!}
-   [ui/progressbar {:progress (:clock display)
-                    :color "#336699"}]
-   [ui/actions-list display]
-   [ui/bottom-sheet-card (assoc display
-                                :collapse! do-collapse!
-                                :turn-marker
-                                (str (get-in display [:active-player :user-name])
-                                     "'s turn..."))]]
+  (let [active-tags (-> display :card :tags)
+        doom? (:doom active-tags)
+        progress? (:clue active-tags)]
+    [ui/collapse-scroll-view {:collapse! do-collapse!}
+     [ui/view
+      [ui/para {:theme {:colors {:text "white"}}
+                :style {:padding-top  4
+                        :padding-left 8}}
+       (str "Progress: " (-> display :clocks :clues)
+            ", Doom: " (-> display :clocks :doom) #_(str (-> clocks :plot) " / " 8))]]
+     [ui/actions-list display]
+     [ui/progressbar {:progress (:clock display)
+                      :color "#336699"}]
+     [ui/bottom-sheet-card (assoc display
+                                  :collapse! do-collapse!
+                                  :border-color (cond
+                                                  doom? "darkred"
+                                                  progress? "olivedrab")
+                                  :turn-marker
+                                  (str (get-in display [:active-player :user-name])
+                                       "'s turn..."))]])
   )
 
 (defn -wretched-game-panel [user-data dispatch]
@@ -81,7 +93,6 @@
               :keys [game]} :current-room} @user-data
             active?                        (= user-id (:id (:active-player game)))
             clock (/ (-> game :clocks (get :tower 1)) 100)
-            image (:image game)
 
             {:keys [actions card]
              :as   display}                  (if active?
@@ -91,8 +102,9 @@
 
             display         (assoc display
                                    :active-player (:active-player game)
-                                   :image image
-                                   :clock  clock
+                                   :image (:image game)
+                                   :clock clock
+                                   :clocks (:clocks game)
                                    :dispatch dispatch)
             on-tab-change   (fn [x] (reset! tab-state x))
             current-index   @tab-state
