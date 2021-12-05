@@ -182,6 +182,14 @@
            "[Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).")]]]
        [ui/card {:style {:margin-top 18
                          :padding 24}}
+        [ui/card-title {:title "Wretched and Alone"}]
+        [ui/card-content
+         [ui/markdown
+          (str
+           "Some games in this work are based on The Wretched (found at http://loottheroom.itch.io/wretched), product of Chris Bissette and Loot The Room, and licensed for our use under the "
+           "[Creative Commons Attribution 3.0 Unported license](http://creativecommons.org/licenses/by/3.0/).")]]]
+       [ui/card {:style {:margin-top 18
+                         :padding 24}}
         [ui/card-title {:title "Redacted Materials"}]
         [ui/card-content
          [ui/markdown
