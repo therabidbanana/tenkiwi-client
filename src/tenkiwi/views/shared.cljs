@@ -8,6 +8,7 @@
             [react-native :as ReactNative]
             ["@expo/vector-icons" :as AtExpo]
             [react-native-paper :as rn-paper]
+            [expo-clipboard :as expo-clipboard]
             [expo-status-bar :as expo-status-bar]
             [expo-linear-gradient :as expo-linear-gradient]
             ["@expo/react-native-action-sheet" :as action-sheet-lib]

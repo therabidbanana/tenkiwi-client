@@ -5,12 +5,16 @@
         "slug": "tenkiwi",
         "scheme": "tenkiwi",
         "sdkVersion": "41.0.0",
-        "version": "1.0.9",
+        "version": "1.0.10",
         "orientation": "portrait",
         "primaryColor": "#cccccc",
         "privacy": "unlisted",
         "entryPoint": "js/index.prod.js",
         "icon": "./assets/icons/app.png",
+        "updates": {
+            "enabled": true,
+            "fallbackToCacheTimeout": 15000
+        },
         "splash": {
             "image": "./assets/icons/loading.png",
             "resizeMode": "contain",
@@ -18,7 +22,7 @@
         },
         "ios": {
             "bundleIdentifier": "com.davidhaslem.tenkiwi",
-            "buildNumber": "1.0.9",
+            "buildNumber": "1.0.10",
             "supportsTablet": false,
             "associatedDomains": [
                 "applinks:play.tenkiwi.com"
@@ -26,7 +30,7 @@
         },
         "android": {
             "package": "com.davidhaslem.tenkiwi",
-            "versionCode": 9,
+            "versionCode": 10,
             "permissions": [],
             "intentFilters": [
                 {
