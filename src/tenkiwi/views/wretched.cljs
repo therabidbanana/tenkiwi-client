@@ -6,107 +6,165 @@
 
 
 (defonce do-collapse! (r/atom (fn [])))
-#_(defn -image-panel [{:as display
-                     :keys [dispatch]}]
-  [ui/scroll-view
-   [:img {:src (str (:text image))}]
-   (map (fn [{conf :confirm
-              :keys [action class text]}]
-          (with-meta
-            (vector ui/button
-                    {:mode "outlined"
-                     :on-press (fn []
-                                 (ui/maybe-confirm! conf
-                                                    #(dispatch [:<-game/action! action])))} text)
-            {:key action}))
-        (get-in display [:extra-actions]))])
+(defn- extract-display [game-state key-list]
+  (let [{user-id        :id
+         :as            data
+         {:as   room
+          :keys [game]} :current-room} game-state
+        active? (= user-id (get-in game [:active-player :id]))
+        display (if active?
+                  (:active-display game)
+                  (:inactive-display game))]
+    (merge {:current-user-id user-id}
+           (select-keys game key-list)
+           {:display display})))
 
-(defn -other-panel [{:as display
-                     :keys [image dispatch]}]
-  [ui/collapse-scroll-view {:collapse! do-collapse!}
-   [ui/view {:style {:height 250
-                     :align-items "center"
-                     :flex-direction "row"}}
-    [ui/button {:style {:flex 1}
-                :content-style {:height 250}
-                :on-press #(dispatch [:<-game/action! :previous-image {}])}
-     "<"]
-    [ui/image {:style {:flex 12
-                       :width "100%"
-                       :height "100%"}
-               :resize-mode "contain"
-               :source {:uri (str (:text image))}}]
+(re-frame/reg-sub
+ :wretched-other
+ (fn [db]
+   (extract-display (:user db)
+                    [:image :active-player])))
 
-    [ui/button {:style {:flex 1}
-                :content-style {:height 250}
-                :on-press #(dispatch [:<-game/action! :next-image {}])}
-     ">"]
-    ]
-   [ui/card {:margin 8
-             :margin-top 12}
-    [ui/card-content
-     (map (fn [{conf :confirm
-                :keys [action class text]}]
-            (with-meta
-              (vector ui/button
-                      {:mode "outlined"
-                       :on-press (fn []
-                                   (ui/maybe-confirm! conf
-                                                      #(dispatch [:<-game/action! action])))} text)
-              {:key action}))
-          (remove #(#{:next-image :previous-image} (:action %))
-                  (get-in display [:extra-actions])))]]
-   [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
-    [ui/text ""]]])
+(defn build-other-panel [game-state-atom dispatch]
+  (let []
+    (fn -other-panel []
+      (let [{:keys [image display]} @game-state-atom]
+        [ui/collapse-scroll-view {:collapse! do-collapse!}
+         [ui/view {:style {:height 250
+                           :align-items "center"
+                           :flex-direction "row"}}
+          [ui/button {:style {:flex 1}
+                      :content-style {:height 250}
+                      :on-press #(dispatch [:<-game/action! :previous-image {}])}
+           "<"]
+          [ui/image {:style {:flex 12
+                             :width "100%"
+                             :height "100%"}
+                     :resize-mode "contain"
+                     :source {:uri (str (:text image))}}]
 
-(defn -main-panel [display]
-  (let [active-tags (-> display :card :tags)
-        doom? (:doom active-tags)
-        progress? (:clue active-tags)]
-    [ui/collapse-scroll-view {:collapse! do-collapse!}
-     [ui/view
-      [ui/para {:theme {:colors {:text "white"}}
-                :style {:padding-top  4
-                        :padding-left 8}}
-       (str "Progress: " (-> display :clocks :clues)
-            ", Doom: " (-> display :clocks :doom) #_(str (-> clocks :plot) " / " 8))]]
-     [ui/actions-list display]
-     [ui/progressbar {:progress (:clock display)
-                      :color "#336699"}]
-     [ui/bottom-sheet-card (assoc display
-                                  :collapse! do-collapse!
-                                  :border-color (cond
-                                                  doom? "darkred"
-                                                  progress? "olivedrab")
-                                  :turn-marker
-                                  (str (get-in display [:active-player :user-name])
-                                       "'s turn..."))]])
-  )
+          [ui/button {:style {:flex 1}
+                      :content-style {:height 250}
+                      :on-press #(dispatch [:<-game/action! :next-image {}])}
+           ">"]
+          ]
+         [ui/card {:margin 8
+                   :margin-top 12}
+          [ui/card-content
+           (map (fn [{conf :confirm
+                      :keys [action class text]}]
+                  (with-meta
+                    (vector ui/button
+                            {:mode "outlined"
+                             :on-press (fn []
+                                         (ui/maybe-confirm! conf
+                                                            #(dispatch [:<-game/action! action])))} text)
+                    {:key action}))
+                (remove #(#{:next-image :previous-image} (:action %))
+                        (get-in display [:extra-actions])))]]
+         [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
+          [ui/text ""]]]))))
 
-(defn -wretched-game-panel [user-data dispatch]
+(defn other-panel []
+  (let [game-state (re-frame/subscribe [:wretched-other])]
+    (build-other-panel game-state re-frame/dispatch)))
+
+(re-frame/reg-sub
+ :wretched-logs
+ (fn [db]
+   (extract-display (:user db)
+                    [:log :active-player :player-ranks])))
+
+(defn build-logs-panel [game-state-atom dispatch]
+  (let [notes (r/atom "")
+        notes-input (r/atom nil)]
+    (fn -log-panel []
+      (let [{:keys [log]} @game-state-atom]
+        [ui/collapse-scroll-view {:collapse! do-collapse!}
+         [ui/surface {:style {:padding 8 :flex 1}}
+          (map-indexed
+           (fn [i {:keys [type text] :as log-line}]
+             (let [styling (if (= :action type)
+                             {:flex 1
+                              :margin-left 20
+                              :padding 6
+                              :background-color "#efefef"}
+                             {:font-family (if ui/android? "serif" "Georgia")})]
+               (with-meta
+                 (vector ui/markdown {:style {:body styling}}
+                         text)
+                 {:key i})))
+           log)]
+         [ui/card {:style {:margin-top 12}}
+          [ui/card-content {}
+           [ui/text-input {:on-change-text #(reset! notes  %)
+                           :ref (partial reset! notes-input)
+                           :default-value (deref notes)}]]
+          [ui/card-actions {}
+           [ui/button {:on-press #(do
+                                    (.clear @notes-input)
+                                    (reset! notes ""))
+                       } [ui/text "Save your thoughts"]]]]
+         [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
+          [ui/text ""]]
+
+         ]))))
+
+(defn log-panel []
+  (let [game-state (re-frame/subscribe [:wretched-logs])]
+    (build-logs-panel game-state re-frame/dispatch)))
+
+(re-frame/reg-sub
+ :wretched-main
+ (fn [db]
+   (extract-display (:user db)
+                    [:clocks :active-player :player-ranks])))
+
+(defn build-main-panel [game-state-atom dispatch]
+  (let []
+    (fn -main-panel []
+      (let [{:keys           [clocks
+                              active-player]
+             {:keys [card]
+              :as   display} :display} @game-state-atom
+            clock                      (/ (-> clocks (get :tower 1)) 100)
+            display                    (assoc display :dispatch dispatch)
+            active-tags                (:tags card)
+            doom?                      (:doom active-tags)
+            progress?                  (:clue active-tags)]
+        [ui/collapse-scroll-view {:collapse! do-collapse!}
+         [ui/view
+          [ui/para {:theme {:colors {:text "white"}}
+                    :style {:padding-top  4
+                            :padding-left 8}}
+           (str "Progress: " (-> clocks :clues)
+                ", Doom: " (-> clocks :doom) #_(str (-> clocks :plot) " / " 8))]]
+         [ui/actions-list display]
+         [ui/progressbar {:progress clock
+                          :color    "#336699"}]
+         [ui/bottom-sheet-card (assoc display
+                                      :collapse! do-collapse!
+                                      :border-color (cond
+                                                      doom?     "darkred"
+                                                      progress? "olivedrab")
+                                      :turn-marker
+                                      (str (get-in display [:active-player :user-name])
+                                           "'s turn..."))]])
+      )))
+
+(defn main-panel []
+  (let [game-state (re-frame/subscribe [:wretched-main])]
+    (build-main-panel game-state re-frame/dispatch)))
+
+(defn wretched-game-panel []
   (let [tab-state  (r/atom 0)
-        dimensions (.get ui/dimensions "window")]
-    (fn [user-data dispatch]
-      (let [{user-id        :id
-             :as            data
-             {:as   room
-              :keys [game]} :current-room} @user-data
-            active?                        (= user-id (:id (:active-player game)))
-            clock (/ (-> game :clocks (get :tower 1)) 100)
-
-            {:keys [actions card]
-             :as   display}                  (if active?
-                                                   (:active-display game)
-                                                   (:inactive-display game))
-            x-carded?                      (:x-card-active? display)
-
-            display         (assoc display
-                                   :active-player (:active-player game)
-                                   :image (:image game)
-                                   :clock clock
-                                   :clocks (:clocks game)
-                                   :dispatch dispatch)
-            on-tab-change   (fn [x] (reset! tab-state x))
+        dimensions (.get ui/dimensions "window")
+        scene-map  (ui/SceneMap (clj->js {:main  (r/reactify-component main-panel)
+                                          :log   (r/reactify-component log-panel)
+                                          :other (r/reactify-component other-panel)
+                                          }))]
+    (fn []
+      (let [on-tab-change   (fn [x] (reset! tab-state x))
             current-index   @tab-state
             sizing          (if (ui/os? "web")
                               {:min-height (.-height dimensions)
@@ -121,6 +179,7 @@
                              :backgroundColor "rgba(255,255,255,0.15)"
                              :height          4
                              :bottom          3}
+            _ (println scene-map)
             ]
         [ui/view {:style sizing}
          [ui/tab-view
@@ -128,11 +187,6 @@
            :scroll-enabled   true
            :on-index-change  on-tab-change
            ;;:scene-container-style {:background-color "red"}
-           :navigation-state {:index  current-index
-                              :routes [{:key   "main"
-                                        :title "Main"}
-                                       {:key   "other"
-                                        :title "Extras"}]}
            :render-tab-bar   (fn [props]
                                (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
                                      _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
@@ -140,16 +194,14 @@
                                      ;; Disable uppercase transform
                                      ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
                                      ]
-                               (r/as-element [ui/tab-bar (js->clj props)])))
-           :render-scene     (fn [props]
-                               (let [key (aget (aget props "route") "key")]
-                             (case key
-                               "main"
-                               (r/as-element [-main-panel display])
-                               "other"
-                               (r/as-element [-other-panel display])
-                               (r/as-element [ui/text "WHAAAA"])
-                               )
-                             ))}
+                                 (r/as-element [ui/tab-bar (js->clj props)])))
+           :navigation-state {:index  current-index
+                              :routes [{:key   "main"
+                                        :title "Main"}
+                                       {:key   "log"
+                                        :title "Journal"}
+                                       {:key   "other"
+                                        :title "Extras"}]}
+           :render-scene     scene-map}
 
           ]]))))

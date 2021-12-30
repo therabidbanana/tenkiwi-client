@@ -1,7 +1,7 @@
 (ns tenkiwi.views
   (:require [re-frame.core :as re-frame]
             [tenkiwi.views.ftq :refer [-ftq-game-panel]]
-            [tenkiwi.views.wretched :refer [-wretched-game-panel]]
+            [tenkiwi.views.wretched :refer [wretched-game-panel]]
             [tenkiwi.views.debrief :refer [debrief-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
             [tenkiwi.views.opera :refer [opera-game-panel]]
@@ -68,7 +68,7 @@
        :ftq
        [-ftq-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
        :wretched
-       [-wretched-game-panel (re-frame/subscribe [:user]) re-frame/dispatch]
+       [wretched-game-panel]
        :debrief
        [debrief-game-panel]
        :opera
