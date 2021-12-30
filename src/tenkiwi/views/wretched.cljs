@@ -79,16 +79,24 @@
   (let [notes       (r/atom "")
         notes-input (r/atom nil)]
     (fn -log-panel []
-      (let [{:keys [log]} @game-state-atom]
-        [ui/collapse-scroll-view {:collapse! do-collapse!}
+      (let [{:keys [log]} @game-state-atom
+            log-text (clojure.string/join "\n\n" (map :text log))]
+        [ui/collapse-scroll-view {:only-collapse! do-collapse!}
          [ui/card {:style {:margin-bottom 12}}
           [ui/card-content {}
            [ui/text-input {:on-change-text #(reset! notes  %)
+                           :on-focus #(@do-collapse! true)
                            :multiline      true
                            :ref            (partial reset! notes-input)
                            :default-value  (deref notes)}]]
           [ui/card-actions {}
-           [ui/button {:on-press #(do
+           [ui/button {:flex 1
+                       :on-press #(do
+                                    (.setString ui/clipboard log-text))}
+            [ui/text "Copy Log"]]
+           [ui/button {:mode "contained"
+                       :flex 2
+                       :on-press #(do
                                     (.clear @notes-input)
                                     (dispatch [:<-game/action! :add-note {:text @notes}])
                                     (reset! notes ""))
@@ -176,7 +184,9 @@
                                           :other (r/reactify-component other-panel)
                                           }))]
     (fn []
-      (let [on-tab-change   (fn [x] (reset! tab-state x))
+      (let [on-tab-change   (fn [x] (do
+                                      #_(@do-collapse! true)
+                                      (reset! tab-state x)))
             current-index   @tab-state
             sizing          (if (ui/os? "web")
                               {:min-height (.-height dimensions)

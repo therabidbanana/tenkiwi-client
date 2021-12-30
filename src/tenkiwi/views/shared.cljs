@@ -25,6 +25,7 @@
 (def expo-linear-gradient (js/require "expo-linear-gradient"))
 (def AtExpo (js/require "@expo/vector-icons"))
 (def Reanimated (js/require "react-native-reanimated"))
+(def clipboard (.-default (js/require "expo-clipboard")))
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
 
