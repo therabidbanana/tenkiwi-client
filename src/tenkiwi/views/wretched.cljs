@@ -76,35 +76,47 @@
                     [:log :active-player :player-ranks])))
 
 (defn build-logs-panel [game-state-atom dispatch]
-  (let [notes (r/atom "")
+  (let [notes       (r/atom "")
         notes-input (r/atom nil)]
     (fn -log-panel []
       (let [{:keys [log]} @game-state-atom]
         [ui/collapse-scroll-view {:collapse! do-collapse!}
+         [ui/card {:style {:margin-bottom 12}}
+          [ui/card-content {}
+           [ui/text-input {:on-change-text #(reset! notes  %)
+                           :multiline      true
+                           :ref            (partial reset! notes-input)
+                           :default-value  (deref notes)}]]
+          [ui/card-actions {}
+           [ui/button {:on-press #(do
+                                    (.clear @notes-input)
+                                    (dispatch [:<-game/action! :add-note {:text @notes}])
+                                    (reset! notes ""))
+                       }
+            [ui/text "Write your thoughts"]]]]
          [ui/surface {:style {:padding 8 :flex 1}}
+          [ui/h1 "Log"]
           (map-indexed
            (fn [i {:keys [type text] :as log-line}]
-             (let [styling (if (= :action type)
+             (let [styling (cond
+                             (= :action type)
                              {:flex 1
-                              :margin-left 20
-                              :padding 6
+                              :padding          6
+                              :margin-right     20
+                              :text-align       :right
+                              :background-color "#bfbfbf"}
+                             (= :note type)
+                             {:flex             1
+                              :margin-left      20
+                              :padding          6
                               :background-color "#efefef"}
+                             :else
                              {:font-family (if ui/android? "serif" "Georgia")})]
                (with-meta
                  (vector ui/markdown {:style {:body styling}}
                          text)
                  {:key i})))
-           log)]
-         [ui/card {:style {:margin-top 12}}
-          [ui/card-content {}
-           [ui/text-input {:on-change-text #(reset! notes  %)
-                           :ref (partial reset! notes-input)
-                           :default-value (deref notes)}]]
-          [ui/card-actions {}
-           [ui/button {:on-press #(do
-                                    (.clear @notes-input)
-                                    (reset! notes ""))
-                       } [ui/text "Save your thoughts"]]]]
+           (reverse log))]
          [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
           [ui/text ""]]
 
@@ -148,7 +160,7 @@
                                                       doom?     "darkred"
                                                       progress? "olivedrab")
                                       :turn-marker
-                                      (str (get-in display [:active-player :user-name])
+                                      (str (get-in active-player [:user-name])
                                            "'s turn..."))]])
       )))
 
@@ -178,9 +190,7 @@
             indicator-style {:borderRadius    2
                              :backgroundColor "rgba(255,255,255,0.15)"
                              :height          4
-                             :bottom          3}
-            _ (println scene-map)
-            ]
+                             :bottom          3}]
         [ui/view {:style sizing}
          [ui/tab-view
           {:initial-layout   (if-not (ui/os? "web") sizing)
