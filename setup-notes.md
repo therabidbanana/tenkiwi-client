@@ -168,22 +168,6 @@ https://developer.apple.com/account/resources/identifiers/list
 expo build:ios --clear-provisioning-profile
 ```
 
-Successfully created Provisioning Profile
-
-  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: BD4M2L5GT2)
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-
-
-Project Credential Configuration:
-  Experience: @therabidbanana/tenkiwi, bundle identifier: com.davidhaslem.tenkiwi
-    Provisioning profile (ID: BD4M2L5GT2)
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-
-  Distribution Certificate - Certificate ID: 22GJK6K536
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
-  Push Notifications Key - Key ID: KP5JWWK4JK
-    Apple Team ID: 3PZEM7YXDE,  Apple Team Name: David Haslem (Individual)
 
 Open Transporter app and put the ipa into it.
 
