@@ -186,7 +186,11 @@
         notes-input (r/atom nil)]
     (fn -log-panel []
       (let [{:keys [log]} @game-state-atom
-            log-text (clojure.string/join "\n\n" (map :text log))]
+            to-text  (fn [{:keys [type text active-player]}]
+                       (if (#{:action} type)
+                         (str (:user-name active-player) " " text)
+                         text))
+            log-text (clojure.string/join "\n\n" (map to-text log))]
         [ui/collapse-scroll-view {:only-collapse! do-collapse!}
          #_[ui/card {:style {:margin-bottom 12}}
           [ui/card-content {}
@@ -232,7 +236,11 @@
                              {:font-family (if ui/android? "serif" "Georgia")})]
                (with-meta
                  (vector ui/markdown {:style {:body styling}}
-                         text)
+                         (if (#{:action} type)
+                           (str (:user-name (:active-player log-line))
+                                " "
+                                text)
+                           text))
                  {:key i})))
            (reverse log))]
          [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
