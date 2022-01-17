@@ -4,6 +4,7 @@
             [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
+(defonce do-collapse! (r/atom (fn [])))
 (defn- extract-display [game-state key-list]
   (let [{user-id        :id
          :as            data
@@ -175,6 +176,76 @@
     (build-cast-panel game-state re-frame/dispatch)))
 
 (re-frame/reg-sub
+ :walking-deck-logs
+ (fn [db]
+   (extract-display (:user db)
+                    [:log :active-player :player-ranks])))
+
+(defn build-logs-panel [game-state-atom dispatch]
+  (let [notes       (r/atom "")
+        notes-input (r/atom nil)]
+    (fn -log-panel []
+      (let [{:keys [log]} @game-state-atom
+            log-text (clojure.string/join "\n\n" (map :text log))]
+        [ui/collapse-scroll-view {:only-collapse! do-collapse!}
+         #_[ui/card {:style {:margin-bottom 12}}
+          [ui/card-content {}
+           [ui/text-input {:on-change-text #(reset! notes  %)
+                           :on-focus #(@do-collapse! true)
+                           :multiline      true
+                           :ref            (partial reset! notes-input)
+                           :default-value  (deref notes)}]]
+          [ui/card-actions {}
+           [ui/button {:flex 1
+                       :on-press #(do
+                                    (.setString ui/clipboard log-text))}
+            [ui/text "Copy Log"]]
+           [ui/button {:mode "contained"
+                       :flex 2
+                       :on-press #(do
+                                    (.clear @notes-input)
+                                    (dispatch [:<-game/action! :add-note {:text @notes}])
+                                    (reset! notes ""))
+                       }
+            [ui/text "Write your thoughts"]]]]
+         [ui/surface {:style {:padding 8 :flex 1}}
+          [ui/h1 "Log"]
+          [ui/button {:flex 1
+                      :on-press #(do
+                                   (.setString ui/clipboard log-text))}
+           [ui/text "Copy Log"]]
+          (map-indexed
+           (fn [i {:keys [type text] :as log-line}]
+             (let [styling (cond
+                             (= :action type)
+                             {:flex 1
+                              :padding          6
+                              :margin-right     20
+                              :text-align       :right
+                              :background-color "#bfbfbf"}
+                             (= :note type)
+                             {:flex             1
+                              :margin-left      20
+                              :padding          6
+                              :background-color "#efefef"}
+                             :else
+                             {:font-family (if ui/android? "serif" "Georgia")})]
+               (with-meta
+                 (vector ui/markdown {:style {:body styling}}
+                         text)
+                 {:key i})))
+           (reverse log))]
+         [ui/view {:style {:height (* 0.7 (.-height (.get ui/dimensions "screen")))}}
+          [ui/text ""]]
+
+         ]))))
+
+(defn log-panel []
+  (let [game-state (re-frame/subscribe [:walking-deck-logs])]
+    (build-logs-panel game-state re-frame/dispatch)))
+
+
+(re-frame/reg-sub
  :walking-deck-main
  (fn [db]
    (extract-display (:user db)
@@ -192,6 +263,7 @@
 
           box-style {:margin-top 8 :padding 10}
           dimensions (.get ui/dimensions "screen")
+          card-type (get display :type)
           prompt-options (get-in display [:card :prompt-options])
 
           valid-button? (fn [{:keys                 [action params disabled?]
@@ -201,10 +273,10 @@
                             (#{:done} action)
                             (and
                              (not disabled?)
-                             (or (empty? prompt-options) (some :selected? prompt-options)))
+                             (or (empty? prompt-options) (some :selected? prompt-options) (#{:death :end? :lose?} card-type)))
                             :else
                             (not disabled?)))]
-      [ui/scroll-view
+      [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/view
         [ui/view
          [ui/para {:theme {:colors {:text "white"}}
@@ -213,12 +285,11 @@
           (if (> act 3)
             (str "End Game")
             (str act-prompt))]]
-        #_[ui/card-with-button (assoc display :dispatch dispatch)]
         [ui/actions-list (assoc display
                                 :dispatch dispatch
                                 :action-valid? valid-button?)]
         [ui/bottom-sheet-card
-         (assoc display :dispatch dispatch)]
+         (assoc display :collapse! do-collapse! :dispatch dispatch)]
         (if extra-details
           [ui/view {:style {:padding 2
                             :padding-top 8}}
@@ -255,6 +326,7 @@
   (let [tab-state (r/atom 0)
         scene-map (ui/SceneMap (clj->js {:main (r/reactify-component main-panel)
                                          :cast (r/reactify-component cast-panel)
+                                         :logs (r/reactify-component log-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
       (let [on-tab-change (fn [x] (reset! tab-state x))
@@ -267,6 +339,8 @@
                                        :title "Main"}
                                       {:key "cast"
                                        :title "Cast"}
+                                      {:key "logs"
+                                       :title "Logs"}
                                       {:key "other"
                                        :title "Extras"}]}
           :render-scene scene-map}]))))
