@@ -23,6 +23,12 @@ specific mode for playing Descended from the Queen games.
    solo, prompt driven games with unclear numbers of turns and unlikekly win
    conditions - seen in
    [https://therabidbanana.itch.io/outsider-blues](https://therabidbanana.itch.io/outsider-blues)
+   
+### Game Development
+
+Use the unlock code "custom" to unlock the above games with customizable spreadsheets. Note that there are currently not validations on the file to ensure you've formatted it correctly. Try starting from a template (all of my games directly share the prompt spreadsheets as a google sheet you can clone)
+
+Game templates are TSV files available on the web - you can configure Google Sheets to output a TSV using the "Publish to Web" feature: https://gist.github.com/therabidbanana/c0145b650a5e02ab2ae79e778f423e13
 
 ### Server Required
 
@@ -36,6 +42,7 @@ store).
 ### And Clojurescript
 
 Communication with the server is supported with Sente. 
+
 
 
 ## Development
