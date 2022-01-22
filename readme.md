@@ -10,16 +10,19 @@ specific mode for playing Descended from the Queen games.
 
 ### Supported Game Modes
 
-1. Descended from the Queen ([For the Queen](http://www.forthequeengame.com/)) - seen in 
+1. Descended from the Queen ([For the Queen](http://www.forthequeengame.com/)) -
+   seen in
+   [https://therabidbanana.itch.io/for-the-captain](https://therabidbanana.itch.io/for-the-captain)
 2. [Debrief SRD](https://therabidbanana.itch.io/debrief-srd) - semi-competitive,
    with mini character creation, a spoiler character and three rounds of voting.
-   Seen in [https://therabidbanana.itch.io/for-the-captain](https://therabidbanana.itch.io/for-the-captain)
+   Seen in
    [https://therabidbanana.itch.io/culinary-contest](https://therabidbanana.itch.io/culinary-contest)
 3. Opera SRD - players solve mysteries - seen in
    [https://therabidbanana.itch.io/this-mission-is-redacted](https://therabidbanana.itch.io/this-mission-is-redacted)
 4. [Wretched and Alone SRD](https://sealedlibrary.itch.io/wretched-alone-srd) -
    solo, prompt driven games with unclear numbers of turns and unlikekly win
-   conditions - seen in [https://therabidbanana.itch.io/outsider-blues](https://therabidbanana.itch.io/outsider-blues)
+   conditions - seen in
+   [https://therabidbanana.itch.io/outsider-blues](https://therabidbanana.itch.io/outsider-blues)
 
 ### Server Required
 
