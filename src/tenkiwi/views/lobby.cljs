@@ -62,11 +62,17 @@
                                 :name           name
                                 :default-value  (get params name)}])])
            inputs)
-          [ui/button {:mode     "contained"
-                      :style    {:margin-top 8}
-                      :on-press #(do
-                                   (dispatch [:<-game/start! game-type params]))}
-           [ui/text "Start Game"]]
+          (if (:custom-play? params)
+            [ui/button {:mode     "contained"
+                        :style    {:margin-top 8}
+                        :on-press #(do
+                                     (dispatch [:<-game/select! game-type (dissoc params :custom-play?)]))}
+             [ui/text "Prepare Game"]]
+            [ui/button {:mode     "contained"
+                        :style    {:margin-top 8}
+                        :on-press #(do
+                                     (dispatch [:<-game/start! game-type params]))}
+             [ui/text "Start Game"]])
           [ui/button {:mode     "outlined"
                       :style    {:margin-top 8}
                       :on-press #(do
