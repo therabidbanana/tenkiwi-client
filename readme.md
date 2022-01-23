@@ -1,5 +1,7 @@
 # Tenkiwi Client
 
+This is the client side part of Tenkiwi, which shows the user experience in the mobile apps or online. The bulk of the game rules live in the server component - https://github.com/therabidbanana/tenkiwi
+
 ## What is it?
 
 Tenkiwi is a platform for playing storytelling games with friends online - a
