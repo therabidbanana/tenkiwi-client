@@ -24,6 +24,8 @@ specific mode for playing Descended from the Queen games.
    conditions - seen in
    [https://therabidbanana.itch.io/outsider-blues](https://therabidbanana.itch.io/outsider-blues)
    
+Also some prototype work not ready for primetime.
+   
 ### Game Development
 
 Use the unlock code "custom" to unlock the above games with customizable spreadsheets. Note that there are currently not validations on the file to ensure you've formatted it correctly. Try starting from a template (all of my games directly share the prompt spreadsheets as a google sheet you can clone)
