@@ -83,11 +83,10 @@
 (defn layout [body]
   [ui/safe-view {:style {:overflow-x "hidden"
                          :min-height "100%"
-                         :padding-top (if (ui/os? "android")
-                                        (.. ReactNative -StatusBar -currentHeight))
                          :flex 1
                          :background-color "rgba(3,25,53,1.0)"}}
    [ui/status-bar {:style "light"
+                   ;; :hidden true
                    :background-color "rgba(3,25,53,1.0)"}]
    [ui/view {:style {:background-color "#003366"}}
     body]])
@@ -106,9 +105,10 @@
   (let [user  (re-frame/subscribe [:user])
         room  (re-frame/subscribe [:room])
         game  (re-frame/subscribe [:user->game-type])]
-    (layout
-     (cond
-       @game [game-panel]
-       (get @user :current-room) [lobby-panel]
-       (get @user :connected?) [opening-panel]
-       :else [-connecting-panel]))))
+    (fn []
+      (layout
+       (cond
+         @game [game-panel]
+         (get @user :current-room) [lobby-panel]
+         (get @user :connected?) [opening-panel]
+         :else [-connecting-panel])))))

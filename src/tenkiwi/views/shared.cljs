@@ -13,6 +13,7 @@
             [expo-linear-gradient :as expo-linear-gradient]
             ["@expo/react-native-action-sheet" :as action-sheet-lib]
             [reanimated-bottom-sheet :as sheet-lib]
+            [react-native-safe-area-context :as safe-area]
             [react-native-reanimated :as Reanimated]
             [react-native-markdown-display :as markdown-lib]
             [react-native-tab-view :as tab-lib]))
@@ -42,7 +43,8 @@
 (def ios? (os? "ios"))
 (def use-window-dimensions (.-useWindowDimensions ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
-(def safe-view (r/adapt-react-class (.-SafeAreaView ReactNative)))
+(def safe-area (js/require "react-native-safe-area-context"))
+(def safe-view (r/adapt-react-class (.-SafeAreaView safe-area)))
 (def scroll-view (r/adapt-react-class (.-ScrollView ReactNative)))
 (def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
 (def refresh-control (r/adapt-react-class (.-RefreshControl ReactNative)))

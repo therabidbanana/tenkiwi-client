@@ -10,6 +10,7 @@
    [react-native :as ReactNative]
    ["@expo/vector-icons" :as AtExpo]
    ["@expo/react-native-action-sheet" :as action-sheet]
+   [react-native-safe-area-context :as safe-area]
    [react-native-paper :as rn-paper]
    #_[tenkiwi.handlers]
    #_[tenkiwi.subs]))
@@ -22,7 +23,9 @@
 (def rn-paper (js/require "react-native-paper"))
 (def PaperProvider (r/adapt-react-class (.-Provider rn-paper)))
 (def action-sheet (js/require "@expo/react-native-action-sheet"))
+(def safe-area (js/require "react-native-safe-area-context"))
 (def ActionSheetProvider (r/adapt-react-class (.-ActionSheetProvider action-sheet)))
+(def SafeAreaProvider (r/adapt-react-class (.-SafeAreaProvider safe-area)))
 (def DefaultTheme (js->clj (.-DefaultTheme rn-paper)))
 
 (def ionicons (.-Ionicons AtExpo))
@@ -47,8 +50,9 @@
 
 (defn app-root []
   (fn []
-    [PaperProvider {:theme theme}
-     [ActionSheetProvider [views/main-panel]]]))
+    [SafeAreaProvider
+     [PaperProvider {:theme theme}
+      [ActionSheetProvider [views/main-panel]]]]))
 
 (defn init []
   (dispatch-sync [:initialize-db])
