@@ -4,6 +4,8 @@
             [oops.core :refer [oget]]
             [tenkiwi.views.shared :as ui]))
 
+(defonce switch-tab! (r/atom (fn [])))
+
 (defn -player-boot [{:keys [id dispatch] :as props}]
   [ui/button {:on-press #(dispatch [:<-room/boot-player! id])} "x"])
 
@@ -119,7 +121,7 @@
     [-config-panel game-data config-data re-frame/dispatch]))
 
 (defn -lobby-panel [game-data config-data dispatch]
-  (let [{:keys [room-code host? current-player-id game-setup]
+  (let [{:keys [room-code host? host-id current-player-id game-setup]
          :as   game-data} @game-data
 
         {:keys [game-type title game-url]
@@ -134,6 +136,8 @@
         (for [player (:players game-data)]
           ^{:key (:id player)}
           [ui/list-item {:title (:user-name player)
+                         :description (if (= host-id (:id player))
+                                        "(Host Player)")
                          :right (fn [props]
                                   (if host?
                                     (r/as-element [-player-boot (assoc player :dispatch dispatch)])))}])]]]
@@ -149,12 +153,21 @@
        [ui/card-title {:title "Game Selected"}]
        [ui/card-content
         [ui/text (or title "(None Selected Yet)")]
-        (if (and game-type host?)
+        (cond
+          (and game-type host?)
           [ui/button {:mode     "contained"
                       :style    {:margin-top 8}
                       :on-press #(do
                                    (dispatch [:<-game/start! game-type config-data]))}
            [ui/text "Start Game"]]
+
+          host?
+          [ui/button {:mode     "contained"
+                      :style    {:margin-top 8}
+                      :on-press #(do (@switch-tab! 1))}
+           [ui/text "Choose Game"]]
+
+          :else
           [ui/button {:mode     "outlined"
                       :style    {:margin-top 8}
                       :on-press #(do
@@ -168,17 +181,19 @@
 
 (defn lobby-panel []
   (let [tab-state (r/atom 0)
-        scene-map (ui/SceneMap (clj->js {:main (r/reactify-component main-lobby-panel)
+        scene-map (ui/SceneMap (clj->js {:main   (r/reactify-component main-lobby-panel)
                                          :config (r/reactify-component config-panel)}))]
     (fn []
       (let [on-tab-change (fn [x] (reset! tab-state x))
+            ;; TODO: Is this really the best way for me to do a tab change?
+            _             (reset! switch-tab! on-tab-change)
             current-index @tab-state]
         [ui/clean-tab-view
-         {:on-index-change on-tab-change
+         {:on-index-change  on-tab-change
           ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
-          :navigation-state {:index current-index
-                             :routes [{:key "main"
+          :navigation-state {:index  current-index
+                             :routes [{:key   "main"
                                        :title "Lobby"}
-                                      {:key "config"
+                                      {:key   "config"
                                        :title "Configure"}]}
-          :render-scene scene-map}]))))
+          :render-scene     scene-map}]))))
