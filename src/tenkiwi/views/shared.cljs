@@ -15,6 +15,7 @@
             [reanimated-bottom-sheet :as sheet-lib]
             [react-native-safe-area-context :as safe-area]
             [react-native-reanimated :as Reanimated]
+            [react-native-gesture-handler :as react-native-gesture-handler]
             [react-native-markdown-display :as markdown-lib]
             [react-native-tab-view :as tab-lib]))
 
@@ -26,6 +27,7 @@
 (def expo-linear-gradient (js/require "expo-linear-gradient"))
 (def AtExpo (js/require "@expo/vector-icons"))
 (def Reanimated (js/require "react-native-reanimated"))
+(def rn-gesture-handler (js/require "react-native-gesture-handler"))
 (def clipboard (.-default (js/require "expo-clipboard")))
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
@@ -61,6 +63,10 @@
 
 (def action-sheet-lib (js/require "@expo/react-native-action-sheet"))
 (def action-sheet-wrapper (.-connectActionSheet action-sheet-lib))
+;; For fallback in react-native-web
+(def swipeable (r/adapt-react-class (.-Swipeable rn-gesture-handler)))
+(def fling-gesture-handler (r/adapt-react-class (.-FlingGestureHandler rn-gesture-handler)))
+(def gesture-directions (.-Directions rn-gesture-handler))
 
 (defn with-action-sheet [component]
   (r/adapt-react-class (action-sheet-wrapper component)))
@@ -370,7 +376,8 @@
                        ([]
                         (do
                           (swap! collapsed? not)
-                          ((aget @ref "snapTo") (if @collapsed? 2 0))))
+                          (if @ref
+                            ((aget @ref "snapTo") (if @collapsed? 2 0)))))
                        ([e]
                         (if (boolean? e)
                           (collapse-it e e)
@@ -378,7 +385,8 @@
                        ([maybe e]
                         (do
                           (reset! collapsed? maybe)
-                          ((aget @ref "snapTo") (if @collapsed? 2 0)))))
+                          (if @ref
+                            ((aget @ref "snapTo") (if @collapsed? 2 0))))))
 
         collapse! (doto (or collapse! (r/atom nil))
                     (reset! do-collapse!))]
@@ -409,9 +417,21 @@
                            :color "white"}
                    :on-press @collapse!}
              (:turn-marker props)]
-            [card-with-button props]]]
+            [fling-gesture-handler {:on-handler-state-change (fn [e]
+                                                        (let [move-y (.-translationY (.-nativeEvent e))
+                                                              inside? (.-pointerInside (.-nativeEvent e))]
+                                                          (cond
+                                                            (> -50 move-y)
+                                                            (@collapse! false)
+                                                            (and inside? (< 50 move-y))
+                                                            (@collapse! true)
+                                                            ;; :else
+                                                            ;; (println e)
+                                                            )))
+                                    :direction (bit-or (.-UP gesture-directions) (.-DOWN gesture-directions))}
+             [card-with-button props]]]]
           [portal
-           [bottom-sheet {:snap-points ["65%" "25%" 64]
+           [bottom-sheet {:snap-points ["56%" "28%" 64]
                           :ref #(reset! ref %)
                           :initial-snap (if @collapsed? 2 0)
                           :border-radius 8
