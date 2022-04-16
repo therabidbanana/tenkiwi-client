@@ -391,12 +391,12 @@
         collapse! (doto (or collapse! (r/atom nil))
                     (reset! do-collapse!))]
     (fn [props]
-      (let [dimensions (.get dimensions "screen")
-            action-sheet-props (clj->js
-                                {:options ["Pass" "Discard" "Cancel"]
-                                 :destructive-button-index 0
-                                 :cancel-button-index 2})
-            action-sheet-action (fn [index]
+      (let [dimensions           (.get dimensions "screen")
+            action-sheet-props   (clj->js
+                                  {:options                  ["Pass" "Discard" "Cancel"]
+                                   :destructive-button-index 0
+                                   :cancel-button-index      2})
+            action-sheet-action  (fn [index]
                                   (println index))
             trigger-action-sheet (fn [e]
                                    (println "props" props)
@@ -405,53 +405,54 @@
                                     action-sheet-action))]
         (if web?
           [portal
-           [view {:style {:position "fixed"
-                          :bottom (if @collapsed? "-55vh" 0)
+           [view {:style {:position         "fixed"
+                          :bottom           (if @collapsed? "-55vh" 0)
                           :background-color "rgba(0,0,0,0.9)"
-                          :height "65vh"
-                          :min-height "65vh"
-                          :width "100%"}}
-            [text {:style {:padding 6
-                           :padding-left 12
-                           :font-weight "bold"
-                           :color "white"}
+                          :height           "65vh"
+                          :min-height       "65vh"
+                          :width            "100%"}}
+            [text {:style    {:padding      6
+                              :padding-left 12
+                              :font-weight  "bold"
+                              :color        "white"}
                    :on-press @collapse!}
              (:turn-marker props)]
             [fling-gesture-handler {:on-handler-state-change (fn [e]
-                                                        (let [move-y (.-translationY (.-nativeEvent e))
-                                                              inside? (.-pointerInside (.-nativeEvent e))]
-                                                          (cond
-                                                            (> -50 move-y)
-                                                            (@collapse! false)
-                                                            (and inside? (< 50 move-y))
-                                                            (@collapse! true)
-                                                            ;; :else
-                                                            ;; (println e)
-                                                            )))
-                                    :direction (bit-or (.-UP gesture-directions) (.-DOWN gesture-directions))}
+                                                               (let [nativeEvent (aget e "nativeEvent")
+                                                                     move-y      (aget nativeEvent "translationY")
+                                                                     inside?     (aget nativeEvent "pointerInside")]
+                                                                 (cond
+                                                                   (> -50 move-y)
+                                                                   (@collapse! false)
+                                                                   (and inside? (< 50 move-y))
+                                                                   (@collapse! true)
+                                                                   ;; :else
+                                                                   ;; (println e)
+                                                                   )))
+                                    :direction               (bit-or (.-UP gesture-directions) (.-DOWN gesture-directions))}
              [card-with-button props]]]]
           [portal
-           [bottom-sheet {:snap-points ["56%" "28%" 64]
-                          :ref #(reset! ref %)
-                          :initial-snap (if @collapsed? 2 0)
-                          :border-radius 8
-                          :on-close-end on-close
-                          :on-open-start on-open
+           [bottom-sheet {:snap-points                     ["56%" "28%" 64]
+                          :ref                             #(reset! ref %)
+                          :initial-snap                    (if @collapsed? 2 0)
+                          :border-radius                   8
+                          :on-close-end                    on-close
+                          :on-open-start                   on-open
                           ;; animation forces 25% snappoint 
                           ;; :enabled-bottom-initial-animation true
                           :enabled-content-tap-interaction false
                           ;; :render-header (if (:turn-marker props)
                           ;;                  (fn [p]
                           ;;                   (r/as-element [text (:turn-marker props)])))
-                          :render-content (fn [p]
-                                            (r/as-element [view {:style {:height "100%"
-                                                                         :padding-top 6
-                                                                         :background-color "rgba(0,0,0,0.9)"}}
-                                                           [text {:on-press @collapse!
-                                                                  :style {:padding 6
-                                                                          :padding-left 12
-                                                                          :font-weight "bold"
-                                                                          :color "white"}}
+                          :render-content                  (fn [p]
+                                                             (r/as-element [view {:style {:height           "100%"
+                                                                                          :padding-top      6
+                                                                                          :background-color "rgba(0,0,0,0.9)"}}
+                                                                            [text {:on-press @collapse!
+                                                                                   :style    {:padding      6
+                                                                                              :padding-left 12
+                                                                                              :font-weight  "bold"
+                                                                                              :color        "white"}}
                                                             (:turn-marker props)]
                                                            [card-with-button props]]))}]])))))
 

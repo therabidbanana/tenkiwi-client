@@ -87,8 +87,7 @@
 
             display         (assoc display
                            :active-player (:active-player game)
-                           :dispatch dispatch
-                           :queen queen)
+                           :dispatch dispatch)
             on-tab-change   (fn [x] (reset! tab-state x))
             current-index   @tab-state
             sizing          (if (ui/os? "web")

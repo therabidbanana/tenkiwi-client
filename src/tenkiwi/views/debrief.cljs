@@ -75,6 +75,7 @@
 
 (defn -player-scoreboard-entry [display current-user-id player-scores player]
   (let [{:keys [id user-name dead? agent-name agent-codename agent-role]} player
+        player-scores (or player-scores {})
         current-user? (= id current-user-id)
         dispatch (:dispatch display)
         total-score (apply + (vals (player-scores id)))]
