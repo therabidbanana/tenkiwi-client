@@ -185,14 +185,15 @@
     :else
     (on-true)))
 
-(defn -action-button [{:keys [dispatch action-valid? hide-invalid?]}
-                      {:as full-action
+(defn -action-button [{:keys [dispatch action-valid? hide-invalid? mode]
+                       :or   {mode "contained"}}
+                      {:as   full-action
                        :keys [params confirm action text]
-                       :or {params {}}}]
+                       :or   {params {}}}]
   (let [valid? (action-valid? full-action)]
     (if (or valid? (not hide-invalid?))
-      [button {:style {:margin-top 4}
-               :mode "contained"
+      [button {:style    {:margin-top 4}
+               :mode     (or mode "contained")
                :disabled (not (action-valid? full-action))
                :on-press (fn []
                            (maybe-confirm! confirm
@@ -223,11 +224,15 @@
                     %) actions)]]))
 
 (defn actions-list [{:as props
-                     :keys [dispatch sizing actions action-valid?]}]
-  (let [action-valid? (or action-valid?
+                     :or {from :actions
+                          mode "contained"}
+                     :keys [dispatch from mode action-valid?]}]
+  (let [actions       (get props from [])
+        action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
     [view {:style {:padding 8}}
      (map #(vector -action-button (merge props {:key %
+                                                :mode mode
                                                 :action-valid? action-valid?})
                    %) actions)]))
 
