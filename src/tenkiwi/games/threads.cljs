@@ -62,13 +62,15 @@
                   display]
            :as game} @game-state-atom
 
-          {:keys [player-scoreboard]} display
+          {:keys [clock-list player-scoreboard]} display
 
           dimensions (.get ui/dimensions "screen")]
 
       [ui/collapse-scroll-view {:collapse! do-collapse!
                                 :style {:padding 12}}
-       [stress/-scoreboard {:title "Scoreboard"} player-scoreboard dispatch]
+       ;; TODO - maybe rename stress scoreboard?
+       [stress/-scoreboard {:title "Clocks"} clock-list dispatch]
+       [stress/-scoreboard {:title "Players"} player-scoreboard dispatch]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
 
@@ -135,7 +137,7 @@
                                        :title "Main"
                                        :icon "play-circle-outline"}
                                       {:key "scoreboard"
-                                       :title "Scores"
+                                       :title "Clocks"
                                        :icon "bar-chart"}
                                       {:key "other"
                                        :title "Extras"
