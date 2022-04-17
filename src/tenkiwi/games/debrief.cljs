@@ -30,10 +30,10 @@
 
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
-    (let [{:keys [extra-actions]} (:display @game-state-atom)
-          {:keys [company stage mission]} @game-state-atom
-          dimensions (.get ui/dimensions "screen")
-          voting-active? (if-not (#{:intro} stage)
+    (let [{:keys [extra-actions]}                 (:display @game-state-atom)
+          {:keys [display company stage mission]} @game-state-atom
+          dimensions                              (.get ui/dimensions "screen")
+          voting-active?                          (if-not (#{:intro} stage)
                            true
                            false)]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
@@ -50,11 +50,10 @@
            [ui/h1 "More Details"]
            [ui/markdown (str (:text mission))]]])
        [ui/card {:style {:padding 4
-                         :margin 8}}
-        [ui/actions-list (merge display {:mode "outlined"
+                         :margin  8}}
+        [ui/actions-list (merge display {:mode     "outlined"
                                          :dispatch dispatch
-                                         :from :extra-actions})]
-
+                                         :from     :extra-actions})]]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
 

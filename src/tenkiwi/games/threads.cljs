@@ -26,16 +26,18 @@
  :threads-other
  (fn [db]
    (extract-display (:user db)
-                    [])))
+                    [:episode])))
 
 (defn build-other-panel [game-state-atom dispatch]
   (fn -other-panel []
-    (let [{:keys [display]} @game-state-atom
+    (let [{:keys [episode display]} @game-state-atom
           dimensions        (.get ui/dimensions "screen")
           ]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/card {:style {:padding 4
                          :margin  8}}
+        [ui/h1 {} (str "Episode Details")]
+        [ui/markdown {} (str (:text episode))]
         [ui/actions-list (merge display {:mode "outlined"
                                          :dispatch dispatch
                                          :from :extra-actions})]]
