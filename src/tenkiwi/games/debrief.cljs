@@ -1,9 +1,11 @@
-(ns tenkiwi.views.debrief
+(ns tenkiwi.games.debrief
   (:require [re-frame.core :as re-frame]
             [reagent.core :as r]
             [oops.core :refer [oget oset!]]
             [goog.object]
-            [tenkiwi.views.shared :as ui]))
+            [tenkiwi.views.shared :as ui]
+            [tenkiwi.views.wordbank :as wordbank]
+            ))
 
 (defonce do-collapse! (r/atom (fn [])))
 
@@ -49,15 +51,9 @@
            [ui/markdown (str (:text mission))]]])
        [ui/card {:style {:padding 4
                          :margin 8}}
-        (map (fn [{conf  :confirm
-                   :keys [action class text]}]
-               (with-meta (vector ui/button
-                                  {:class class
-                                   :mode "outlined"
-                                   :on-press (fn [] (ui/maybe-confirm! conf #(dispatch [:<-game/action! action])))}
-                                  text)
-                 {:key action}))
-             extra-actions)]
+        [ui/actions-list (merge display {:mode "outlined"
+                                         :dispatch dispatch
+                                         :from :extra-actions})]
 
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
@@ -211,31 +207,7 @@
                                 :dispatch dispatch
                                 :hide-invalid? true
                                 :action-valid? valid-button?)]
-        (if extra-details
-          [ui/view {:style {:padding 2
-                            :padding-top 8}}
-           (map (fn [[{title1 :title items1 :items}
-                      {title2 :title items2 :items}]]
-                  (with-meta
-                    [ui/view {:flex-direction "row"}
-                     (if title1
-                       [ui/surface {:style (assoc box-style
-                                                  :background-color "rgba(255,255,255,0.40)"
-                                                  :margin 4
-                                                  :flex 1)}
-                        [ui/h1 title1]
-                        [ui/view
-                         (map #(with-meta [ui/para %] {:key %}) items1)]])
-                     (if title2
-                       [ui/surface {:style (assoc box-style
-                                                  :background-color "rgba(255,255,255,0.40)"
-                                                  :margin 4
-                                                  :flex 1)}
-                        [ui/h1 title2]
-                        [ui/view
-                         (map #(with-meta [ui/para %] {:key %}) items2)]])]
-                    {:key (str title1 title2)}))
-                (partition-all 2 extra-details))])
+        [wordbank/-wordbank {} extra-details]
         [ui/bottom-sheet-card
          (assoc display
                 :collapse! do-collapse!

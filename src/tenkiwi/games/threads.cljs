@@ -121,55 +121,21 @@
                                          :scoreboard (r/reactify-component scoreboard-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
-      (let [;; ;; TODO - hide self-vote or push to server
-           ;; self-vote?    (fn [{:keys                 [action params]
-           ;;                     {:keys [id rank act]} :params
-           ;;                     :as                   button}]
-           ;;                 (and (#{:rank-player} action)
-           ;;                      (= user-id id)))
-           ;; ;; Figure out where to place this
-           ;; "window" dimensions wrong to start sometimes - height 36?
-           ;;  note: useWindowDimensions hook did _not_ prevent this problem
-           ;;  most likely reagent deferring a render and causing window to be small?
-            dimensions (.get ui/dimensions "screen")
+      (let [dimensions (.get ui/dimensions "screen")
             on-tab-change (fn [x] (reset! tab-state x))
-            current-index @tab-state
-            sizing (if (ui/os? "web")
-                     {:min-height (.-height dimensions)
-                      :width "100%"}
-                     {:min-height (.-height dimensions)
-                      :width (.-width dimensions)})
-            tab-style {:minHeight 24
-                       :padding 6
-                       :paddingBottom 9}
-            bar-style {:backgroundColor "rgba(0,0,0,0.3)"}
-            indicator-style {:borderRadius 2
-                             :backgroundColor "rgba(255,255,255,0.15)"
-                             :height 4
-                             :bottom 3}]
-        [ui/view {:style sizing}
-         [ui/tab-view
-          {:initial-layout (if-not (ui/os? "web")
-                             (assoc sizing :height (.-height dimensions)))
-           :scroll-enabled true
-           :on-index-change on-tab-change
-           :render-tab-bar (fn [props]
-                             (let [_ (goog.object/set props "tabStyle" (clj->js tab-style))
-                                   _ (goog.object/set props "indicatorStyle" (clj->js indicator-style))
-                                   _ (goog.object/set props "style" (clj->js bar-style))
-                                  ;; Disable uppercase transform
-                                  ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
-                                   ]
-                               (r/as-element [ui/tab-bar (js->clj props)])))
-          ;; :content-container-style {:margin-bottom (* 0.25 (.-height dimensions))}
-           :navigation-state {:index current-index
-                              :routes [{:key "main"
-                                        :title "Main"
-                                        :icon "play-circle-outline"}
-                                       {:key "scoreboard"
-                                        :title "Scores"
-                                        :icon "bar-chart"}
-                                       {:key "other"
-                                        :title "Extras"
-                                        :icon "more-horiz"}]}
-           :render-scene scene-map}]]))))
+            current-index @tab-state]
+        [ui/clean-tab-view
+         {:dimensions dimensions
+          :scroll-enabled true
+          :on-index-change on-tab-change
+          :navigation-state {:index current-index
+                             :routes [{:key "main"
+                                       :title "Main"
+                                       :icon "play-circle-outline"}
+                                      {:key "scoreboard"
+                                       :title "Scores"
+                                       :icon "bar-chart"}
+                                      {:key "other"
+                                       :title "Extras"
+                                       :icon "more-horiz"}]}
+          :render-scene scene-map}]))))

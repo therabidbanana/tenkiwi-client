@@ -106,34 +106,36 @@
 (def tab-bar (r/adapt-react-class (.. tab-lib -TabBar)))
 (def SceneMap (.. tab-lib -SceneMap))
 
-(defn clean-tab-view [props]
+(defn clean-tab-view [{:keys [render-scene on-index-change navigation-state]
+                       :as   props}]
   ;; "window" dimensions wrong to start sometimes - height 36?
   ;;  note: useWindowDimensions hook did _not_ prevent this problem
   ;;  most likely reagent deferring a render and causing window to be small?
-  (let [dimensions (.get dimensions "screen")
-        sizing (if (os? "web")
-                 {:min-height (.-height dimensions)
-                  :width "100%"}
-                 {:min-height (.-height dimensions)
-                  :width (.-width dimensions)})
-        tab-style {:minHeight 24
-                   :padding 6
-                   :paddingBottom 9}
-        bar-style {:backgroundColor
-                   "rgba(5,25,53,1.0)"
-                   #_"rgba(0,0,0,0.3)"}
-        indicator-style {:borderRadius 2
+  (let [dimensions      (or (:dimensions props)
+                       (.get dimensions "screen"))
+        sizing          (if (os? "web")
+                          {:min-height (.-height dimensions)
+                           :width      "100%"}
+                          {:min-height (.-height dimensions)
+                           :width      (.-width dimensions)})
+        tab-style       {:minHeight     24
+                         :padding       6
+                         :paddingBottom 9}
+        bar-style       {:backgroundColor
+                         "rgba(5,25,53,1.0)"
+                         #_ "rgba(0,0,0,0.3)"}
+        indicator-style {:borderRadius    2
                          :backgroundColor "rgba(255,255,255,0.15)"
-                         :height 4
-                         :bottom 3}
-        tab-render (fn [bar-props]
-                     (let [_ (goog.object/set bar-props "tabStyle" (clj->js tab-style))
-                           _ (goog.object/set bar-props "indicatorStyle" (clj->js indicator-style))
-                           _ (goog.object/set bar-props "style" (clj->js bar-style))
-                           ;; Disable uppercase transform
-                           ;; _ (goog.object/set props "getLabelText" (fn [scene] (aget (aget scene "route") "title")))
-                           ]
-                       (r/as-element [tab-bar (js->clj bar-props)])))]
+                         :height          4
+                         :bottom          3}
+        tab-render      (fn [bar-props]
+                          (let []
+                       (r/as-element [tab-bar (merge (js->clj bar-props)
+                                                     {:tab-style       tab-style
+                                                      :indicator-style indicator-style
+                                                      ;; Disable uppercase transform
+                                                      ;; :get-label-text (fn [scene] (aget (aget scene "route") "title"))
+                                                      :style           bar-style} )])))]
     [view {:style sizing}
      [tab-view
       (merge props
