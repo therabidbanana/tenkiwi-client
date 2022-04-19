@@ -18,7 +18,8 @@
                         :border-bottom-width 1
                         :padding             4}}
        [ui/h2 {} label]
-       [ui/markdown {} text]
+       (if text
+         [ui/markdown {} text])
        (if max-score
          [ui/progressbar {:progress (/ score max-score)} ])
        ]

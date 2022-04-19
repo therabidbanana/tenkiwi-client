@@ -15,6 +15,7 @@
             [reanimated-bottom-sheet :as sheet-lib]
             [react-native-safe-area-context :as safe-area]
             [react-native-reanimated :as Reanimated]
+            [react-native-picker-select :as RNPickerSelect]
             [react-native-gesture-handler :as react-native-gesture-handler]
             [react-native-markdown-display :as markdown-lib]
             [react-native-tab-view :as tab-lib]))
@@ -27,6 +28,7 @@
 (def expo-linear-gradient (js/require "expo-linear-gradient"))
 (def AtExpo (js/require "@expo/vector-icons"))
 (def Reanimated (js/require "react-native-reanimated"))
+(def RNPickerSelect (js/require "react-native-picker-select"))
 (def rn-gesture-handler (js/require "react-native-gesture-handler"))
 (def clipboard (.-default (js/require "expo-clipboard")))
 (def ionicons (.-Ionicons AtExpo))
@@ -54,6 +56,7 @@
 (def dimensions (.-Dimensions ReactNative))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
+(def picker-select (r/adapt-react-class (.-default RNPickerSelect)))
 (def Alert (.-Alert ReactNative))
 
 (def React (js/require "react"))

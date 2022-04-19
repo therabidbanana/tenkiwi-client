@@ -11,7 +11,7 @@
 
 (defn -config-panel [game-data config-data dispatch]
   (let [{:keys [host? room-code available-games game-setup]
-         :as   game-data} @game-data
+         :as   game-data}   @game-data
         {:keys [game-type game-url]
          :as   config-data} @config-data
 
@@ -49,6 +49,7 @@
                  [ui/card-content
                   [ui/text label]
                   (if (map? options)
+                    ;; Picker doesn't have optgroup support... what do?
                     (map (fn [[group-name opts]]
                            (if (or
                                 (and nested (#{(get params nested)} group-name))
@@ -57,7 +58,14 @@
                                        :label group-name}
                               (map #(form-option name %) opts)]))
                          options)
-                    (map #(form-option name %) options))]]
+                    ;; Non-strings get converted in web fallback
+                    [ui/picker-select
+                     {:on-value-change #(update-val name (cljs.reader/read-string %))
+                      :items           (map #(assoc %
+                                                    :label (str (:name %))
+                                                    :value (prn-str (:value %)))
+                                            options)}]
+                    #_(map #(form-option name %) options))]]
                 :else
                 [ui/text-input {:on-change-text #(update-val name %)
                                 :label          label
