@@ -60,20 +60,21 @@
                          options)
                     ;; Non-strings get converted in web fallback
                     [ui/picker-select
-                     {:on-value-change #(update-val name (cljs.reader/read-string %))
-                      ;; :icon-container  {:top 5 :right 15}
+                     {:use-native-android-picker-style false
+
+                      :on-value-change #(update-val name (cljs.reader/read-string %))
                       :value           (prn-str (get params name))
                       :style           {:inputIOS    {:padding-right 24
                                                       :padding-top   4}
                                         :inputAnroid {:padding-right 24
-                                                      :padding-top   4}}
-                      :Icon            (fn [] (r/as-element [ui/ic {:name "ios-chevron-down"
-                                                                    :size 16
+                                                      :padding-top   14}}
+                      :Icon            (fn [] (r/as-element [ui/ic {:name  "ios-chevron-down"
+                                                                    :size  16
                                                                     :color "grey"}]))
                       :items           (map #(assoc %
-                                                    :label (str (:name %))
-                                                    :value (prn-str (:value %)))
-                                            options)}]
+                                          :label (str (:name %))
+                                          :value (prn-str (:value %)))
+                                  options)}]
                     #_(map #(form-option name %) options))]]
                 :else
                 [ui/text-input {:on-change-text #(update-val name %)
