@@ -2,7 +2,7 @@
   (:require [tenkiwi.views.shared :as ui]))
 
 (defn -player-scoreboard-entry [display]
-  (let [{:keys [id text label actions
+  (let [{:keys [id text label color actions
                 score max-score dispatch]} display]
     [ui/surface {:style {:margin         4
                          :flex-direction "row"
@@ -21,7 +21,8 @@
        (if text
          [ui/markdown {} text])
        (if max-score
-         [ui/progressbar {:progress (/ score max-score)} ])
+         [ui/progressbar {:progress (/ score max-score)
+                          :color    color} ])
        ]
       [ui/view {:style {:flex-direction "row"
                         :align-items    "center"}}
@@ -38,12 +39,11 @@
                     :as   props}
                    scoreboard-display
                    dispatch]
-  [ui/view {}
+  [ui/view {:style {:margin-bottom 8}}
    (if title
      [ui/h1
       {:theme {:colors {:text "white"}}
-       :style {:padding-top  4
-               :padding-left 4}}
+       :style {:padding-left 4}}
       title])
    [ui/view
     (map (fn [player]

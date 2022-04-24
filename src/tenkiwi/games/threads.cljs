@@ -4,6 +4,7 @@
             [oops.core :refer [oget oset!]]
             [goog.object]
             [tenkiwi.views.stress-scoreboard :as stress]
+            [tenkiwi.views.dice-bag :as dice-bag]
             [tenkiwi.views.wordbank :as wordbank]
             [tenkiwi.views.shared :as ui]))
 
@@ -34,13 +35,13 @@
           dimensions        (.get ui/dimensions "screen")
           ]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
-       [ui/card {:style {:padding 4
-                         :margin  8}}
-        [ui/h1 {} (str "Episode Details")]
-        [ui/markdown {} (str (:text episode))]
-        [ui/actions-list (merge display {:mode "outlined"
-                                         :dispatch dispatch
-                                         :from :extra-actions})]]
+       [ui/card {:style {:margin  8}}
+        [ui/card-content
+         [ui/h1 {} (str "Episode Details")]
+         [ui/markdown {} (str (:text episode))]
+         [ui/actions-list (merge display {:mode "outlined"
+                                          :dispatch dispatch
+                                          :from :extra-actions})]]]
 
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
@@ -62,10 +63,9 @@
                   display]
            :as game} @game-state-atom
 
-          {:keys [clock-list player-scoreboard]} display
+          {:keys [dice-bag clock-list player-scoreboard]} display
 
           dimensions (.get ui/dimensions "screen")]
-
       [ui/collapse-scroll-view {:collapse! do-collapse!
                                 :style {:padding 12}}
        ;; TODO - maybe rename stress scoreboard?
@@ -79,6 +79,37 @@
     (build-scoreboard-panel game-state re-frame/dispatch)))
 
 (re-frame/reg-sub
+ :threads-dice
+ (fn [db]
+   (extract-display (:user db) [:stage])))
+
+(defn build-dice-panel [game-state-atom dispatch]
+  (fn -dice-panel []
+    (let [{:keys [stage 
+                  current-user-id
+                  ]
+           {:as display
+            :keys [player-sheets
+                   player-momentumboard
+                   dice-bag
+                   active-player
+                   extra-details]} :display
+           :as game-state} @game-state-atom
+          active-player  (merge active-player (get player-sheets (:id active-player) {}))
+          dimensions (.get ui/dimensions "screen")]
+      [ui/collapse-scroll-view {:collapse! do-collapse!
+                                :style {:padding 12}}
+       [ui/view
+        [dice-bag/-with-log {:title "Dice Bag"} dice-bag dispatch]
+        [stress/-scoreboard {:title "Momentum"} player-momentumboard dispatch]
+        [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
+         [ui/text ""]]]])))
+
+(defn dice-panel []
+  (let [game-state (re-frame/subscribe [:threads-dice])]
+    (build-dice-panel game-state re-frame/dispatch)))
+
+(re-frame/reg-sub
  :threads-main
  (fn [db]
    (extract-display (:user db) [:stage])))
@@ -90,6 +121,7 @@
                   ]
            {:as display
             :keys [player-sheets
+                   dice-bag
                    active-player
                    extra-details]} :display
            :as game-state} @game-state-atom
@@ -123,6 +155,7 @@
         dimensions (.get ui/dimensions "screen")
         scene-map (ui/SceneMap (clj->js {:main (r/reactify-component main-panel)
                                          :scoreboard (r/reactify-component scoreboard-panel)
+                                         :dice (r/reactify-component dice-panel)
                                          :other (r/reactify-component other-panel)}))]
     (fn []
       (let [dimensions (.get ui/dimensions "screen")
@@ -138,6 +171,9 @@
                                        :icon "play-circle-outline"}
                                       {:key "scoreboard"
                                        :title "Clocks"
+                                       :icon "bar-chart"}
+                                      {:key "dice"
+                                       :title "Dice"
                                        :icon "bar-chart"}
                                       {:key "other"
                                        :title "Extras"

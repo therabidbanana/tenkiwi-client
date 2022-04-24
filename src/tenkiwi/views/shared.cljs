@@ -85,6 +85,7 @@
 (def list-stuff (.-List rn-paper))
 (def list-section (r/adapt-react-class (.-Section list-stuff)))
 (def list-item (r/adapt-react-class (.-Item list-stuff)))
+(def list-accordion (r/adapt-react-class (.-Accordion list-stuff)))
 (def list-icon (r/adapt-react-class (.-Icon list-stuff)))
 (def list-header (r/adapt-react-class (.-Subheader list-stuff)))
 (def card (r/adapt-react-class (.-Card rn-paper)))
