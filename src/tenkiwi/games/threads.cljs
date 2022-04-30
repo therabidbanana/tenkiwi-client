@@ -122,11 +122,15 @@
            {:as display
             :keys [player-sheets
                    dice-bag
+                   card
                    active-player
                    extra-details]} :display
            :as game-state} @game-state-atom
           active-player  (merge active-player (get player-sheets (:id active-player) {}))
-          dimensions (.get ui/dimensions "screen")]
+          dimensions (.get ui/dimensions "screen")
+          display    (cond-> display
+                       (get-in card [:tags :challenge])
+                       (assoc-in [:border-color] "orange"))]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/view
         #_[ui/view
