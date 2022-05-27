@@ -14,6 +14,11 @@
  (fn  [db [_ params]]
    (update-in db [:storage] merge params)))
 
+(re-frame/reg-event-db
+ :update-url
+ (fn  [db [_ {:keys [url]}]]
+   (assoc-in db [:app-url] url)))
+
 (re-frame/reg-event-fx
  :initialize-system
  (fn  [{:keys [db]} _]

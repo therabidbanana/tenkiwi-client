@@ -1,7 +1,7 @@
 (ns tenkiwi.system
   (:require [com.stuartsierra.component :as component]
-            [cljs.core.async.interop :refer-macros [<p!]]
-            [cljs.core.async :refer [go <!]]
+            [cljs.core.async.interop :refer [p->c] :refer-macros [<p!]]
+            [cljs.core.async :refer [merge go <! put! chan] :refer-macros [go-loop]]
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]
             [clojure.edn :as edn]
@@ -9,12 +9,14 @@
             [tenkiwi.socket-events :refer [event-msg-handler]]
             [tenkiwi.components.sente :refer [new-channel-socket-client]]
             [tenkiwi.components.ui :refer [new-ui-component]]
+            ["expo-linking" :as expo-linking]
             ["@react-native-async-storage/async-storage" :as store-lib]))
 
 (declare system)
 
 (def store-lib (js/require "@react-native-async-storage/async-storage"))
 (def AsyncStorage (.-default store-lib))
+(def expo-linking (js/require "expo-linking"))
 (defonce timeouts (reagent/atom {}))
 
 (defn get-storage-item [key default]
@@ -25,6 +27,17 @@
                  default)]
       (.setItem AsyncStorage key (clj->js item))
       item)))
+
+(defn url-listener []
+  (let [initial-chan (p->c (.getInitialURL expo-linking))
+        other-chan (chan)
+        cb   (fn [x]
+               (put! other-chan (aget x "url")))
+        _ (.addEventListener expo-linking "url" cb)]
+    (go-loop [val (<! initial-chan)]
+      (re-frame/dispatch [:update-url {:url val}])
+      (if val
+        (recur (<! other-chan))))))
 
 (defn set-storage-item [key str]
   (.setItem AsyncStorage (clj->js key) (clj->js str)))
@@ -77,6 +90,7 @@
                                                              ;; :port 10555
                                                              :client-id client-id})
              [:sente-handler :client-id])
+     :app-url   (url-listener)
      :client-id client-id
      :ui-boot  on-boot
      :app-root (component/using (new-ui-component)
