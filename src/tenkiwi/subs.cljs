@@ -18,6 +18,11 @@
    (:storage db)))
 
 (re-frame/reg-sub
+ :app-url
+ (fn [db]
+   (:app-url db)))
+
+(re-frame/reg-sub
  :toast
  (fn [db]
    (:latest-toast db)))

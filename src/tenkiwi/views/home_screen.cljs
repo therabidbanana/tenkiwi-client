@@ -129,7 +129,7 @@
                      "For this to work, you're going to need a way to talk to each other, either being in the same room or in a video conference app will work.\n\n"
                      "Swipe this card down to read more about how to play, or click \"Play\" up above to start.")}}]]))
 
-(defn build-settings-panel [form storage dispatch]
+(defn build-settings-panel [form storage app-url dispatch]
   (fn -settings-panel []
     (let [dimensions (.get ui/dimensions "screen")
           current-codes (get (deref storage) :unlock-codes [])]
@@ -203,6 +203,16 @@
           (str
            "This application adapts the X-Card, originally by John Stavropoulos"
            "\n\n[http://tinyurl.com/x-card-rpg](http://tinyurl.com/x-card-rpg).")]]]
+       [ui/card {:style {:margin-top 18
+                         :padding 24}}
+        [ui/card-title {:title "Debug"}]
+        [ui/card-content
+         [ui/markdown
+          (str
+           "Opened with url: "
+           "\n\n"
+           @app-url
+           )]]]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
 
@@ -212,9 +222,10 @@
         join      (re-frame/subscribe [:join])
         form      (re-frame/subscribe [:form :settings])
         storage   (re-frame/subscribe [:storage])
+        app-url   (re-frame/subscribe [:app-url])
         dimensions (.get ui/dimensions "screen")
         current-codes (get (deref storage) [:unlock-codes] [])]
-    (build-settings-panel form storage dispatch)))
+    (build-settings-panel form storage app-url dispatch)))
 
 (defn opening-panel []
   (let [tab-state (r/atom 0)
