@@ -86,16 +86,21 @@
        :oracle
        [oracle-game-panel])]))
 
-(defn layout [body]
-  [ui/safe-view {:style {:overflow-x "hidden"
-                         :min-height "100%"
-                         :flex 1
-                         :background-color "rgba(3,25,53,1.0)"}}
-   [ui/status-bar {:style "light"
-                   ;; :hidden true
-                   :background-color "rgba(3,25,53,1.0)"}]
-   [ui/view {:style {:background-color "#003366"}}
-    body]])
+(defn layout [server-type body]
+  (let [bg-color (if (#{"staging"} server-type)
+                   "rgba(53,33,45,1.0)"
+                   "rgba(3,25,53,1.0)")]
+    [ui/safe-view {:style {:overflow-x "hidden"
+                           :min-height "100%"
+                           :flex 1
+                           :background-color bg-color}}
+     [ui/status-bar {:style "light"
+                     ;; :hidden true
+                     :background-color bg-color}]
+     [ui/view {:style {:background-color (if (#{"staging"} server-type)
+                                           "#663344"
+                                           "#003366")}}
+      body]]))
 
 (defn -connecting-panel []
   (let []
@@ -108,11 +113,13 @@
        [ui/para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 
 (defn main-panel []
-  (let [user  (re-frame/subscribe [:user])
-        room  (re-frame/subscribe [:room])
-        game  (re-frame/subscribe [:user->game-type])]
+  (let [user    (re-frame/subscribe [:user])
+        room    (re-frame/subscribe [:room])
+        storage (re-frame/subscribe [:storage])
+        game    (re-frame/subscribe [:user->game-type])]
     (fn []
       (layout
+       (:server @storage "prod")
        (cond
          @game [game-panel]
          (get @user :current-room) [lobby-panel]

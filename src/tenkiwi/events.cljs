@@ -75,6 +75,15 @@
               (update :storage merge settings))
       :fx [[:set-storage settings]]})))
 
+(re-frame/reg-event-fx
+ :set-storage!
+ (fn [{:keys [db]} [_ params]]
+   (let [settings (-> (get db :storage)
+                      (merge params))]
+     {:db (-> db
+              (update :storage merge settings))
+      :fx [[:set-storage settings]]})))
+
 (re-frame/reg-event-db
  :forms/set-params
  (fn [db [_ params]]

@@ -1,7 +1,7 @@
 (ns tenkiwi.system
   (:require [com.stuartsierra.component :as component]
             [cljs.core.async.interop :refer [p->c] :refer-macros [<p!]]
-            [cljs.core.async :refer [merge go <! put! chan] :refer-macros [go-loop]]
+            [cljs.core.async :as async :refer [go <! put! chan] :refer-macros [go-loop]]
             [re-frame.core :as re-frame]
             [reagent.core :as reagent]
             [clojure.edn :as edn]
@@ -66,35 +66,32 @@
 ;; We're explicitly accessing from a different origin
 (def ?csrf-token "FAKE")
 
-(defn ?client-id []
-  (let [client-id (js->clj (.getItem js/localStorage "device-id"))
-        client-id (or client-id (str (random-uuid)))
-        as-str    (clj->js client-id)]
-    (do
-      (.setItem js/localStorage "device-id" as-str)
-      client-id)))
-
 (defn new-system [on-boot]
-  (let [client-id (get-storage-item "device-id" (str (random-uuid)))
-        on-boot (or on-boot (constantly true))]
+  (let [client-id   (get-storage-item "device-id" (str (random-uuid)))
+        server-info (async/map
+                     (fn [x]
+                       (let [info (get {"staging"
+                                        {:host "sshinto.me"
+                                         :port 10555}}
+                                       (unstring x)
+                                       {:protocol :https
+                                        :host     "play.tenkiwi.com"})]
+                         (println (str "Connection info: " info))
+                         info))
+                     [(get-storage-item (stringify :server) (str "prod"))])
+        on-boot     (or on-boot (constantly true))]
     (component/system-map
      :sente-handler {:handler event-msg-handler}
      :sente (component/using
              (new-channel-socket-client "/chsk" ?csrf-token {:type      :ws
-                                                             :packer    (get-transit-packer)
-                                                             ;; Next 2 - prod-mode
-                                                             :protocol :https
-                                                             :host "play.tenkiwi.com"
-                                                             ;; Next 2 - dev mode
-                                                             ;; :host "sshinto.me"
-                                                             ;; :port 10555
-                                                             :client-id client-id})
-             [:sente-handler :client-id])
-     :app-url   (url-listener)
-     :client-id client-id
-     :ui-boot  on-boot
-     :app-root (component/using (new-ui-component)
-                                [:ui-boot]))))
+                                                             :client-id client-id
+                                                             :packer    (get-transit-packer)})
+             [:sente-handler :client-id :server-info])
+     :app-url     (url-listener)
+     :client-id   client-id
+     :server-info server-info
+     :ui-boot     on-boot
+     :app-root    (component/using (new-ui-component) [:ui-boot]))))
 
 (defn init [on-boot]
   (set! system (new-system on-boot)))
@@ -137,7 +134,7 @@
        ((get socket :chsk-send!) chsk-args)
        (js/console.log "Not connected, but trying to send a message." chsk-args)))))
 
-(def supported-storage-keys #{:unlock-codes})
+(def supported-storage-keys #{:unlock-codes :server})
 (re-frame/reg-fx
  :set-storage
  (fn [map]

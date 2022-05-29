@@ -10,14 +10,18 @@
     (let [connected-socket (atom nil)
           ch
           (go
-            (let [handler (get-in component [:sente-handler :handler])
-                  client-id (<! (get-in component [:client-id]))
-                  {:keys [chsk ch-recv send-fn state]} (sente/make-channel-socket-client! path csrf-token (assoc options :client-id client-id))
-                  socket {:client-id client-id
-                          :chsk chsk
-                          :ch-chsk ch-recv ; ChannelSocket's receive channel
-                          :chsk-send! send-fn ; ChannelSocket's send API fn
-                          :chsk-state state}]
+            (let [handler                 (get-in component [:sente-handler :handler])
+                  client-id               (<! (get-in component [:client-id]))
+                  server-info             (<! (get-in component [:server-info]))
+                  {:keys [chsk ch-recv
+                          send-fn state]} (sente/make-channel-socket-client! path csrf-token
+                                                                             (-> (merge options server-info)
+                                                                                 (assoc :client-id client-id)))
+                  socket                  {:client-id  client-id
+                                           :chsk       chsk
+                                           :ch-chsk    ch-recv ; ChannelSocket's receive channel
+                                           :chsk-send! send-fn ; ChannelSocket's send API fn
+                                           :chsk-state state}]
               (if handler
                 (reset! connected-socket (assoc socket :router (sente/start-chsk-router! ch-recv handler)))
                 socket)))]

@@ -3,7 +3,14 @@
             [reagent.core :as r]
             [oops.core :refer [oget]]
             [clojure.string :as str]
+            ["expo-updates" :as expo-updates]
             [tenkiwi.views.shared :as ui]))
+
+(def expo-updates (js/require "expo-updates"))
+(defn refresh []
+  (if ui/web?
+   (.reload (.-location js/window))
+   (.reloadAsync expo-updates)))
 
 (defn secure-rand-id [alphabet number]
   (str (str/join "" (take number (shuffle alphabet)))
@@ -212,7 +219,22 @@
            "Opened with url: "
            "\n\n"
            @app-url
-           )]]]
+           )]
+         (case (:server @storage)
+           "staging"
+           [ui/button
+            {:mode     "contained"
+             :on-press #(do
+                          (re-frame/dispatch-sync [:set-storage! {:server "prod"}])
+                          (refresh))}
+            "Switch to Prod"]
+           [ui/button
+            {:mode     "contained"
+             :on-press #(do
+                          (re-frame/dispatch-sync [:set-storage! {:server "staging"}])
+                          (refresh))}
+            "Switch to Staging"]
+           )]]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
 
