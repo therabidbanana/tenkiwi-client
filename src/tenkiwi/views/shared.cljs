@@ -6,6 +6,7 @@
             [expo :as expo]
             [react :as React]
             [react-native :as ReactNative]
+            ["expo-updates" :as expo-updates]
             ["@expo/vector-icons" :as AtExpo]
             [react-native-paper :as rn-paper]
             [expo-clipboard :as expo-clipboard]
@@ -45,6 +46,11 @@
 (def web? (os? "web"))
 (def android? (os? "android"))
 (def ios? (os? "ios"))
+(def expo-updates (js/require "expo-updates"))
+(defn refresh []
+  (if web?
+    (.reload (.-location js/window))
+    (.reloadAsync expo-updates)))
 (def use-window-dimensions (.-useWindowDimensions ReactNative))
 (def text (r/adapt-react-class (.-Text ReactNative)))
 (def safe-area (js/require "react-native-safe-area-context"))

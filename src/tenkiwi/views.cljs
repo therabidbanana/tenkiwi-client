@@ -55,6 +55,21 @@
 (def box-style {:margin 12
                 :padding 12})
 
+(defn -unsupported []
+  (let []
+    [ui/view {:style
+              {:height  "100%"
+               :padding 16}}
+     [ui/card {:style {:margin-top    "auto"
+                       :margin-bottom "auto"}}
+      [ui/card-content {}
+       [ui/para "The game you're in doesn't work on this version of the app. You can try to restart with latest updates."]
+       [ui/button
+        {:style    {:margin-top 8}
+         :mode     "contained"
+         :on-press #(ui/refresh)}
+        "Restart App"]]]]))
+
 (defn game-panel []
   (let [game-type (re-frame/subscribe [:user->game-type])
         toast     (re-frame/subscribe [:toast])]
@@ -87,7 +102,9 @@
        :walking-deck-v2
        [walking-deck-game-panel]
        :oracle
-       [oracle-game-panel])]))
+       [oracle-game-panel]
+       ;; ELSE
+       [-unsupported])]))
 
 (defn layout [server-type body]
   (let [bg-color (if (#{"staging"} server-type)
