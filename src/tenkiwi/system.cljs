@@ -30,10 +30,18 @@
 
 (defn url-listener []
   (let [initial-chan (p->c (.getInitialURL expo-linking))
+        last-val (atom nil)
         other-chan (chan)
         cb   (fn [x]
-               (put! other-chan (aget x "url")))
+               ;; Looks like web (maybe native) fire repeatedly with same url
+               ;; - not expected, need to dig into if this is a bug
+               (if (not= @last-val (aget x "url"))
+                 (do
+                   (put! other-chan (aget x "url"))
+                   (reset! last-val (aget x "url")))
+                 #_(println (str "Duplicate url " @last-val))))
         _ (.addEventListener expo-linking "url" cb)]
+    #_(println "Set up loop for url listener")
     (go-loop [val (<! initial-chan)]
       (re-frame/dispatch [:update-url {:url val}])
       (if val
