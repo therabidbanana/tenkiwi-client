@@ -124,7 +124,7 @@
       {:dispatch re-frame/dispatch
        ;; :start-collapsed? true
        :collapse! do-collapse!
-       :turn-marker "Swipe me up or down"
+       :turn-marker "Swipe up or down (or tap here)"
        :card {:text (str
                      "Tenkiwi is an app for playing storytelling games with friends.\n\n"
                      "For this to work, you're going to need a way to talk to each other, either being in the same room or in a video conference app will work.\n\n"
