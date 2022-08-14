@@ -102,7 +102,7 @@
                                     (reset! notes ""))
                        }
             [ui/text "Write your thoughts"]]]]
-         [ui/surface {:style {:padding 8 :flex 1}}
+         [ui/view {:style {:padding 18 :flex 1}}
           [ui/h1 "Log"]
           (map-indexed
            (fn [i {:keys [type text] :as log-line}]
@@ -112,12 +112,12 @@
                               :padding          6
                               :margin-right     20
                               :text-align       :right
-                              :background-color "#bfbfbf"}
+                              :background-color "#414141"}
                              (= :note type)
                              {:flex             1
                               :margin-left      20
                               :padding          6
-                              :background-color "#efefef"}
+                              :background-color "#212121"}
                              :else
                              {:font-family (if ui/android? "serif" "Georgia")})]
                (with-meta

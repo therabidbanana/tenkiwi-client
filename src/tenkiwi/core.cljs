@@ -27,6 +27,7 @@
 (def ActionSheetProvider (r/adapt-react-class (.-ActionSheetProvider action-sheet)))
 (def SafeAreaProvider (r/adapt-react-class (.-SafeAreaProvider safe-area)))
 (def DefaultTheme (js->clj (.-DefaultTheme rn-paper)))
+(def DarkTheme (js->clj (.-DarkTheme rn-paper)))
 
 (def ionicons (.-Ionicons AtExpo))
 (def ic (r/adapt-react-class ionicons))
@@ -44,14 +45,19 @@
     (.alert Alert title)))
 
 (def theme
-  (-> DefaultTheme
+  (-> DarkTheme
+      (assoc "dark" true)
       ;;; Original Blue
       ;; (assoc-in ["colors" "primary"] "#1e88e5")
       ;; Darker blue
-      (assoc-in ["colors" "primary"] "#01579b")
+      ;; (assoc-in ["colors" "primary"] "#01579b")
+      ;; Bright blue
+      (assoc-in ["colors" "primary"] "#64B5F6")
       ;; Slate grey
       ;; (assoc-in ["colors" "primary"] "#455a64")
-      (assoc-in ["colors" "secondary"] "#ba68c8")))
+
+      ;; (assoc-in ["colors" "secondary"] "#212121")
+      (assoc-in ["colors" "accent"] "#ba68c8")))
 
 (defn app-root []
   (fn []

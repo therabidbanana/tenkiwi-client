@@ -109,7 +109,14 @@
 (def bottom-sheet (r/adapt-react-class (.. sheet-lib -default)))
 
 (def markdown-lib (js/require "react-native-markdown-display"))
-(def markdown (r/adapt-react-class (.. markdown-lib -default)))
+(def markdown-base (r/adapt-react-class (.. markdown-lib -default)))
+(defn markdown
+  ([text]
+   [markdown {} text])
+  ([props text]
+   (let [props (assoc-in props [:style :body :color]
+                         (get-in props [:style :body :color] "white"))]
+     [markdown-base props text])))
 
 (def tab-lib (js/require "react-native-tab-view"))
 (def tab-view (r/adapt-react-class (.. tab-lib -TabView)))
@@ -132,7 +139,8 @@
                          :padding       6
                          :paddingBottom 9}
         bar-style       {:backgroundColor
-                         "rgba(5,25,53,1.0)"
+                         ;; "rgba(5,25,53,1.0)"
+                         "rgba(51,55,61,1.0)"
                          #_ "rgba(0,0,0,0.3)"}
         indicator-style {:borderRadius    2
                          :backgroundColor "rgba(255,255,255,0.15)"
@@ -202,9 +210,12 @@
                       {:as   full-action
                        :keys [params confirm action text]
                        :or   {params {}}}]
-  (let [valid? (action-valid? full-action)]
+  (let [valid? (action-valid? full-action)
+        ;; Consider alternate colors?
+        color  nil]
     (if (or valid? (not hide-invalid?))
       [button {:style    {:margin-top 4}
+               :color    color
                :mode     (or mode "contained")
                :disabled (not (action-valid? full-action))
                :on-press (fn []
@@ -237,12 +248,14 @@
 
 (defn actions-list [{:as props
                      :or {from :actions
-                          mode "contained"}
+                          mode "outlined"}
                      :keys [dispatch from mode action-valid?]}]
   (let [actions       (get props from [])
         action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
-    [view {:style {:padding 8}}
+    [surface {:style {:background-color "rgba(20,87,155,0.12)"
+                      :elevation 2
+                      :padding 8}}
      (map #(vector -action-button (merge props {:key %
                                                 :mode mode
                                                 :action-valid? action-valid?})
@@ -314,7 +327,7 @@
                         :border-width 4
                         :flex 1
                         :border-style "solid"
-                        :border-color "white"}
+                        :border-color "#212121"}
                        (cond
                          x-carded?
                          {:border-color "red"}
@@ -367,7 +380,10 @@
            (if (available-actions :x-card)
              [button {;;:style {:margin-bottom -12}
                       :disabled x-carded?
-                      :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])]
+                      :on-press #(dispatch [:<-game/action! :x-card])} "X Card"])
+           (if overflow? [view {:style {:height 10}}])]
+          (if overflow?
+            [view {:style {:height 5}}])
           (if overflow?
             [linear-gradient {:colors ["rgba(0,0,0,0.0)", "rgba(0,0,0,0.01)", "rgba(0,0,0, 0.18)"]
                               :style {:border-radius 4
@@ -424,7 +440,8 @@
           [portal
            [view {:style {:position         "fixed"
                           :bottom           (if @collapsed? "-55vh" 0)
-                          :background-color "rgba(0,0,0,0.9)"
+                          ;; :background-color "rgba(0,0,0,0.9)"
+                          :background-color "rgba(30,39,48,0.95)"
                           :height           "65vh"
                           :min-height       "65vh"
                           :width            "100%"}}
@@ -464,7 +481,9 @@
                           :render-content                  (fn [p]
                                                              (r/as-element [view {:style {:height           "100%"
                                                                                           :padding-top      6
-                                                                                          :background-color "rgba(0,0,0,0.9)"}}
+                                                                                          ;; :background-color "rgba(0,0,0,0.9)"
+                                                                                          :background-color "rgba(30,39,48,0.95)"
+                                                                                          }}
                                                                             [text {:on-press @collapse!
                                                                                    :style    {:padding      6
                                                                                               :padding-left 12

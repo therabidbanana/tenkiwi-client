@@ -97,7 +97,7 @@
           {:style {:flex 1}
            :on-press #(dispatch [:<-game/action! :downvote-player {:player-id id}])}
           " - "])
-       [ui/text {:style {:text-align "center"
+       [ui/para {:style {:text-align "center"
                          :margin-top 9
                          :margin-bottom 9
                          :font-style "italic"

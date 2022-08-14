@@ -108,8 +108,9 @@
 
 (defn layout [server-type body]
   (let [bg-color (if (#{"staging"} server-type)
-                   "rgba(53,33,45,1.0)"
-                   "rgba(3,25,53,1.0)")]
+                   ;; "rgba(21,25,31,1.0)"
+                   "rgba(3,25,53,1.0)"
+                   "rgba(12,12,12,1.0)")]
     [ui/safe-view {:style {:overflow-x "hidden"
                            :min-height "100%"
                            :flex 1
@@ -118,8 +119,8 @@
                      ;; :hidden true
                      :background-color bg-color}]
      [ui/view {:style {:background-color (if (#{"staging"} server-type)
-                                           "#663344"
-                                           "#003366")}}
+                                           "#001122"
+                                           "#121212")}}
       body]]))
 
 (defn -connecting-panel []

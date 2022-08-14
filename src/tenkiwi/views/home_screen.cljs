@@ -40,7 +40,7 @@
                                      (reset! form-state :host))}
              "Host a Game"]]
            [ui/view {:style {:margin-top 8}}
-            [ui/button {:mode     "contained"
+            [ui/button {:mode     "outlined"
                         :disabled (empty? (-> join deref :user-name))
                         :on-press #(do
                                      (dispatch [:join/set-params {:room-code ""}])

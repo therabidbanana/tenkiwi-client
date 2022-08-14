@@ -13,7 +13,8 @@
               [ui/view {:flex-direction "row"}
                (if title1
                  [ui/surface {:style (assoc box-style
-                                            :background-color "rgba(255,255,255,0.40)"
+                                            ;; :background-color "rgba(20,87,155,0.12)"
+                                            :elevation 1
                                             :margin 4
                                             :flex 1)}
                   [ui/h1 title1]
@@ -21,7 +22,8 @@
                    (map #(with-meta [ui/para %] {:key %}) items1)]])
                (if title2
                  [ui/surface {:style (assoc box-style
-                                            :background-color "rgba(255,255,255,0.40)"
+                                            ;; :background-color "rgba(20,87,155,0.12)"
+                                            :elevation 1
                                             :margin 4
                                             :flex 1)}
                   [ui/h1 title2]

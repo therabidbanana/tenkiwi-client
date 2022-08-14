@@ -38,8 +38,8 @@
      (if host?
        (cond
          configuration
-         [ui/surface {:style {:margin  4
-                              :padding 8}}
+         [ui/view {:style {:margin  4
+                           :padding 8}}
           (map
            (fn [{:keys [type label name options value nested]}]
              [ui/view {:key name}
@@ -47,7 +47,7 @@
                 (#{:select} type)
                 [ui/card {}
                  [ui/card-content
-                  [ui/text label]
+                  [ui/text {:style {:color "#a1a1a1"}} label]
                   (if (map? options)
                     ;; Picker doesn't have optgroup support... what do?
                     (map (fn [[group-name opts]]
@@ -64,9 +64,12 @@
 
                       :on-value-change #(update-val name (cljs.reader/read-string %))
                       :value           (prn-str (get params name))
-                      :style           {:inputIOS    {:padding-right 24
+                      :style           {:placeholder {:color "#a1a1a1"}
+                                        :inputIOS    {:padding-right 24
+                                                      :color "#e1e1e1"
                                                       :padding-top   4}
                                         :inputAnroid {:padding-right 24
+                                                      :color "#e1e1e1"
                                                       :padding-top   14}}
                       :Icon            (fn [] (r/as-element [ui/ic {:name  "ios-chevron-down"
                                                                     :size  16
@@ -108,11 +111,11 @@
                                    (dispatch [:<-game/select! nil {}]))}
            [ui/text "Deselect Game"]]]
          :else
-         [ui/surface {:style {:margin  18
-                              :padding 8}}
+         [ui/view {:style {:margin  18
+                           :padding 8}}
           (map (fn [{:keys       [title subtitle type sheet]
                      description :text}]
-                 [ui/card {:style {:margin-top 8}
+                 [ui/card {:style {:margin-top 18}
                            :key   sheet}
                   [ui/card-title {:title                    title
                                   :subtitle-number-of-lines 3
@@ -131,7 +134,7 @@
        ;; if not host
        [ui/card
         [ui/card-title {:title "Game Configuration"}]
-        [ui/card-content [ui/text "Your host will set this up."]]])]))
+        [ui/card-content [ui/para "Your host will set this up."]]])]))
 
 (defn config-panel []
   (let [game-data (re-frame/subscribe [:room])
@@ -159,8 +162,8 @@
                          :right (fn [props]
                                   (if host?
                                     (r/as-element [-player-boot (assoc player :dispatch dispatch)])))}])]]]
-     [ui/surface {:style {:margin  18
-                          :padding 8}}
+     [ui/surface {:style {:margin  10
+                          :padding 12}}
       [ui/para
        "Once everyone has joined, the host must choose a game type to start."
        " "
@@ -170,7 +173,7 @@
       [ui/card {:style {:margin-top 8}}
        [ui/card-title {:title "Game Selected"}]
        [ui/card-content
-        [ui/text (or title "(None Selected Yet)")]
+        [ui/para (or title "(None Selected Yet)")]
         (cond
           (and game-type host?)
           [ui/button {:mode     "contained"
