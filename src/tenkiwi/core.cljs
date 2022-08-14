@@ -45,7 +45,12 @@
 
 (def theme
   (-> DefaultTheme
-      (assoc-in ["colors" "primary"] "#1e88e5")
+      ;;; Original Blue
+      ;; (assoc-in ["colors" "primary"] "#1e88e5")
+      ;; Darker blue
+      (assoc-in ["colors" "primary"] "#01579b")
+      ;; Slate grey
+      ;; (assoc-in ["colors" "primary"] "#455a64")
       (assoc-in ["colors" "secondary"] "#ba68c8")))
 
 (defn app-root []
