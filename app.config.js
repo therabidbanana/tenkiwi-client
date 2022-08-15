@@ -9,9 +9,13 @@ module.exports = ({config}) => {
         // console.log("entryPoint is " + config.entryPoint);
         return newConfig;
     } else {
+        let newConfig = {
+            ...config,
+            entryPoint: "js/index.prod.js"
+        };
         // console.log("DEV MODE FALSE!");
-        // console.log("entryPoint is " + config.entryPoint);
         // console.log(config.name);
-        return config;
+        // console.log("entryPoint is " + config.entryPoint);
+        return newConfig;
     }
 };
