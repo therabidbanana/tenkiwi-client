@@ -102,6 +102,7 @@
 (def progressbar (r/adapt-react-class (.-ProgressBar rn-paper)))
 (def activity-indicator (r/adapt-react-class (.-ActivityIndicator rn-paper)))
 (def card-content (r/adapt-react-class (.. rn-paper -Card -Content)))
+(def card-cover (r/adapt-react-class (.. rn-paper -Card -Cover)))
 (def card-actions (r/adapt-react-class (.. rn-paper -Card -Actions)))
 (def card-title (r/adapt-react-class (.. rn-paper -Card -Title)))
 

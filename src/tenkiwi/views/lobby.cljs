@@ -113,10 +113,12 @@
          :else
          [ui/view {:style {:margin  18
                            :padding 8}}
-          (map (fn [{:keys       [title subtitle type sheet]
+          (map (fn [{:keys       [title subtitle type sheet cover]
                      description :text}]
                  [ui/card {:style {:margin-top 18}
                            :key   sheet}
+                  (if-not (clojure.string/blank? cover)
+                    [ui/card-cover {:source {:uri cover}}])
                   [ui/card-title {:title                    title
                                   :subtitle-number-of-lines 3
                                   :subtitle                 subtitle}]
@@ -126,6 +128,9 @@
                                :style    {:margin-top 4}
                                :on-press #(do
                                             (dispatch [:<-game/select! type {:title    title
+                                                                             :subtitle subtitle
+                                                                             :description description
+                                                                             :cover cover
                                                                              :game-url sheet}]))}
                     [ui/text "Select Game"]]]])
                available-games)
@@ -145,7 +150,7 @@
   (let [{:keys [room-code host? host-id current-player-id game-setup]
          :as   game-data} @game-data
 
-        {:keys [game-type title game-url]
+        {:keys [game-type title cover subtitle description game-url]
          :as   config-data} (merge (get-in game-setup [:configuration :params] {})
                                    @config-data)]
     [ui/scroll-view {:style {:padding 4}}
@@ -156,10 +161,10 @@
        [ui/list-section
         (for [player (:players game-data)]
           ^{:key (:id player)}
-          [ui/list-item {:title (:user-name player)
+          [ui/list-item {:title       (:user-name player)
                          :description (if (= host-id (:id player))
                                         "(Host Player)")
-                         :right (fn [props]
+                         :right       (fn [props]
                                   (if host?
                                     (r/as-element [-player-boot (assoc player :dispatch dispatch)])))}])]]]
      [ui/surface {:style {:margin  10
@@ -170,30 +175,37 @@
        "Players without the app can join via web at "
        [ui/para {:style {:font-weight "bold"}}
         "tenkiwi.com"]]
-      [ui/card {:style {:margin-top 8}}
-       [ui/card-title {:title "Game Selected"}]
-       [ui/card-content
-        [ui/para (or title "(None Selected Yet)")]
-        (cond
-          (and game-type host?)
-          [ui/button {:mode     "contained"
-                      :style    {:margin-top 8}
-                      :on-press #(do
-                                   (dispatch [:<-game/start! game-type config-data]))}
-           [ui/text "Start Game"]]
+      (if game-type
+        [ui/card {:style {:margin-top 18}}
+                  (if-not (clojure.string/blank? cover)
+                    [ui/card-cover {:source {:uri cover}}])
+         [ui/card-title {:title                    title
+                         :subtitle-number-of-lines 3
+                         :subtitle                 subtitle}]
+                  [ui/card-content
+                   [ui/markdown {} description]
+                   (if host?
+                     [ui/button {:mode     "contained"
+                                 :style    {:margin-top 8}
+                                 :on-press #(do
+                                              (dispatch [:<-game/start! game-type config-data]))}
+                     [ui/text "Start Game"]])]]
+        [ui/card {:style {:margin-top 8}}
+         [ui/card-title {:title "No Game Selected"}]
+         [ui/card-content
+          (cond
+            host?
+            [ui/button {:mode     "contained"
+                        :style    {:margin-top 8}
+                        :on-press #(do (@switch-tab! 1))}
+             [ui/text "Choose Game"]]
 
-          host?
-          [ui/button {:mode     "contained"
-                      :style    {:margin-top 8}
-                      :on-press #(do (@switch-tab! 1))}
-           [ui/text "Choose Game"]]
-
-          :else
-          [ui/button {:mode     "outlined"
-                      :style    {:margin-top 8}
-                      :on-press #(do
-                                   (dispatch [:<-room/boot-player! current-player-id]))}
-           [ui/text "Leave Game"]])]]]]))
+            :else
+            [ui/button {:mode     "outlined"
+                        :style    {:margin-top 8}
+                        :on-press #(do
+                                     (dispatch [:<-room/boot-player! current-player-id]))}
+             [ui/text "Leave Game"]])]])]]))
 
 (defn main-lobby-panel []
   (let [game-data (re-frame/subscribe [:room])
