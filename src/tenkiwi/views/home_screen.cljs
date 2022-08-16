@@ -136,14 +136,14 @@
           current-codes (get (deref storage) :unlock-codes [])]
       [ui/collapse-scroll-view {:style {:padding 24}
                                 :only-collapse! do-collapse!}
-       [ui/card {:style {:padding 18}}
+       #_[ui/card {:style {:padding 18}}
         [ui/card-title {:title "Personal Settings"}]
         [ui/card-content
          [ui/view
           [ui/para {:style {}}
-           "Unlock Codes - these are used to access additional games when hosting"]
-          [ui/text-input {:name            "game-unlock-code"
-                          :label           "Unlock Code"
+           "Add personal game - paste a custom game spreadsheet URL here"]
+          [ui/text-input {:name            "personal-game"
+                          :label           "URL"
                           :mode            "outlined"
                           :auto-capitalize "none"
                           :auto-correct    false
@@ -156,14 +156,14 @@
             {:mode     "contained"
              :on-press #(do
                           (dispatch [:save-settings!]))}
-            "Save Code"]
+            "Save URL"]
            #_[ui/button
               {:style    {:margin-top 4}
                :on-press #(reset! form-state :name)}
 
               "Go back"]]
           [ui/markdown {}
-           (str "Previously saved codes:\n\n* "
+           (str "Previously saved games:\n\n* "
                 (clojure.string/join "\n* " current-codes))]]]]
        [ui/card {:style {:margin-top 12
                          :padding 24}}
