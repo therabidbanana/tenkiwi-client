@@ -136,7 +136,7 @@
           current-codes (get (deref storage) :unlock-codes [])]
       [ui/collapse-scroll-view {:style {:padding 24}
                                 :only-collapse! do-collapse!}
-       #_[ui/card {:style {:padding 18}}
+       [ui/card {:style {:padding 18}}
         [ui/card-title {:title "Personal Settings"}]
         [ui/card-content
          [ui/view
@@ -156,7 +156,7 @@
             {:mode     "contained"
              :on-press #(do
                           (dispatch [:save-settings!]))}
-            "Save URL"]
+            "Save Personal Game"]
            #_[ui/button
               {:style    {:margin-top 4}
                :on-press #(reset! form-state :name)}
