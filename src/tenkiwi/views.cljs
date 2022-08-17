@@ -110,7 +110,7 @@
   (let [bg-color (if (#{"staging"} server-type)
                    ;; "rgba(21,25,31,1.0)"
                    "rgba(3,25,53,1.0)"
-                   "rgba(12,12,12,1.0)")]
+                   "rgba(10,10,10,1.0)")]
     [ui/safe-view {:style {:overflow-x "hidden"
                            :min-height "100%"
                            :flex 1

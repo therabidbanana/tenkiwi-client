@@ -140,11 +140,10 @@
                          :padding       6
                          :paddingBottom 9}
         bar-style       {:backgroundColor
-                         ;; "rgba(5,25,53,1.0)"
-                         "rgba(51,55,61,1.0)"
+                         "rgba(10,10,10,1.0)"
                          #_ "rgba(0,0,0,0.3)"}
         indicator-style {:borderRadius    2
-                         :backgroundColor "rgba(255,255,255,0.15)"
+                         :backgroundColor "rgba(30,49,68,0.9)"
                          :height          4
                          :bottom          3}
         tab-render      (fn [bar-props]
@@ -442,7 +441,7 @@
            [view {:style {:position         "fixed"
                           :bottom           (if @collapsed? "-55vh" 0)
                           ;; :background-color "rgba(0,0,0,0.9)"
-                          :background-color "rgba(30,39,48,0.95)"
+                          :background-color "rgba(30,49,68,0.98)"
                           :height           "65vh"
                           :min-height       "65vh"
                           :width            "100%"}}
@@ -483,7 +482,7 @@
                                                              (r/as-element [view {:style {:height           "100%"
                                                                                           :padding-top      6
                                                                                           ;; :background-color "rgba(0,0,0,0.9)"
-                                                                                          :background-color "rgba(30,39,48,0.95)"
+                                                                                          :background-color "rgba(30,49,68,0.98)"
                                                                                           }}
                                                                             [text {:on-press @collapse!
                                                                                    :style    {:padding      6
