@@ -113,7 +113,7 @@
        [ui/para
         "Tenkiwi games are played by showing a series of \"cards\", like the one below, and taking turns reading them. When it's your turn, you'll read the card, then click a button to finish your turn."]
        [ui/view {:style {:margin 16}}
-        [ui/button {:mode "contained"} "Finish Turn"]]
+        [ui/button {:mode "outlined"} "Finish Turn"]]
        [ui/para
         "Games have multiple screens you can flip between. Swipe left and right or use the tab bar up top to switch over.\n\n"
         "Some games might have additional actions you can take, such as giving each other points, passing a card to someone else, or generating new prompts.\n\n"
