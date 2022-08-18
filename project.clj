@@ -48,7 +48,7 @@
                     :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
              :prod {:cljsbuild {:builds [{:id           "main"
                                           :source-paths ["src" "env/prod"]
-                                          :compiler     {:output-to          "index.js"
+                                          :compiler     {:output-to          "js/index.prod.js"
                                                          :main               "env.expo.main"
                                                          :output-dir         "target/expo"
                                                          :static-fns         true
