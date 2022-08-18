@@ -4,7 +4,7 @@
         "description": "No description",
         "slug": "tenkiwi",
         "scheme": "tenkiwi",
-        "version": "1.1.6",
+        "version": "1.1.7",
         "orientation": "portrait",
         "primaryColor": "#cccccc",
         "privacy": "unlisted",
@@ -24,7 +24,7 @@
         },
         "ios": {
             "bundleIdentifier": "com.davidhaslem.tenkiwi",
-            "buildNumber": "1.1.6",
+            "buildNumber": "1.1.7",
             "supportsTablet": false,
             "associatedDomains": [
                 "applinks:play.tenkiwi.com"
@@ -32,7 +32,7 @@
         },
         "android": {
             "package": "com.davidhaslem.tenkiwi",
-            "versionCode": 16,
+            "versionCode": 17,
             "permissions": [],
             "intentFilters": [
                 {
