@@ -104,9 +104,10 @@
 
 (defn welcome-panel []
   (let [dimensions (.get ui/dimensions "screen")]
-    [ui/collapse-scroll-view {:style {:padding 24}
+    [ui/collapse-scroll-view {:style {:padding 16}
                               :collapse! do-collapse!}
-     [ui/card {:style {:padding 24}}
+     [ui/card {}
+      [ui/card-cover {:source (.-loading js/assetLibrary) #_{:uri "https://play.tenkiwi.com/images/base/loading.png"}}]
       [ui/card-title {:title "How to play"
                       :subtitle ""}]
       [ui/card-content

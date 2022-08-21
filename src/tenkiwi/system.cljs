@@ -29,23 +29,25 @@
       item)))
 
 (defn url-listener []
-  (let [initial-chan (p->c (.getInitialURL expo-linking))
-        last-val (atom nil)
-        other-chan (chan)
-        cb   (fn [x]
-               ;; Looks like web (maybe native) fire repeatedly with same url
-               ;; - not expected, need to dig into if this is a bug
-               (if (not= @last-val (aget x "url"))
-                 (do
-                   (put! other-chan (aget x "url"))
-                   (reset! last-val (aget x "url")))
-                 #_(println (str "Duplicate url " @last-val))))
-        _ (.addEventListener expo-linking "url" cb)]
+  (let [last-val (atom nil)
+        url-chan (chan)
+        _        (.then (.getInitialURL expo-linking)
+                        (fn [val] (if val (put! url-chan val)))
+                        (fn [err] (println err)))
+        cb       (fn [x]
+                   ;; Looks like web (maybe native) fire repeatedly with same url
+                   ;; - not expected, need to dig into if this is a bug
+                   (if (not= @last-val (aget x "url"))
+                     (do
+                       (put! url-chan (aget x "url"))
+                       (reset! last-val (aget x "url")))
+                     #_(println (str "Duplicate url " @last-val))))
+        _        (.addEventListener expo-linking "url" cb)]
     #_(println "Set up loop for url listener")
-    (go-loop [val (<! initial-chan)]
+    (go-loop [val (<! url-chan)]
       (re-frame/dispatch [:update-url {:url val}])
       (if val
-        (recur (<! other-chan))))))
+        (recur (<! url-chan))))))
 
 (defn set-storage-item [key str]
   (.setItem AsyncStorage (clj->js key) (clj->js str)))
@@ -110,13 +112,13 @@
 (defn stop []
   (set! system (component/stop system)))
 
-(defn ^:export go [on-boot]
+(defn ^:export run [on-boot]
   (init on-boot)
   (start))
 
 (defn reset []
   (stop)
-  (go))
+  (run (fn [] )))
 
 ;; TODO: can I move this?
 (re-frame/reg-cofx

@@ -2,4 +2,4 @@
   (:require [tenkiwi.system :as core]
             [tenkiwi.core :refer [init]]))
 
-(core/go init)
+(core/run init)

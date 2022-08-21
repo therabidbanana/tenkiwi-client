@@ -23,9 +23,9 @@
             #_[lein-figwheel "0.5.20"]]
   :clean-targets ["target/" "main.js"]
   :aliases {"figwheel"        ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "--repl"]
-            ; TODO: Remove custom extern inference as it's unreliable
-            ;"externs"         ["do" "clean"
-            ;                   ["run" "-m" "externs"]]
+                                        ; TODO: Remove custom extern inference as it's unreliable
+                                        ;"externs"         ["do" "clean"
+                                        ;                   ["run" "-m" "externs"]]
             "rebuild-modules" ["run" "-m" "user" "--rebuild-modules"]
             "prod-build"      ^{:doc "Recompile code with prod profile."}
             ["with-profile" "prod" "cljsbuild" "once" "main"]}
@@ -36,32 +36,33 @@
                                    [com.bhauman/rebel-readline-cljs "0.1.4"]
                                    ]
                     :source-paths ["src"]
-                    #_:cljsbuild    #_{:builds [{:id           "main"
-                                             :source-paths ["src" "env/dev"]
-                                             :figwheel     true
-                                             :compiler     {:output-to     "target/expo/index.js"
-                                                            :main          "env.expo.main"
-                                                            :output-dir    "target/expo"
-                                                            :nodejs-rt     false
-                                                            :optimizations :none
-                                                            :target        :bundle}}]}
+                    #_:cljsbuild  #_ {:builds [{:id           "main"
+                                                :source-paths ["src" "env/dev"]
+                                                :figwheel     true
+                                                :compiler     {:output-to     "target/expo/index.js"
+                                                               :main          "env.expo.main"
+                                                               :output-dir    "target/expo"
+                                                               :nodejs-rt     false
+                                                               :optimizations :none
+                                                               :target        :bundle}}]}
                     :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}}
              :prod {:cljsbuild {:builds [{:id           "main"
-                                          :source-paths ["src" "env/prod"]
-                                          :compiler     {:output-to          "index.js"
-                                                         :main               "env.expo.main"
-                                                         :output-dir         "target/expo"
-                                                         :static-fns         true
+                                          :source-paths ["src" "env/prod" "js"]
+                                          :compiler     {:output-to      "index.js"
+                                                         :main           "env.expo.main"
+                                                         :output-dir     "target/expo"
+                                                         :static-fns     true
                                                          ;; :verbose           true
-                                                         :externs            ["js/externs.js"]
-                                                         :infer-externs      true
-                                                         :parallel-build     true
-                                                         :pseudo-names       true
-                                                         :pretty-print true
+                                                         :externs        ["js/externs.js"]
+                                                         :preamble       ["assets.js"]
+                                                         :infer-externs  true
+                                                         :parallel-build true
+                                                         :pseudo-names   true
+                                                         :pretty-print   true
                                                          ;; :optimize-constants true
                                                          ;; :optimizations      :simple
-                                                         :optimizations      :advanced
+                                                         :optimizations  :advanced
                                                          ;; :nodejs-rt false
 
-                                                         :closure-defines    {"goog.DEBUG" false}
-                                                         :target             :bundle}}]}}})
+                                                         :closure-defines {"goog.DEBUG" false}
+                                                         :target          :bundle}}]}}})

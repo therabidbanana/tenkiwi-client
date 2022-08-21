@@ -8,5 +8,5 @@
 (defn figwheel-rn-root []
   (r/as-element [app-root]))
 
-(core/go nil)
+(core/run nil)
 

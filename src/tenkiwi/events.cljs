@@ -14,11 +14,6 @@
  (fn  [db [_ params]]
    (update-in db [:storage] merge params)))
 
-(re-frame/reg-event-db
- :update-url
- (fn  [db [_ {:keys [url]}]]
-   (assoc-in db [:app-url] url)))
-
 (re-frame/reg-event-fx
  :initialize-system
  (fn  [{:keys [db]} _]
@@ -65,15 +60,34 @@
 (re-frame/reg-event-fx
  :save-settings!
  (fn [{:keys [db]} _]
-   (let [updates  (get-in db [:forms :settings])
-         settings (-> (get db :storage)
-                      (update-in [:unlock-codes] conj (:unlock-code updates))
+   (let [updates (get-in db [:forms :settings])
+         code    (:unlock-code updates)]
+     {:db (-> db
+              (assoc-in [:forms :settings] {}))
+      :fx [[:dispatch [:save-custom-game! {:code code}]]]})))
+
+(re-frame/reg-event-fx
+ :save-custom-game!
+ (fn [{:keys [db]} [_ {:keys [code]}]]
+   (let [settings (-> (get db :storage)
+                      (update-in [:unlock-codes] conj code)
                       (update-in [:unlock-codes] distinct))]
      {:db (-> db
               (assoc :settings settings)
-              (assoc-in [:forms :settings] {})
               (update :storage merge settings))
       :fx [[:set-storage settings]]})))
+
+(re-frame/reg-event-fx
+ :update-url
+ (fn  [{:keys [db]} [_ {:keys [url]}]]
+   (let [updated-db {:db (assoc-in db [:app-url] url)}
+         [_ game-save]  (re-find #"(?:share|unlock)/(.+)$" url)
+         [_ join-room]  (re-find #"join/(.+)$" url)]
+     (cond-> updated-db
+       game-save
+       (assoc :fx [[:dispatch [:save-custom-game! {:code game-save}]]])
+       join-room
+       (assoc-in [:db :join :room-code] join-room)))))
 
 (re-frame/reg-event-fx
  :set-storage!

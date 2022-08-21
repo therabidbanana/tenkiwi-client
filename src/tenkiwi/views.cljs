@@ -130,6 +130,7 @@
                :padding 16}}
      [ui/card {:style {:margin-top "auto"
                        :margin-bottom "auto"}}
+      [ui/card-cover {:source (.-logo js/assetLibrary)}]
       [ui/card-content {}
        [ui/para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 

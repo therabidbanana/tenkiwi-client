@@ -94,7 +94,7 @@ This will run "DEV=true expo start", using figwheel entry point.
 
 Note that by default live reload will be enabled, which is bad. Turn the "production mode" toggle on to disable that while still having access to perf monitor.
 
-### Production build (generates js/externs.js and main.js)
+### Production build 
 
 #### JS Releases
 ``` shell
@@ -110,13 +110,15 @@ expo start --no-dev
 Releasing build to Expo
 
 ```
-expo publish
+eas update
 ```
 
 Web build:
 
+(clojurescript output creates wild warnings)
+
 ``` 
-expo build:web
+npx expo export:web 2>/dev/null
 ```
 
 Testing web build directly:
@@ -148,25 +150,22 @@ git push # Does a heroku release
 Takes 20-30 minutes to generate an ipa file you can download:
 
 ```
-expo build:ios -t archive
+eas build --auto-submit
 ```
-
-Open Transporter app and put the ipa into it.
 
 Then go to the app store to set it up. (If you're looking for them, builds are in a nonsensical place)
 
 https://appstoreconnect.apple.com/apps/1571524662/testflight/ios
 
+Release requires setting up a new version with the configured build after getting the test flight version out.
+
 #### Android 
 
 ```
-expo build:android -t app-bundle
+eas build --auto-submit
 ```
 
-Upload into app store:
-
-https://play.google.com/console/u/0/developers/5401255112018197410/app/4973781934088736512/tracks/production?tab=releaseDashboard
-
+No other changes required
 
 
 ## Credits
