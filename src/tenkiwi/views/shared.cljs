@@ -59,6 +59,7 @@
 (def flat-list (r/adapt-react-class (.-FlatList ReactNative)))
 (def refresh-control (r/adapt-react-class (.-RefreshControl ReactNative)))
 (def view (r/adapt-react-class (.-View ReactNative)))
+(def pressable (r/adapt-react-class (.-Pressable ReactNative)))
 (def dimensions (.-Dimensions ReactNative))
 (def image (r/adapt-react-class (.-Image ReactNative)))
 (def touchable-highlight (r/adapt-react-class (.-TouchableHighlight ReactNative)))
@@ -92,6 +93,7 @@
 (def list-section (r/adapt-react-class (.-Section list-stuff)))
 (def list-item (r/adapt-react-class (.-Item list-stuff)))
 (def list-accordion (r/adapt-react-class (.-Accordion list-stuff)))
+(def accordion-group (r/adapt-react-class (.-AccordionGroup list-stuff)))
 (def list-icon (r/adapt-react-class (.-Icon list-stuff)))
 (def list-header (r/adapt-react-class (.-Subheader list-stuff)))
 (def card (r/adapt-react-class (.-Card rn-paper)))
@@ -115,8 +117,13 @@
   ([text]
    [markdown {} text])
   ([props text]
-   (let [props (assoc-in props [:style :body :color]
-                         (get-in props [:style :body :color] "white"))]
+   (let [props (-> props
+                   (assoc-in [:style :body :color]
+                             (get-in props [:style :body :color] "white"))
+                   (assoc-in [:style :link :color]
+                             (get-in props [:style :link :color] "#64B5F6"))
+                   )
+         ]
      [markdown-base props text])))
 
 (def tab-lib (js/require "react-native-tab-view"))
@@ -430,7 +437,7 @@
                                    :destructive-button-index 0
                                    :cancel-button-index      2})
             action-sheet-action  (fn [index]
-                                  (println index))
+                                   (println index))
             trigger-action-sheet (fn [e]
                                    (println "props" props)
                                    ((:showActionSheetWithOptions props)
@@ -445,7 +452,8 @@
                           :height           "65vh"
                           :min-height       "65vh"
                           :width            "100%"}}
-            [text {:style    {:padding      6
+            [text {:hit-slop 20
+                   :style    {:padding      6
                               :padding-left 12
                               :font-weight  "bold"
                               :color        "white"}
@@ -489,7 +497,7 @@
                                                                                               :padding-left 12
                                                                                               :font-weight  "bold"
                                                                                               :color        "white"}}
-                                                            (:turn-marker props)]
-                                                           [card-with-button props]]))}]])))))
+                                                                             (:turn-marker props)]
+                                                                            [card-with-button props]]))}]])))))
 
 ;; (def bottom-sheet-card (with-action-sheet (r/reactify-component -bottom-sheet-card)))
