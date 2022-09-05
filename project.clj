@@ -54,7 +54,7 @@
                                                          :static-fns     true
                                                          ;; :verbose           true
                                                          :externs        ["js/externs.js"]
-                                                         :preamble       ["assets.js"]
+                                                         :preamble       ["assets.js" "worklets.js"]
                                                          :infer-externs  true
                                                          :parallel-build true
                                                          :pseudo-names   true

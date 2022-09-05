@@ -134,7 +134,7 @@
      [ui/card {:style {:margin-top "auto"
                        :margin-bottom "auto"}}
       [ui/card-cover {:source (.-face js/assetLibrary)}]
-      [ui/card-content {}
+      [ui/card-content {:style {:padding-top 12}}
        [ui/para "Connecting to server... If this takes too long you might need to quit the app and restart. Or the servers are down. :("]]]]))
 
 (defn main-panel []

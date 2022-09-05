@@ -1,10 +1,10 @@
-import { useDerivedValue } from 'react-native-reanimated';
+import { withTiming, runOnJS } from 'react-native-reanimated';
 
 // Cribbed from https://github.com/status-im/status-mobile/pull/13470/files#diff-b781e7358db4554f04b8ce6039b73cc8cab11c3daad5490c7bfb22703d93cc6d
 // 
 // https://github.com/status-im/status-mobile/blob/develop/LICENSE.md
 // Generic Worklets
-window.workletHack = function applyAnimationsToStyle(animations, style) {
+window.workletHack = function handleAnimations(animations) {
     return function() {
         'worklet'
 
@@ -28,6 +28,10 @@ window.workletHack = function applyAnimationsToStyle(animations, style) {
             }
         }
 
-        return Object.assign(animatedStyle, style);
+        return animatedStyle;
     };
+};
+
+window.timerHack = function timing(val, opts, callback) {
+    return withTiming(val, opts, (finished) => runOnJS(callback)(finished));
 };

@@ -14,16 +14,14 @@
 (def with-timing (.-withTiming Reanimated))
 (def easing (.-Easing (.-default Reanimated)))
 
-(defn apply-animations-to-style [animations style]
-  ;; There was some kebab case fixes here
+(defn use-animations [animations]
+  ;; NOTE: There was some kebab case fixes here
   ;; but we could just deal with camels
-  (let []
-    (use-animated-style
-     (js/workletHack (clj->js animations) (clj->js style)))))
+  (use-animated-style (js/workletHack (clj->js animations))))
 
 (defn fade-in-text [shared-val]
   (fn [text]
-    (let [style      (apply-animations-to-style {:opacity shared-val} {})]
+    (let [style      (use-animations {:opacity shared-val})]
       (r/as-element
        [animated-view {:style [style]} (.-children text)]))))
 
@@ -43,15 +41,17 @@
        [ui/markdown {} description]]
       [ui/card-actions
        (map-indexed (fn [id {:keys [action params text]}]
-                      [ui/button
-                       {:key      (str action "-" id)
-                        :style    {:flex 1}
-                        :on-press (fn []
-                                    ;; Figure
-                                    (js/setTimeout #(dispatch [:<-game/action! action params]), 300)
+                      (let [take-action #(dispatch [:<-game/action! action params])]
+                       [ui/button
+                        {:key      (str action "-" id)
+                         :style    {:flex 1}
+                         :on-press (fn []
                                      (set! (.-value shared-val)
-                                           (with-timing 0 (js-obj "duration" 500))))}
-                       text])
+                                           (js/timerHack 0
+                                                         (js-obj "duration" 500)
+                                                         take-action)
+                                           ))}
+                        text]))
                     actions)]
       [ui/card-content {}
        [ui/surface {:elevation 4 :style {:padding 12}}
