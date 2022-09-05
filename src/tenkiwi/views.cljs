@@ -6,6 +6,7 @@
             [tenkiwi.games.threads :refer [threads-game-panel]]
             [tenkiwi.games.prompted-by-charge :refer [recharge-game-panel]]
             [tenkiwi.games.opera-v2 :refer [opera-v2-game-panel]]
+            [tenkiwi.games.push :refer [push-game-panel]]
             [tenkiwi.views.oracle :refer [oracle-game-panel]]
             [tenkiwi.views.opera :refer [opera-game-panel]]
             [tenkiwi.views.walking-deck :refer [walking-deck-game-panel]]
@@ -95,6 +96,8 @@
        [opera-game-panel]
        :opera-v2
        [opera-v2-game-panel]
+       :push
+       [push-game-panel]
        :prompted-by-charge
        [recharge-game-panel]
        :walking-deck

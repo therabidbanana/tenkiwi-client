@@ -36,6 +36,9 @@
 (def ic (r/adapt-react-class ionicons))
 
 (def animated-value (.-Value Reanimated))
+(def animated-view (r/adapt-react-class (.-View (.-default Reanimated))))
+(def use-animated-style (.-useAnimatedStyle Reanimated))
+(def use-shared-value (.-useSharedValue Reanimated))
 (def status-bar (r/adapt-react-class (.-StatusBar expo-status-bar)))
 (def linear-gradient (r/adapt-react-class (.-LinearGradient expo-linear-gradient)))
 (def call (.-call Reanimated))
@@ -238,20 +241,21 @@
         actions (or actions (get props "actions"))
         action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
-    [surface {:elevation 8
-              :style {:background-color "rgba(200,200,200,1)"
+    [surface {:elevation 2
+              :style {:background-color "rgba(20,87,155,0.12)"
                       :padding 10
                       :padding-top 2
-                      :padding-bottom 18
                       :height "100%"}}
      ;; TODO: Ugly - use image or something
      [text {:style {:text-align "center" :font-size 12
+                    :color "white"
                     :padding-top 8
                     :padding-bottom 8}} ": : :"]
-     [scroll-view
-      (map #(vector -action-button (merge props {:key %
-                                                 :action-valid? action-valid?})
-                    %) actions)]]))
+     [card-content 
+      [scroll-view
+       (map #(vector -action-button (merge props {:key %
+                                                  :action-valid? action-valid?})
+                     %) actions)]]]))
 
 (defn actions-list [{:as props
                      :or {from :actions
@@ -268,27 +272,52 @@
                                                 :action-valid? action-valid?})
                    %) actions)]))
 
-(defn bottom-sheet-fixed [props]
-  (let [dimensions (.get dimensions "screen")]
+(defn bottom-sheet-fixed [{:keys [start-collapsed? collapse!]
+                           :or {start-collapsed? false}
+                           :as props}]
+  (let [collapsed?   (r/atom (or start-collapsed? false))
+        on-open      #(reset! collapsed? false)
+        on-close     #(reset! collapsed? true)
+        ref          (r/atom nil)
+        do-collapse! (fn collapse-it
+                       ([]
+                        (do
+                          (swap! collapsed? not)
+                          (if @ref
+                            ((aget @ref "snapTo") (if @collapsed? 1 0)))))
+                       ([e]
+                        (if (boolean? e)
+                          (collapse-it e e)
+                          (collapse-it)))
+                       ([maybe e]
+                        (do
+                          (reset! collapsed? maybe)
+                          (if @ref
+                            ((aget @ref "snapTo") (if @collapsed? 1 0))))))
+
+        collapse!  (doto (or collapse! (r/atom nil))
+                    (reset! do-collapse!))
+        dimensions (.get dimensions "screen")]
     (if web?
       [view
        [view {:style {:min-height "20vh"
                       :visibility "hidden"}}
         [-action-tray props]]
        [portal
-        [view {:style {:position "fixed"
-                       :bottom 0
+        [view {:style {:position         "fixed"
+                       :bottom           0
                        :background-color "rgba(0,0,0,0.2)"
-                       :height "20vh"
-                       :min-height "20vh"
-                       :width "100%"}}
+                       :height           "20vh"
+                       :min-height       "20vh"
+                       :width            "100%"}}
          [-action-tray props]]]]
       [portal
-       [bottom-sheet {:snap-points [(* 0.25 (.-height dimensions)) 64]
-                      :initial-snap 1
-                      :enabled-bottom-initial-animation true
-                      :enabled-content-tap-interaction false
-                      :render-content (fn [p] (r/as-element [-action-tray props]))}]])))
+       [bottom-sheet {:snap-points                      ["20%" 64]
+                      :ref                              #(reset! ref %)
+                      :initial-snap                     0
+                      :enabled-bottom-initial-animation false
+                      :enabled-content-tap-interaction  false
+                      :render-content                   (fn [p] (r/as-element [-action-tray props]))}]])))
 
 (defn card-with-button [display]
   (let [parent-layout (r/atom {"height" 40 "width" 40})

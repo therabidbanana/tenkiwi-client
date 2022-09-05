@@ -210,35 +210,35 @@
            [ui/markdown
             (str
              "This application adapts the X-Card, originally by John Stavropoulos"
-             "\n\n[http://tinyurl.com/x-card-rpg](http://tinyurl.com/x-card-rpg).")]]]]]
-       [ui/list-accordion
-        {:title "Debug"
-         :id "debug"}
-        [ui/card {:style {:margin-top 18
-                          }}
-         [ui/card-title {:title "Debug"}]
-         [ui/card-content
-          [ui/markdown
-           (str
-            "Opened with url: "
-            "\n\n"
-            @app-url
-            )]
-          (case (:server @storage)
-            "staging"
-            [ui/button
-             {:mode     "contained"
-              :on-press #(do
-                           (re-frame/dispatch-sync [:set-storage! {:server "prod"}])
-                           (ui/refresh))}
-             "Switch to Prod"]
-            [ui/button
-             {:mode     "contained"
-              :on-press #(do
-                           (re-frame/dispatch-sync [:set-storage! {:server "staging"}])
-                           (ui/refresh))}
-             "Switch to Staging"]
-            )]]]
+             "\n\n[http://tinyurl.com/x-card-rpg](http://tinyurl.com/x-card-rpg).")]]]]
+        [ui/list-accordion
+         {:title "Debug"
+          :id "debug"}
+         [ui/card {:style {:margin-top 18
+                           }}
+          [ui/card-title {:title "Debug"}]
+          [ui/card-content
+           [ui/markdown
+            (str
+             "Opened with url: "
+             "\n\n"
+             @app-url
+             )]
+           (case (:server @storage)
+             "staging"
+             [ui/button
+              {:mode     "contained"
+               :on-press #(do
+                            (re-frame/dispatch-sync [:set-storage! {:server "prod"}])
+                            (ui/refresh))}
+              "Switch to Prod"]
+             [ui/button
+              {:mode     "contained"
+               :on-press #(do
+                            (re-frame/dispatch-sync [:set-storage! {:server "staging"}])
+                            (ui/refresh))}
+              "Switch to Staging"]
+             )]]]]
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
 

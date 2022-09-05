@@ -1,5 +1,6 @@
 import { registerRootComponent } from 'expo';
 import {npmDeps} from "../target/expo/npm_deps.js";
+import worklets from "./worklets.js";
 
 window.assetLibrary = {
     "loading": require("../assets/icons/loading.png"),
