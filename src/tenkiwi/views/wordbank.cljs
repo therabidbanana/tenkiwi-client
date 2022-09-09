@@ -1,8 +1,9 @@
 (ns tenkiwi.views.wordbank
   (:require [tenkiwi.views.shared :as ui]))
 
-(defn -wordbank [{:keys [box-style]
-                  :or {box-style {:margin-top 8 :padding 10}}}
+(defn -wordbank [{:keys [box-style groups]
+                  :or {box-style {:margin-top 8 :padding 10}
+                       groups    #{:all}}}
                  extra-details]
   (if extra-details
     [ui/view {:style {:padding 2
@@ -30,4 +31,4 @@
                   [ui/view
                    (map #(with-meta [ui/para %] {:key %}) items2)]])]
               {:key (str title1 title2)}))
-          (partition-all 2 extra-details))]))
+          (partition-all 2 (filter #(groups (get % :group :all))extra-details)))]))

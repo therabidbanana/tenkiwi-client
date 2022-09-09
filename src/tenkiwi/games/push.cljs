@@ -36,12 +36,15 @@
           ]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/card {:style {:margin  8}}
+        [ui/card-title {:title (str "Episode Details")} ]
         [ui/card-content
-         [ui/h1 {} (str "Episode Details")]
-         [ui/markdown {} (str (:text episode))]
-         [ui/actions-list (merge display {:mode "outlined"
-                                          :dispatch dispatch
-                                          :from :extra-actions})]]]
+         [ui/markdown {} (str (:mission-text episode))]]
+        [ui/card-title {:subtitle (str "Your Agenda")}]
+        [ui/card-content {}
+         [ui/markdown {} (str (:agenda-text episode))]]]
+       [ui/actions-list (merge display {:mode "outlined"
+                                        :dispatch dispatch
+                                        :from :extra-actions})]
 
        [ui/view {:height (* 0.7 (.-height dimensions))}
         [ui/text ""]]])))
@@ -53,27 +56,31 @@
 (re-frame/reg-sub
  :push-dice
  (fn [db]
-   (extract-display (:user db) [:stage])))
+   (extract-display (:user db) [:stage :phase])))
 
 (defn build-dice-panel [game-state-atom dispatch]
   (fn -dice-panel []
-    (let [{:keys [stage 
-                  current-user-id
-                  ]
+    (let [{:keys [current-user-id]
            {:as display
             :keys [player-sheets
                    oracle-box
+                   phase
                    active-player
-                   extra-details]} :display
+                   story-details]} :display
            :as game-state} @game-state-atom
           active-player  (merge active-player (get player-sheets (:id active-player) {}))
           dimensions (.get ui/dimensions "screen")]
       [ui/collapse-scroll-view {:collapse! do-collapse!
                                 :style {:padding 12}}
        [ui/view
-        (map (fn [[id box]]
+        (if (#{:actions} phase)
+            [ui/view {:style {:margin 8
+                              :opacity (if (#{:actions} phase) 1 0.2)}}
+             [oracle-box/box-with-animation {:id :action} (:action oracle-box) dispatch]])
+        [oracle-box/box-with-animation {:id :oracle} (:oracle oracle-box) dispatch]
+        #_(map (fn [[id box]]
                [oracle-box/box-with-animation {:id id :key (str "oracle-" id)} box dispatch])
-             oracle-box)
+             (remove #(#{:oracle} (:id %)) oracle-box))
         [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
          [ui/text ""]]]])))
 
@@ -84,19 +91,20 @@
 (re-frame/reg-sub
  :push-main
  (fn [db]
-   (extract-display (:user db) [:stage])))
+   (extract-display (:user db) [:stage :phase :matrix])))
 
 (defn build-main-panel [game-state-atom dispatch]
   (fn -main-panel []
-    (let [{:keys [stage 
-                  current-user-id
-                  ]
+    (let [{:keys [current-user-id]
            {:as display
-            :keys [player-sheets
-                   dice-bag
+            :keys [matrix
+                   challenge
+                   player-sheets
+                   phase
+                   oracle-box
                    card
                    active-player
-                   extra-details]} :display
+                   story-details]} :display
            :as game-state} @game-state-atom
           active-player  (merge active-player (get player-sheets (:id active-player) {}))
           dimensions (.get ui/dimensions "screen")
@@ -105,19 +113,21 @@
                        (assoc-in [:border-color] "orange"))]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
        [ui/view
-        #_[ui/view
-         [ui/para {:theme {:colors {:text "white"}}
+        [ui/view
+         [ui/h2 {:theme {:colors {:text "white"}}
                    :style {:padding-top 4
-                           :padding-left 8}}
-          (str stage-name "\n" stage-focus)]]
+                           :padding-left 8
+                           :margin-bottom 8}}
+          (str matrix "\n" "[" challenge "] " phase)]]
         [ui/actions-list (assoc display
                                 :dispatch dispatch
                                 :hide-invalid? true)]
-        [wordbank/-wordbank {} extra-details]
+        [wordbank/-wordbank {:groups #{:challenge}} story-details]
         [ui/bottom-sheet-card
          (assoc display
                 :collapse! do-collapse!
                 :dispatch dispatch
+                :turn-marker (str (:user-name active-player) "'s turn...")
                 :regen-action true)]
         [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
          [ui/text ""]]]])))
@@ -134,24 +144,53 @@
 
 (defn build-intro-panel [game-state-atom dispatch]
   (fn -intro-panel []
-    (let [{:keys [stage
-                  current-user-id
+    (let [{:keys [current-user-id
                   episode]
            {:as display
             :keys [player-sheets
+                   stage
                    dice-bag
+                   intro-cards
                    card
                    active-player
-                   extra-details]} :display
+                   story-details]} :display
            :as game-state} @game-state-atom
           active-player  (merge active-player (get player-sheets (:id active-player) {}))
           dimensions (.get ui/dimensions "screen")]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
-       [ui/card {:style {:margin 12}}
-        [ui/card-content
-         [ui/markdown {}
-          (str (:text episode))]]
-        #_[wordbank/-wordbank {} extra-details]]
+       (if (#{:intro} stage)
+         [ui/card {:style {:margin 12}}
+          [ui/card-title {:title "Introduction"
+                          :subtitle "Setting and Gameplay"}]
+          (map (fn [{:keys [tags text id]
+                     :as card}]
+                 (cond
+                   (get tags :image) [ui/card-cover {:key (str "intro-" id)
+                                                 :source {:uri text}} ]
+                   :else
+                   [ui/card-content {:key (str "intro-" id)}
+                    [ui/markdown {} (str text)]]))
+               (remove #(#{"character"} (:concept %)) (:intro episode)))])
+       (if (#{:character} stage)
+         [ui/view {:style {:padding 12}}
+          [ui/card-with-button {:regen-action true
+                                :dispatch dispatch
+                                :card (get intro-cards current-user-id)}]
+          #_[wordbank/-wordbank {:groups #{:character}} story-details]])
+       (if (#{:mission} stage)
+         [ui/view {}
+          [ui/card {:style {:margin 12}}
+           [ui/card-title {:title "Episode"
+                           :subtitle "This time on..."}]
+           [ui/card-content
+            [ui/markdown {}
+             (str (:mission-text episode))]]]
+          [ui/card {:style {:margin 12}}
+           [ui/card-title {:title "Agenda"
+                           :subtitle "What you're trying to do"}]
+           [ui/card-content
+            [ui/markdown {}
+             (str (:agenda-text episode))]]]])
        [ui/bottom-sheet-fixed
         (assoc display
                :collapse! do-collapse!
@@ -177,7 +216,7 @@
             current-index @tab-state
             stage (get-in @game-state [:display :stage])]
         (cond
-          (#{:intro} stage)
+          (#{:intro :character :mission} stage)
           [intro-panel]
           #_[ui/clean-tab-view
            {:dimensions dimensions

@@ -242,7 +242,9 @@
         action-valid? (or action-valid?
                           (fn [{:keys [disabled?]}] (not disabled?)))]
     [surface {:elevation 2
-              :style {:background-color "rgba(20,87,155,0.12)"
+              :style {
+                      ;; :background-color "rgba(20,87,155,0.12)"
+                      :background-color "rgba(30,49,68,0.98)"
                       :padding 10
                       :padding-top 2
                       :height "100%"}}
