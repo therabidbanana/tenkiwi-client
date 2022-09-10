@@ -122,7 +122,7 @@
         [ui/actions-list (assoc display
                                 :dispatch dispatch
                                 :hide-invalid? true)]
-        [wordbank/-wordbank {:groups #{:challenge}} story-details]
+        [wordbank/-wordbank {} story-details]
         [ui/bottom-sheet-card
          (assoc display
                 :collapse! do-collapse!
@@ -140,12 +140,13 @@
 (re-frame/reg-sub
  :push-intro
  (fn [db]
-   (extract-display (:user db) [:stage :episode])))
+   (extract-display (:user db) [:stage :episode :ready-players])))
 
 (defn build-intro-panel [game-state-atom dispatch]
   (fn -intro-panel []
     (let [{:keys [current-user-id
-                  episode]
+                  episode
+                  ready-players]
            {:as display
             :keys [player-sheets
                    stage
@@ -155,6 +156,7 @@
                    active-player
                    story-details]} :display
            :as game-state} @game-state-atom
+          ready-players  (or ready-players {})
           active-player  (merge active-player (get player-sheets (:id active-player) {}))
           dimensions (.get ui/dimensions "screen")]
       [ui/collapse-scroll-view {:collapse! do-collapse!}
@@ -175,8 +177,7 @@
          [ui/view {:style {:padding 12}}
           [ui/card-with-button {:regen-action true
                                 :dispatch dispatch
-                                :card (get intro-cards current-user-id)}]
-          #_[wordbank/-wordbank {:groups #{:character}} story-details]])
+                                :card (get intro-cards current-user-id)}]])
        (if (#{:mission} stage)
          [ui/view {}
           [ui/card {:style {:margin 12}}
@@ -194,6 +195,7 @@
        [ui/bottom-sheet-fixed
         (assoc display
                :collapse! do-collapse!
+               :action-valid? #(not (ready-players current-user-id))
                :dispatch dispatch
                :regen-action true)]
        [ui/view {:style {:height (* 0.7 (.-height dimensions))}}
