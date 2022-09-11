@@ -25,7 +25,7 @@
       (r/as-element
        [animated-view {:style [style]} (.-children text)]))))
 
-(defn -with-log [{:keys [id key]
+(defn -with-log [{:keys [id key hide-log?]
                   :as   props}
                  {:keys [actions log current description title]}
                   shared-val
@@ -62,14 +62,17 @@
          (if current-text
            [ui/markdown {} current-text])]
         #_[ui/markdown {} current-text]]]]
-     [ui/list-accordion
-      {:title "Log"}
-      (map-indexed (fn [id {:keys [label text]}]
-                     [ui/list-item
-                      {:key         (str "log-" id)
-                       :title       label
-                       :description text}])
-                   log)]]))
+     (if-not hide-log?
+       [ui/accordion-group
+        [ui/list-accordion
+         {:id "oracle-log"
+          :title "Log"}
+         (map-indexed (fn [id {:keys [label text]}]
+                        [ui/list-item
+                         {:key         (str "log-" id)
+                          :title       label
+                          :description text}])
+                      log)]])]))
 
 ;; TODO - this could definitely be better. Will it work in prod build? Web?
 (defn box-with-animation [props details dispatch]
